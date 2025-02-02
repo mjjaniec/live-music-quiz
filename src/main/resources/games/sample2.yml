@@ -1,0 +1,11 @@
+game:
+  - mode: EVERYBODY
+    songs:
+      - artist: "muzyfsdfska ludowa"
+        title: "kaczuszki"
+      - artist: "psy"
+        title: "sfsdfsritle"
+  - mode: EVERYBODY
+    songs:
+      - artist: "kkfsdkk"
+        title: "ufsduu"

@@ -1,0 +1,59 @@
+.pulse {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.note1 {
+  animation: note1 2s infinite;
+}
+
+.note2 {
+  animation: note2 2s infinite;
+}
+
+.note3 {
+  animation: note3 2s infinite;
+}
+
+.note4 {
+  animation: note4 2s infinite;
+}
+
+
+
+@keyframes note1 {
+  0% { transform: scale(1) translateY(0); }
+  6.25% { transform: scale(1.2) translateY(-0.2em);}
+  18.75% { transform: scale(1.2) translateY(-0.2em);}
+  25% { transform: scale(1) translateY(0); }
+}
+
+@keyframes note2 {
+  0% { transform: scale(1) translateY(-0.1em); }
+  25% { transform: scale(1) translateY(-0.1em); }
+  31.25% { transform: scale(1.2) translateY(-0.3em); }
+  37.5% { transform: scale(1) translateY(-0.1em); }
+  100% { transform: scale(1) translateY(-0.1em); }
+}
+
+@keyframes note3 {
+  0% { transform: scale(1) translateY(0.1em); }
+  37.5% { transform: scale(1) translateY(0.1em); }
+  43.25% { transform: scale(1.2) translateY(-0.1em); }
+  50% { transform: scale(1) translateY(0.1em); }
+  100% { transform: scale(1) translateY(0.1em); }
+}
+
+@keyframes note4 {
+  0% { transform: scale(1) translateY(0); }
+  50% { transform: scale(1) translateY(0); }
+  56.25% { transform: scale(1.2) translateY(-0.2em); }
+  83.75% { transform: scale(1.2) translateY(-0.2em); }
+  100% { transform: scale(1) translateY(0); }
+}
+

@@ -1,0 +1,11 @@
+game:
+  - mode: EVERYBODY
+    songs:
+      - artist: "muzyka ludowa"
+        title: "kaczuszki"
+  - mode: EVERYBODY
+    songs:
+      - artist: "psy"
+        title: "sritle"
+      - artist: "kkkk"
+        title: "uuu"
