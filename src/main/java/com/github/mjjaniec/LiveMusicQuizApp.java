@@ -21,7 +21,7 @@ public class LiveMusicQuizApp implements AppShellConfigurator {
         settings.addFavIcon("icon", "themes/live-music-quiz/favico.svg", "128x128");
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         SpringApplication.run(LiveMusicQuizApp.class, args);
     }
 }
