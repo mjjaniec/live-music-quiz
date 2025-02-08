@@ -1,5 +1,6 @@
 package com.github.mjjaniec.views.player;
 
+import com.github.mjjaniec.services.Broadcaster;
 import com.github.mjjaniec.services.GameService;
 import com.github.mjjaniec.util.Palete;
 import com.vaadin.flow.component.AttachEvent;
@@ -15,9 +16,11 @@ import com.vaadin.flow.router.Route;
 public class WaitView extends HorizontalLayout {
 
     private final GameService gameService;
+    private final Broadcaster broadcaster;
 
-    public WaitView(GameService gameService) {
+    public WaitView(GameService gameService, Broadcaster broadcaster) {
         this.gameService = gameService;
+        this.broadcaster = broadcaster;
         setSpacing(false);
         setPadding(false);
         setSizeFull();
@@ -45,12 +48,12 @@ public class WaitView extends HorizontalLayout {
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
-        gameService.addPlayerUi(attachEvent.getUI());
+        broadcaster.attachPlayerUI(attachEvent.getUI());
     }
 
     @Override
     protected void onDetach(DetachEvent detachEvent) {
         super.onDetach(detachEvent);
-        gameService.removePlayerUi(detachEvent.getUI());
+        broadcaster.detachPlayerUI(detachEvent.getUI());
     }
 }

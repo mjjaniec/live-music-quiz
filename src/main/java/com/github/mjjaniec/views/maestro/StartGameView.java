@@ -1,9 +1,10 @@
-package com.github.mjjaniec.views.admin;
+package com.github.mjjaniec.views.maestro;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.github.mjjaniec.model.Quiz;
 import com.github.mjjaniec.services.GameService;
+import com.github.mjjaniec.util.R;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -19,7 +20,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Route(value = "start", layout = AdminView.class)
+@Route(value = R.Maestro.Start.PATH, layout = MaestroView.class)
 public class StartGameView extends VerticalLayout implements RouterLayout {
 
     private final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());

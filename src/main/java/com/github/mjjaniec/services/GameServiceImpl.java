@@ -1,20 +1,26 @@
 package com.github.mjjaniec.services;
 
 import com.github.mjjaniec.model.GameLevel;
+import com.github.mjjaniec.model.Player;
 import com.github.mjjaniec.model.Quiz;
 import com.github.mjjaniec.model.RoundMode;
-import com.vaadin.flow.component.UI;
+import com.github.mjjaniec.util.R;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class GameServiceImpl implements GameService {
+    private final BigScreenNavigator bigScreenNavigator;
+    private final PlayerNavigator playerNavigator;
+    private final PlayerStore playerStore;
     private Quiz quiz;
-    private final List<UI> playerUis = new ArrayList<>();
-    private final List<UI> publicUis = new ArrayList<>();
 
+    public GameServiceImpl(BigScreenNavigator bigScreenNavigator, PlayerNavigator playerNavigator, PlayerStore playerStore) {
+        this.bigScreenNavigator = bigScreenNavigator;
+        this.playerNavigator = playerNavigator;
+        this.playerStore = playerStore;
+    }
 
     @Override
     public GameLevel currentLevel() {
@@ -39,7 +45,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public void setQuiz(Quiz quiz) {
         this.quiz = quiz;
-        playerUis.forEach(ui -> ui.access(() -> ui.navigate("player/join")));
+        playerNavigator.navigatePlayers(R.Player.Join.IT);
     }
 
     @Override
@@ -47,14 +53,13 @@ public class GameServiceImpl implements GameService {
         return quiz;
     }
 
-
     @Override
-    public void addPlayerUi(UI ui) {
-        playerUis.add(ui);
+    public boolean addPlayer(String name) {
+        return playerStore.addPlayer(name);
     }
 
     @Override
-    public void removePlayerUi(UI ui) {
-        playerUis.remove(ui);
+    public List<Player> getPlayers() {
+        return playerStore.getPlayers();
     }
 }

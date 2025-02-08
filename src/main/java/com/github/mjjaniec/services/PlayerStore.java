@@ -4,7 +4,7 @@ import com.github.mjjaniec.model.Player;
 
 import java.util.List;
 
-public interface PlayerService {
+public interface PlayerStore {
     boolean addPlayer(String name);
     List<Player> getPlayers();
 }

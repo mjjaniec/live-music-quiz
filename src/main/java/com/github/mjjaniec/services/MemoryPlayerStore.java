@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class MemoryPlayerServiceImpl implements PlayerService {
+public class MemoryPlayerStore implements PlayerStore {
 
     private final List<Player> players = new ArrayList<>();
 

@@ -2,11 +2,17 @@ package com.github.mjjaniec.services;
 
 
 import com.github.mjjaniec.model.GameLevel;
+import com.github.mjjaniec.model.Player;
 import com.github.mjjaniec.model.Quiz;
 import com.vaadin.flow.component.UI;
 
+import java.util.List;
+
 public interface GameService {
     GameLevel currentLevel();
+
+    boolean addPlayer(String name);
+    List<Player> getPlayers();
 
     void startListening();
     void endListening();
@@ -15,8 +21,4 @@ public interface GameService {
     void setQuiz(Quiz quiz);
 
     Quiz quiz();
-
-    void addPlayerUi(UI ui);
-    void removePlayerUi(UI ui);
-
 }

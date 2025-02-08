@@ -89,6 +89,12 @@
             <artifactId>vaadin-testbench-junit5</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.36</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -109,21 +115,6 @@
                             <file>${project.basedir}/eclipse-formatter.xml</file>
                         </eclipse>
                     </java>
-                    <!-- Uncomment to format TypeScript files 
-                        <typescript>
-                        <includes>
-                            <include>src/main/frontend/**/*.ts</include>
-                            <include>src/main/frontend/**/*.tsx</include>
-                        </includes>
-                        <excludes>
-                            <exclude>src/main/frontend/generated/**</exclude>
-                        </excludes>
-                        <prettier>
-                            <prettierVersion>3.3.3</prettierVersion>
-                            <configFile>.prettierrc.json</configFile>
-                        </prettier>
-                    </typescript>
-                -->
                 </configuration>
             </plugin>
             <plugin>

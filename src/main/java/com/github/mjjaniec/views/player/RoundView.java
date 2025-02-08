@@ -2,13 +2,9 @@ package com.github.mjjaniec.views.player;
 
 import com.github.mjjaniec.util.Palete;
 import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
@@ -37,7 +33,7 @@ public class RoundView extends VerticalLayout implements HasUrlParameter<String>
 
     }
 
-    private HorizontalLayout createProgress(String label, int step, int of, String color){
+    private HorizontalLayout createProgress(String label, int step, int of, String color) {
         HorizontalLayout result = new HorizontalLayout();
         result.getStyle().setColor(Palete.WHITE);
         result.setSpacing(false);
@@ -49,10 +45,10 @@ public class RoundView extends VerticalLayout implements HasUrlParameter<String>
         int leftW = step * 100 / of;
         left.setWidth(leftW + "%");
         left.setHeight("2em");
-        left.add(new Text(label + " " + step +  " / " + of));
+        left.add(new Text(label + " " + step + " / " + of));
         Div right = new Div();
         left.getStyle().setBackgroundColor(color);
-        right.setWidth((100-leftW) + "%");
+        right.setWidth((100 - leftW) + "%");
 
 
         result.add(left, right);
