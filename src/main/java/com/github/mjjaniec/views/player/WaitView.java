@@ -1,6 +1,6 @@
 package com.github.mjjaniec.views.player;
 
-import com.github.mjjaniec.services.Broadcaster;
+import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.GameService;
 import com.github.mjjaniec.util.Palete;
 import com.vaadin.flow.component.AttachEvent;
@@ -16,9 +16,9 @@ import com.vaadin.flow.router.Route;
 public class WaitView extends HorizontalLayout {
 
     private final GameService gameService;
-    private final Broadcaster broadcaster;
+    private final BroadcastAttach broadcaster;
 
-    public WaitView(GameService gameService, Broadcaster broadcaster) {
+    public WaitView(GameService gameService, BroadcastAttach broadcaster) {
         this.gameService = gameService;
         this.broadcaster = broadcaster;
         setSpacing(false);

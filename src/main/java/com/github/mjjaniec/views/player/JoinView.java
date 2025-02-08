@@ -1,6 +1,7 @@
 package com.github.mjjaniec.views.player;
 
 import com.github.mjjaniec.model.Player;
+import com.github.mjjaniec.services.GameService;
 import com.github.mjjaniec.services.PlayerStore;
 import com.github.mjjaniec.util.Cookies;
 import com.github.mjjaniec.util.R;
@@ -17,7 +18,7 @@ import com.vaadin.flow.router.Route;
 @Route(value = R.Player.Join.PATH, layout = PlayerView.class)
 public class JoinView extends VerticalLayout {
 
-    public JoinView(PlayerStore service) {
+    public JoinView(GameService service) {
         setSpacing(true);
         add(new Div(new Text("Welcome to Live Music Quiz by Michał Janiec!")));
         add(new Div(new Text("Enter you name and join:")));

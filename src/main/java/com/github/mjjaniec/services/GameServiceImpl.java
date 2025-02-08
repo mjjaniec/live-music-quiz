@@ -28,6 +28,11 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
+    public boolean hasPlayer(Player player) {
+        return playerStore.hasPlayer(player);
+    }
+
+    @Override
     public void startListening() {
 
     }
@@ -55,7 +60,11 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public boolean addPlayer(String name) {
-        return playerStore.addPlayer(name);
+        boolean result = playerStore.addPlayer(name);
+        if (result) {
+            bigScreenNavigator.refreshPlayers();
+        }
+        return result;
     }
 
     @Override

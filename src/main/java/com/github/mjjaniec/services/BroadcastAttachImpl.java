@@ -5,13 +5,16 @@ import com.vaadin.flow.component.UI;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
-public class BroadcasterImpl implements Broadcaster, BigScreenNavigator, PlayerNavigator {
+public class BroadcastAttachImpl implements BroadcastAttach, BigScreenNavigator, PlayerNavigator {
 
     private final List<UI> playerUIs = new ArrayList<>();
     private final List<UI> bigScreenUIs = new ArrayList<>();
+    private final Map<UI, Runnable> playerLists = new HashMap<>();
 
     @Override
     public void attachPlayerUI(UI ui) {
@@ -34,8 +37,23 @@ public class BroadcasterImpl implements Broadcaster, BigScreenNavigator, PlayerN
     }
 
     @Override
+    public void attachPlayerList(UI ui, Runnable refresh) {
+        playerLists.put(ui, refresh);
+    }
+
+    @Override
+    public void detachPlayerList(UI ui) {
+        playerLists.remove(ui);
+    }
+
+    @Override
     public void navigateBigScreen(R.RI path) {
         playerUIs.forEach(ui -> ui.access(() -> ui.navigate(path.get())));
+    }
+
+    @Override
+    public void refreshPlayers() {
+        playerLists.forEach((ui, runnable) -> ui.access(runnable::run));
     }
 
     @Override

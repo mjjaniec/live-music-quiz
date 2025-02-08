@@ -10,6 +10,7 @@ import java.util.List;
 public interface GameService {
     GameLevel currentLevel();
 
+    boolean hasPlayer(Player player);
     boolean addPlayer(String name);
     List<Player> getPlayers();
 

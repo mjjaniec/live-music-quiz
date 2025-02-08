@@ -3,7 +3,7 @@ package com.github.mjjaniec.views.bigscreen;
 import com.github.mjjaniec.components.BannerBand;
 import com.github.mjjaniec.components.FooterBand;
 import com.github.mjjaniec.components.RouterLayoutWithOutlet;
-import com.github.mjjaniec.services.Broadcaster;
+import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.util.Palete;
 import com.github.mjjaniec.util.R;
 import com.vaadin.flow.component.AttachEvent;
@@ -17,14 +17,14 @@ import com.vaadin.flow.router.RoutePrefix;
 @RoutePrefix(R.BigScreen.PATH)
 public class BigScreenView extends VerticalLayout implements RouterLayoutWithOutlet<VerticalLayout> {
     private final VerticalLayout outlet = new VerticalLayout();
-    private final Broadcaster broadcaster;
+    private final BroadcastAttach broadcaster;
 
     @Override
     public VerticalLayout outlet() {
         return outlet;
     }
 
-    public BigScreenView(Broadcaster broadcaster) {
+    public BigScreenView(BroadcastAttach broadcaster) {
         this.broadcaster = broadcaster;
         outlet.setSizeFull();
         outlet.setPadding(false);

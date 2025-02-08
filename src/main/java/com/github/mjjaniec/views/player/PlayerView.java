@@ -24,13 +24,14 @@ public class PlayerView extends VerticalLayout implements RouterLayoutWithOutlet
         setPadding(false);
         setSpacing(false);
         outlet.setSizeFull();
+        setSizeFull();
 
         add(new BannerBand(Palete.BLUE));
         add(outlet);
         add(new FooterBand(Palete.BLUE));
 
         // temporary:
-        setWidth("360px");
-        setHeight("700px");
+//        setWidth("360px");
+//        setHeight("700px");
     }
 }

@@ -1,9 +1,12 @@
 package com.github.mjjaniec.views.bigscreen;
 
 import com.github.mjjaniec.model.Player;
+import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.PlayerStore;
 import com.github.mjjaniec.util.R;
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -14,12 +17,14 @@ import java.util.List;
 
 @Route(value = R.BigScreen.Invite.PATH, layout = BigScreenView.class)
 public class InviteView extends HorizontalLayout {
-//    private List<String> users = List.of("Beata", "Elżbieta", "Jolanta", "Asia", "Eliza", "Klaudia"
-//            ,            "Andrea", "Regina", "Franciszka", "Joanna", "Antonina", "Bogumiła", "Matylda", "Adriana",
-//            "Jola", "Arkadiusz", "Julian", "Alex", "Kuba", "Bogumił", "Alfred", "Bartosz", "Czesław", "Olaf", "Dorian", "Mateusz", "Miron", "Radosław", "Diego", "Korneliusz"
-//    );
+    private final PlayerStore playerService;
+    private final BroadcastAttach broadcastAttach;
+    private final Div playersContainer = new Div();
 
-    public InviteView(PlayerStore playerService) {
+
+    public InviteView(PlayerStore playerService, BroadcastAttach broadcastAttach) {
+        this.playerService = playerService;
+        this.broadcastAttach = broadcastAttach;
         setSizeFull();
         setSpacing(false);
 
@@ -38,16 +43,12 @@ public class InviteView extends HorizontalLayout {
         invitation.add(dm);
 
         VerticalLayout players = new VerticalLayout();
-        Div container = new Div();
 
-        List<Player> plaersList = playerService.getPlayers();
-
-        plaersList.forEach(user -> container.add(userBadge(user.name(), plaersList.size() > 10)));
-        container.add(new H2(plaersList.isEmpty() ? "waiting for players" : "play with us!"));
-        players.add(container);
+        players.add(playersContainer);
         players.setHeightFull();
         players.setJustifyContentMode(JustifyContentMode.CENTER);
         players.setAlignItems(Alignment.CENTER);
+        refreshPlayers();
 
         add(invitation, players);
     }
@@ -61,5 +62,25 @@ public class InviteView extends HorizontalLayout {
         badge.getStyle().setMarginBottom(margin);
         badge.getElement().getThemeList().add("badge success pill");
         return badge;
+    }
+
+    private void refreshPlayers() {
+        playersContainer.removeAll();
+        List<Player> plaersList = playerService.getPlayers();
+
+        plaersList.forEach(user -> playersContainer.add(userBadge(user.name(), plaersList.size() > 10)));
+        playersContainer.add(new H2(plaersList.isEmpty() ? "waiting for players" : "play with us!"));
+    }
+
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        broadcastAttach.attachPlayerList(attachEvent.getUI(), this::refreshPlayers);
+    }
+
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        super.onDetach(detachEvent);
+        broadcastAttach.detachPlayerList(detachEvent.getUI());
     }
 }

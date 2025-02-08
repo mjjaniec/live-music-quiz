@@ -22,6 +22,11 @@ public class MemoryPlayerStore implements PlayerStore {
     }
 
     @Override
+    public boolean hasPlayer(Player player) {
+        return players.stream().anyMatch(p -> p.name().equals(player.name()));
+    }
+
+    @Override
     public List<Player> getPlayers() {
         return List.copyOf(players);
     }
