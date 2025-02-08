@@ -12,8 +12,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public record MainSet(List<LevelPieces> levels) {
+    @RequiredArgsConstructor
     public enum Instrument {
-        Bass, Piano, Guitar, Xylophone
+        Bass("\uD834\uDD22"), Piano("\uD83C\uDFB9"), Guitar("\uD83C\uDFB8"), Xylophone("\uD83C\uDFBC");
+        public final String icon;
     }
 
     @RequiredArgsConstructor

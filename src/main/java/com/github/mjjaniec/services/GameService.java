@@ -23,4 +23,6 @@ public interface GameService {
     MainSet quiz();
 
     void setSet(MainSet set);
+
+    void reset();
 }

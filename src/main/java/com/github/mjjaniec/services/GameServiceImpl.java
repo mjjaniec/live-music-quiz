@@ -64,4 +64,9 @@ public class GameServiceImpl implements GameService {
     public List<Player> getPlayers() {
         return playerStore.getPlayers();
     }
+
+    @Override
+    public void reset() {
+        quiz = null;
+    }
 }
