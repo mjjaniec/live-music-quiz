@@ -32,14 +32,14 @@ public class StartGameView extends VerticalLayout implements RouterLayout {
                 .map(File::getName)
                 .collect(Collectors.toSet());
 
-        ComboBox<String> games = new ComboBox<String>("Choose Game");
+        ComboBox<String> games = new ComboBox<>("Choose Game");
         games.setItems(gameFiles);
         Button start = new Button("Start");
         start.setEnabled(false);
         games.addValueChangeListener(event -> start.setEnabled(true));
 
         start.addClickListener(event -> {
-            Quiz quiz = null;
+            Quiz quiz;
             try {
                 quiz = mapper.reader().readValue(QUIZES_PATH.resolve(Path.of(games.getValue())).toFile(), Quiz.class);
             } catch (IOException e) {
