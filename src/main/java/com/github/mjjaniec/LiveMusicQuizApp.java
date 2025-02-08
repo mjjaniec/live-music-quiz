@@ -17,7 +17,6 @@ public class LiveMusicQuizApp implements AppShellConfigurator {
 
     @Override
     public void configurePage(AppShellSettings settings) {
-        settings.setPageTitle("Live Music Quiz");
         settings.addFavIcon("icon", "themes/live-music-quiz/favico.svg", "128x128");
     }
 
