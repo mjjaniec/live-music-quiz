@@ -6,19 +6,17 @@ import com.github.mjjaniec.util.R;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 
-import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Stream;
 
 @Route(value = R.Maestro.Start.PATH, layout = MaestroView.class)
 public class StartGameView extends VerticalLayout implements RouterLayout {
 
-    StartGameView(GameService gameService) throws IOException {
+    StartGameView(GameService gameService) {
         Set<String> sets = MainSet.TheSet.sets();
         String ALL = "ALL";
 

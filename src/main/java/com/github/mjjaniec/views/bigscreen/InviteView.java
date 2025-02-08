@@ -3,7 +3,6 @@ package com.github.mjjaniec.views.bigscreen;
 import com.github.mjjaniec.model.Player;
 import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.GameService;
-import com.github.mjjaniec.services.PlayerStore;
 import com.github.mjjaniec.util.R;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;

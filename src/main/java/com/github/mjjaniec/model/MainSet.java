@@ -70,7 +70,7 @@ public record MainSet(List<LevelPieces> levels) {
 
     public enum RoundMode {
         EVERYBODY,
-        FIRST;
+        FIRST
     }
 
     public record RoundPoints(int artist, int title) {
