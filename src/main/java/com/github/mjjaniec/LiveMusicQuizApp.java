@@ -7,6 +7,8 @@ import com.vaadin.flow.theme.Theme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.io.IOException;
+
 
 @SpringBootApplication
 @Theme(value = "live-music-quiz")
@@ -19,7 +21,7 @@ public class LiveMusicQuizApp implements AppShellConfigurator {
         settings.addFavIcon("icon", "themes/live-music-quiz/favico.svg", "128x128");
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         SpringApplication.run(LiveMusicQuizApp.class, args);
     }
 }

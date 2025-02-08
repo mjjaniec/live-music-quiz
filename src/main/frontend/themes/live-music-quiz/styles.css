@@ -2,6 +2,12 @@
   animation: pulse 1s infinite;
 }
 
+.pt-mono-regular {
+  font-family: "PT Mono", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
 @keyframes pulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.2); }

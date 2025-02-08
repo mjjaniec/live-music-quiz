@@ -13,7 +13,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RoutePrefix;
 
 
-@Route(R.BigScreen.PATH)
+@Route("")
 @RoutePrefix(R.BigScreen.PATH)
 public class BigScreenView extends VerticalLayout implements RouterLayoutWithOutlet<VerticalLayout> {
     private final VerticalLayout outlet = new VerticalLayout();

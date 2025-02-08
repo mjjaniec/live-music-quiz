@@ -1,9 +1,6 @@
 package com.github.mjjaniec.services;
 
-import com.github.mjjaniec.model.GameLevel;
-import com.github.mjjaniec.model.Player;
-import com.github.mjjaniec.model.Quiz;
-import com.github.mjjaniec.model.RoundMode;
+import com.github.mjjaniec.model.*;
 import com.github.mjjaniec.util.R;
 import org.springframework.stereotype.Component;
 
@@ -14,17 +11,13 @@ public class GameServiceImpl implements GameService {
     private final BigScreenNavigator bigScreenNavigator;
     private final PlayerNavigator playerNavigator;
     private final PlayerStore playerStore;
-    private Quiz quiz;
+    private MainSet quiz;
+
 
     public GameServiceImpl(BigScreenNavigator bigScreenNavigator, PlayerNavigator playerNavigator, PlayerStore playerStore) {
         this.bigScreenNavigator = bigScreenNavigator;
         this.playerNavigator = playerNavigator;
         this.playerStore = playerStore;
-    }
-
-    @Override
-    public GameLevel currentLevel() {
-        return new GameLevel(1, 1, 4, 2, RoundMode.EVERYBODY);
     }
 
     @Override
@@ -48,14 +41,14 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public void setQuiz(Quiz quiz) {
-        this.quiz = quiz;
-        playerNavigator.navigatePlayers(R.Player.Join.IT);
+    public MainSet quiz() {
+        return quiz;
     }
 
     @Override
-    public Quiz quiz() {
-        return quiz;
+    public void setSet(MainSet set) {
+        this.quiz = set;
+        playerNavigator.navigatePlayers(R.Player.Join.IT);
     }
 
     @Override
