@@ -34,9 +34,7 @@ public class JoinView extends VerticalLayout {
             }
         });
         field.setValueChangeMode(ValueChangeMode.EAGER);
-        field.addInputListener(event -> {
-            join.setEnabled(!field.getValue().isBlank());
-        });
+        field.addInputListener(event -> join.setEnabled(!field.getValue().isBlank()));
         field.setWidthFull();
         join.setWidthFull();
         join.addThemeVariants(ButtonVariant.LUMO_PRIMARY);

@@ -4,16 +4,10 @@ import com.github.mjjaniec.components.BannerBand;
 import com.github.mjjaniec.components.FooterBand;
 import com.github.mjjaniec.components.RouterLayoutWithOutlet;
 import com.github.mjjaniec.util.Palete;
-import com.vaadin.flow.component.HasElement;
-import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RoutePrefix;
-import com.vaadin.flow.router.RouterLayout;
-
-import java.util.Objects;
 
 @Route(value = "player")
 @RoutePrefix(value = "player")

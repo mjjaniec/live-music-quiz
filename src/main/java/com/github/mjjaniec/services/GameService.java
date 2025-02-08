@@ -4,7 +4,6 @@ package com.github.mjjaniec.services;
 import com.github.mjjaniec.model.GameLevel;
 import com.github.mjjaniec.model.Player;
 import com.github.mjjaniec.model.Quiz;
-import com.vaadin.flow.component.UI;
 
 import java.util.List;
 

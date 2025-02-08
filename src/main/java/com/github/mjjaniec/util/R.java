@@ -1,9 +1,6 @@
 package com.github.mjjaniec.util;
 
-import lombok.experimental.Accessors;
-
 import java.util.Optional;
-
 
 
 public class R {

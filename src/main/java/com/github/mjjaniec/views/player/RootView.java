@@ -1,6 +1,5 @@
 package com.github.mjjaniec.views.player;
 
-import com.github.mjjaniec.model.Player;
 import com.github.mjjaniec.util.Cookies;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
