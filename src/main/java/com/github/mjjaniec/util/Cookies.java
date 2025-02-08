@@ -4,7 +4,6 @@ import com.github.mjjaniec.model.Player;
 import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.VaadinResponse;
 import jakarta.servlet.http.Cookie;
-import org.atmosphere.util.CookieUtil;
 
 import java.util.Arrays;
 import java.util.Optional;

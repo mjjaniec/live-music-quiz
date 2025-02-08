@@ -2,6 +2,7 @@ package com.github.mjjaniec.views.bigscreen;
 
 import com.github.mjjaniec.model.Player;
 import com.github.mjjaniec.services.BroadcastAttach;
+import com.github.mjjaniec.services.GameService;
 import com.github.mjjaniec.services.PlayerStore;
 import com.github.mjjaniec.util.R;
 import com.vaadin.flow.component.AttachEvent;
@@ -17,13 +18,13 @@ import java.util.List;
 
 @Route(value = R.BigScreen.Invite.PATH, layout = BigScreenView.class)
 public class InviteView extends HorizontalLayout {
-    private final PlayerStore playerService;
+    private final GameService gameService;
     private final BroadcastAttach broadcastAttach;
     private final Div playersContainer = new Div();
 
 
-    public InviteView(PlayerStore playerService, BroadcastAttach broadcastAttach) {
-        this.playerService = playerService;
+    public InviteView(GameService gameService, BroadcastAttach broadcastAttach) {
+        this.gameService = gameService;
         this.broadcastAttach = broadcastAttach;
         setSizeFull();
         setSpacing(false);
@@ -66,7 +67,7 @@ public class InviteView extends HorizontalLayout {
 
     private void refreshPlayers() {
         playersContainer.removeAll();
-        List<Player> plaersList = playerService.getPlayers();
+        List<Player> plaersList = gameService.getPlayers();
 
         plaersList.forEach(user -> playersContainer.add(userBadge(user.name(), plaersList.size() > 10)));
         playersContainer.add(new H2(plaersList.isEmpty() ? "waiting for players" : "play with us!"));

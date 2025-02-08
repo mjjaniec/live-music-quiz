@@ -2,7 +2,6 @@ package com.github.mjjaniec.views.player;
 
 import com.github.mjjaniec.model.Player;
 import com.github.mjjaniec.services.GameService;
-import com.github.mjjaniec.services.PlayerStore;
 import com.github.mjjaniec.util.Cookies;
 import com.github.mjjaniec.util.R;
 import com.vaadin.flow.component.Text;
