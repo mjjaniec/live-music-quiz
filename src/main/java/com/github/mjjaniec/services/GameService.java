@@ -12,6 +12,8 @@ public interface GameService {
 
     boolean addPlayer(String name);
 
+    void removePlayer(Player player);
+
     List<Player> getPlayers();
 
     void startListening();

@@ -56,8 +56,14 @@ public class GameServiceImpl implements GameService {
         boolean result = playerStore.addPlayer(name);
         if (result) {
             bigScreenNavigator.refreshPlayers();
+
         }
         return result;
+    }
+
+    @Override
+    public void removePlayer(Player player) {
+        bigScreenNavigator.refreshPlayers();
     }
 
     @Override
