@@ -3,7 +3,6 @@ package com.github.mjjaniec.views.maestro;
 import com.github.mjjaniec.model.MainSet;
 import com.github.mjjaniec.services.GameService;
 import com.github.mjjaniec.util.Palete;
-import com.github.mjjaniec.util.R;
 import com.github.mjjaniec.views.bigscreen.InviteView;
 import com.google.common.collect.Streams;
 import com.vaadin.flow.component.HtmlContainer;
@@ -21,7 +20,7 @@ import com.vaadin.flow.router.RouterLink;
 
 import java.util.Optional;
 
-@Route(value = R.Maestro.DJ.PATH, layout = MaestroView.class)
+@Route(value = "dj", layout = MaestroView.class)
 public class DjView extends VerticalLayout implements RouterLayout {
 
 

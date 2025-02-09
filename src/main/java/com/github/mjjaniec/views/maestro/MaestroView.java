@@ -1,7 +1,6 @@
 package com.github.mjjaniec.views.maestro;
 
 import com.github.mjjaniec.services.GameService;
-import com.github.mjjaniec.util.R;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -11,7 +10,7 @@ import com.vaadin.flow.router.RouterLayout;
 import lombok.RequiredArgsConstructor;
 
 @Route(value = "")
-@RoutePrefix(value = R.Maestro.PATH)
+@RoutePrefix(value = "maestro")
 @RequiredArgsConstructor
 public class MaestroView extends VerticalLayout implements RouterLayout {
 

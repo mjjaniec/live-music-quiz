@@ -10,7 +10,7 @@ import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
 
 @Route(value = "round2", layout = PlayerView.class)
-public class RoundView extends VerticalLayout implements HasUrlParameter<String> {
+public class RoundView extends VerticalLayout implements HasUrlParameter<String>, PlayerRoute {
 
     private final VerticalLayout progress = new VerticalLayout();
 

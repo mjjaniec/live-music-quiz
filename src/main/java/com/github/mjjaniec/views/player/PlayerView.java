@@ -11,7 +11,7 @@ import com.vaadin.flow.router.RoutePrefix;
 
 @Route(value = "player")
 @RoutePrefix(value = "player")
-public class PlayerView extends VerticalLayout implements RouterLayoutWithOutlet<HorizontalLayout> {
+public class PlayerView extends VerticalLayout implements RouterLayoutWithOutlet<HorizontalLayout>, PlayerRoute {
 
     private final HorizontalLayout outlet = new HorizontalLayout();
 

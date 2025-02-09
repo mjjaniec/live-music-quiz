@@ -5,7 +5,6 @@ import com.github.mjjaniec.components.FooterBand;
 import com.github.mjjaniec.components.RouterLayoutWithOutlet;
 import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.util.Palete;
-import com.github.mjjaniec.util.R;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -14,8 +13,8 @@ import com.vaadin.flow.router.RoutePrefix;
 
 
 @Route("")
-@RoutePrefix(R.BigScreen.PATH)
-public class BigScreenView extends VerticalLayout implements RouterLayoutWithOutlet<VerticalLayout> {
+@RoutePrefix("big-screen")
+public class BigScreenView extends VerticalLayout implements RouterLayoutWithOutlet<VerticalLayout>, BigScreenRoute {
     private final VerticalLayout outlet = new VerticalLayout();
     private final BroadcastAttach broadcaster;
 

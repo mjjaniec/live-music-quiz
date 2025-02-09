@@ -3,7 +3,6 @@ package com.github.mjjaniec.views.bigscreen;
 import com.github.mjjaniec.model.Player;
 import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.GameService;
-import com.github.mjjaniec.util.R;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
@@ -15,8 +14,8 @@ import com.vaadin.flow.server.VaadinService;
 
 import java.util.List;
 
-@Route(value = R.BigScreen.Invite.PATH, layout = BigScreenView.class)
-public class InviteView extends HorizontalLayout {
+@Route(value = "invite", layout = BigScreenView.class)
+public class InviteView extends HorizontalLayout implements BigScreenRoute {
     private final GameService gameService;
     private final BroadcastAttach broadcastAttach;
     private final Div playersContainer = new Div();

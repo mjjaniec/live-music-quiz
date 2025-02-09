@@ -9,7 +9,7 @@ import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
 
 @Route(value = "listen", layout = PlayerView.class)
-public class ListenVIew extends HorizontalLayout {
+public class ListenVIew extends HorizontalLayout implements PlayerRoute {
 
 
     private final HorizontalLayout outlet = new HorizontalLayout();

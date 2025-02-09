@@ -1,7 +1,8 @@
 package com.github.mjjaniec.services;
 
-import com.github.mjjaniec.util.R;
+import com.github.mjjaniec.views.player.PlayerRoute;
+import com.vaadin.flow.component.Component;
 
 public interface PlayerNavigator {
-    void navigatePlayers(R.RI path);
+    <T extends Component & PlayerRoute> void navigatePlayers(Class<T> view);
 }

@@ -1,7 +1,7 @@
 package com.github.mjjaniec.services;
 
 import com.github.mjjaniec.model.*;
-import com.github.mjjaniec.util.R;
+import com.github.mjjaniec.views.player.JoinView;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -48,7 +48,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public void setSet(MainSet set) {
         this.quiz = set;
-        playerNavigator.navigatePlayers(R.Player.Join.IT);
+        playerNavigator.navigatePlayers(JoinView.class);
     }
 
     @Override

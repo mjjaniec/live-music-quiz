@@ -13,7 +13,7 @@ import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
 
 @Route(value = "wait", layout = PlayerView.class)
-public class WaitView extends HorizontalLayout {
+public class WaitView extends HorizontalLayout implements PlayerRoute {
 
     private final GameService gameService;
     private final BroadcastAttach broadcaster;

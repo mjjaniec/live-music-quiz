@@ -3,7 +3,6 @@ package com.github.mjjaniec.views.player;
 import com.github.mjjaniec.model.Player;
 import com.github.mjjaniec.services.GameService;
 import com.github.mjjaniec.util.Cookies;
-import com.github.mjjaniec.util.R;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -14,8 +13,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
-@Route(value = R.Player.Join.PATH, layout = PlayerView.class)
-public class JoinView extends VerticalLayout {
+@Route(value = "join", layout = PlayerView.class)
+public class JoinView extends VerticalLayout implements PlayerRoute{
 
     public JoinView(GameService service) {
         setSpacing(true);
@@ -27,7 +26,7 @@ public class JoinView extends VerticalLayout {
         join.addClickListener(event -> {
             if (service.addPlayer(field.getValue())) {
                 Cookies.savePlayer(new Player(field.getValue()));
-                UI.getCurrent().navigate("player/wait");
+                UI.getCurrent().navigate(WaitView.class);
             } else {
                 field.setInvalid(true);
                 field.setErrorMessage("the name is already occupied");

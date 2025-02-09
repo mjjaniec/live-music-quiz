@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 @Route("/")
 @RequiredArgsConstructor
-public class RootView extends HorizontalLayout {
+public class RootView extends HorizontalLayout implements PlayerRoute {
 
     private final GameService gameService;
 
@@ -21,12 +21,12 @@ public class RootView extends HorizontalLayout {
         Cookies.readPlayer().ifPresentOrElse(
                 player -> {
                     if (gameService.hasPlayer(player)) {
-                        ui.navigate("/player/wait");
+                        ui.navigate(WaitView.class);
                     } else {
                         Cookies.removePlayer();
-                        ui.navigate("/player/join");
+                        ui.navigate(JoinView.class);
                     }
                 },
-                () -> ui.navigate("/player/join"));
+                () -> ui.navigate(JoinView.class));
     }
 }
