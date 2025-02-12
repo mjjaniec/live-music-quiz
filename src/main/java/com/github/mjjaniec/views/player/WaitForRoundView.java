@@ -1,5 +1,6 @@
 package com.github.mjjaniec.views.player;
 
+import com.github.mjjaniec.model.GameStage;
 import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.GameService;
 import com.github.mjjaniec.util.Palete;
@@ -12,21 +13,23 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
 
-@Route(value = "wait", layout = PlayerView.class)
-public class WaitView extends HorizontalLayout implements PlayerRoute {
+import java.util.Optional;
 
-    private final GameService gameService;
+@Route(value = "wait-for-round", layout = PlayerView.class)
+public class WaitForRoundView extends HorizontalLayout implements PlayerRoute {
+
     private final BroadcastAttach broadcaster;
 
-    public WaitView(GameService gameService, BroadcastAttach broadcaster) {
-        this.gameService = gameService;
+    public WaitForRoundView(GameService gameService, BroadcastAttach broadcaster) {
         this.broadcaster = broadcaster;
         setSpacing(false);
         setPadding(false);
         setSizeFull();
         getStyle().setColor(Palete.WHITE).setFontSize("1.6em");
         Div outlet = new Div();
-//        outlet.setText(String.valueOf(gameService.currentLevel().round()));
+        gameService.stage().asRoundInit()
+                .map(round -> String.valueOf(round.roundNumber().number()))
+                .ifPresent(outlet::setText);
         outlet.getStyle().setFontSize("10em").setFontWeight(Style.FontWeight.BOLD).setLineHeight("1");
         outlet.setClassName("pulse pt-mono-regular");
         getStyle().setBackground(Palete.BLUE);

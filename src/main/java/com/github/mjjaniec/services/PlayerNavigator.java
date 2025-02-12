@@ -5,4 +5,5 @@ import com.vaadin.flow.component.Component;
 
 public interface PlayerNavigator {
     <T extends Component & PlayerRoute> void navigatePlayers(Class<T> view);
+    void refreshAllPlayers();
 }

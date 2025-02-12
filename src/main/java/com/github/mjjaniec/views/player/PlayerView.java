@@ -9,7 +9,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RoutePrefix;
 
-@Route(value = "player")
+@Route(value = "player", layout = RootView.class)
 @RoutePrefix(value = "player")
 public class PlayerView extends VerticalLayout implements RouterLayoutWithOutlet<HorizontalLayout>, PlayerRoute {
 

@@ -30,4 +30,9 @@ public class MemoryPlayerStore implements PlayerStore {
     public List<Player> getPlayers() {
         return List.copyOf(players);
     }
+
+    @Override
+    public void removePlayer(Player player) {
+        players.remove(player);
+    }
 }

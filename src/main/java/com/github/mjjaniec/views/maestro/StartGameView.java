@@ -2,6 +2,7 @@ package com.github.mjjaniec.views.maestro;
 
 import com.github.mjjaniec.model.MainSet;
 import com.github.mjjaniec.services.GameService;
+import com.github.mjjaniec.services.MaestroInterface;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -15,7 +16,7 @@ import java.util.stream.Stream;
 @Route(value = "start", layout = MaestroView.class)
 public class StartGameView extends VerticalLayout implements RouterLayout {
 
-    StartGameView(GameService gameService) {
+    StartGameView(MaestroInterface gameService) {
         Set<String> sets = MainSet.TheSet.sets();
         String ALL = "ALL";
 
@@ -28,7 +29,7 @@ public class StartGameView extends VerticalLayout implements RouterLayout {
 
         start.addClickListener(event -> {
             MainSet set = ALL.equals(games.getValue()) ? MainSet.TheSet : MainSet.TheSet.asSet(games.getValue());
-            gameService.setSet(set);
+            gameService.initGame(set);
             UI.getCurrent().navigate(DjView.class);
         });
         add(games, start);

@@ -63,3 +63,7 @@
   100% { transform: scale(1) translateY(0); }
 }
 
+vaadin-accordion-panel {
+    padding-left: 1em;
+}
+

@@ -1,6 +1,7 @@
 package com.github.mjjaniec.services;
 
 
+import com.github.mjjaniec.model.GameStage;
 import com.github.mjjaniec.model.MainSet;
 import com.github.mjjaniec.model.Player;
 
@@ -14,17 +15,10 @@ public interface GameService {
 
     void removePlayer(Player player);
 
+    GameStage<?,?> stage();
+
     List<Player> getPlayers();
-
-    void startListening();
-
-    void endListening();
-
-    void advance();
 
     MainSet quiz();
 
-    void setSet(MainSet set);
-
-    void reset();
 }

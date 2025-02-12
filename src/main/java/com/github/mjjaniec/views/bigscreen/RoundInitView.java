@@ -1,37 +1,33 @@
-package com.github.mjjaniec.views.player;
+package com.github.mjjaniec.views.bigscreen;
 
+import com.github.mjjaniec.services.GameService;
 import com.github.mjjaniec.util.Palete;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
 
-@Route(value = "round2", layout = PlayerView.class)
-public class RoundView extends VerticalLayout implements HasUrlParameter<String>, PlayerRoute {
+
+@Route(value = "round-init", layout = BigScreenView.class)
+public class RoundInitView extends VerticalLayout implements BigScreenRoute {
 
     private final VerticalLayout progress = new VerticalLayout();
 
-    public RoundView() {
+    public RoundInitView(GameService gameService) {
         setSpacing(false);
         setPadding(false);
         progress.getStyle().setBackground(Palete.BLUE);
         progress.setPadding(false);
         progress.setSpacing(false);
 
+        gameService.stage().asRoundInit()
+                .ifPresent(roundInit ->
+                        progress.add(createProgress("R:", roundInit.roundNumber().number(), roundInit.roundNumber().of(), Palete.DARKER)));
 
         add(progress);
     }
 
-    @Override
-    public void setParameter(BeforeEvent event, String parameter) {
-        String[] elems = parameter.split("-");
-        progress.add(createProgress("R:", Integer.parseInt(elems[0]), Integer.parseInt(elems[1]), Palete.DARKER));
-        progress.add(createProgress("S:", Integer.parseInt(elems[2]), Integer.parseInt(elems[3]), Palete.LIGHTER));
-
-    }
 
     private HorizontalLayout createProgress(String label, int step, int of, String color) {
         HorizontalLayout result = new HorizontalLayout();

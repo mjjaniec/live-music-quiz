@@ -26,7 +26,7 @@ public class JoinView extends VerticalLayout implements PlayerRoute{
         join.addClickListener(event -> {
             if (service.addPlayer(field.getValue())) {
                 Cookies.savePlayer(new Player(field.getValue()));
-                UI.getCurrent().navigate(WaitView.class);
+                UI.getCurrent().navigate(WaitForRoundView.class);
             } else {
                 field.setInvalid(true);
                 field.setErrorMessage("the name is already occupied");

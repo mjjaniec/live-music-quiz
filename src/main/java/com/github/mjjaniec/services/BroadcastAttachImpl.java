@@ -61,4 +61,11 @@ public class BroadcastAttachImpl implements BroadcastAttach, BigScreenNavigator,
     public <T extends Component & PlayerRoute> void navigatePlayers(Class<T> view) {
         bigScreenUIs.forEach(ui -> ui.access(() -> ui.navigate(view)));
     }
+
+    @Override
+    public void refreshAllPlayers() {
+
+    }
+
+
 }
