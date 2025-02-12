@@ -1,7 +1,6 @@
 package com.github.mjjaniec.views.maestro;
 
 import com.github.mjjaniec.model.MainSet;
-import com.github.mjjaniec.services.GameService;
 import com.github.mjjaniec.services.MaestroInterface;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;

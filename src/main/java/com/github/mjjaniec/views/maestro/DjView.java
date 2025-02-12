@@ -3,10 +3,8 @@ package com.github.mjjaniec.views.maestro;
 import com.github.mjjaniec.model.GameStage;
 import com.github.mjjaniec.model.MainSet;
 import com.github.mjjaniec.model.Player;
-import com.github.mjjaniec.services.BigScreenNavigator;
 import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.MaestroInterface;
-import com.github.mjjaniec.services.PlayerNavigator;
 import com.github.mjjaniec.util.Palete;
 import com.github.mjjaniec.views.bigscreen.InviteView;
 import com.github.mjjaniec.views.player.JoinView;
@@ -100,9 +98,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
             badge.getElement().getThemeList().add("badge success pill");
             return badge;
         } else {
-            Button button = new Button("Aktywuj", event -> {
-                gameService.setStage(expectedStage);
-            });
+            Button button = new Button("Aktywuj", event -> gameService.setStage(expectedStage));
             button.addThemeVariants(ButtonVariant.LUMO_SMALL);
             return button;
         }

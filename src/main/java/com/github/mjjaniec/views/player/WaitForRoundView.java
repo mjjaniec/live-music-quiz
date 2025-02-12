@@ -1,6 +1,5 @@
 package com.github.mjjaniec.views.player;
 
-import com.github.mjjaniec.model.GameStage;
 import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.GameService;
 import com.github.mjjaniec.util.Palete;
@@ -12,8 +11,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
-
-import java.util.Optional;
 
 @Route(value = "wait-for-round", layout = PlayerView.class)
 public class WaitForRoundView extends HorizontalLayout implements PlayerRoute {
