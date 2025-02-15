@@ -169,7 +169,8 @@ public class DjView extends VerticalLayout implements RouterLayout {
         roundInit.pieces().stream().map(this::createStagePanel).forEach(content::add);
         content.add(createStagePanel(roundInit.roundSummary()));
         currentParentHeader = Optional.empty();
-        header.setActive(gameService.stage() == roundInit);
+        GameStage<?,?> stage = gameService.stage();
+        header.setActive(stage == roundInit || stage == roundInit.roundSummary() || roundInit.pieces().contains(stage));
         return new AccordionPanel(header, content);
     }
 
