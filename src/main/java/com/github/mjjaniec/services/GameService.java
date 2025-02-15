@@ -15,7 +15,7 @@ public interface GameService {
 
     void removePlayer(Player player);
 
-    GameStage<?,?> stage();
+    GameStage stage();
 
     List<Player> getPlayers();
 

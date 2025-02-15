@@ -9,10 +9,10 @@ import com.vaadin.flow.component.html.Span;
 import java.util.function.Consumer;
 
 public class ActivateComponent extends Div {
-    private final GameStage<?, ?> stage;
-    private final Consumer<GameStage<?, ?>> onActivate;
+    private final GameStage stage;
+    private final Consumer<GameStage> onActivate;
 
-    public ActivateComponent(GameStage<?, ?> stage, boolean active, Consumer<GameStage<?, ?>> onActivate) {
+    public ActivateComponent(GameStage stage, boolean active, Consumer<GameStage> onActivate) {
         this.stage = stage;
         this.onActivate = onActivate;
         setActive(active);

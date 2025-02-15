@@ -18,8 +18,8 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     private final PlayerNavigator playerNavigator;
     private final PlayerStore playerStore;
     private MainSet quiz;
-    private GameStage<?, ?> stage;
-    private List<GameStage<?, ?>> _allStages;
+    private GameStage stage;
+    private List<GameStage> _allStages;
 
 
     public GameServiceImpl(BigScreenNavigator bigScreenNavigator, PlayerNavigator playerNavigator, PlayerStore playerStore) {
@@ -64,7 +64,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     }
 
     @Override
-    public GameStage<?, ?> stage() {
+    public GameStage stage() {
         return stage;
     }
 
@@ -80,20 +80,20 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     }
 
     @Override
-    public void setStage(GameStage<?, ?> gameStage) {
+    public void setStage(GameStage gameStage) {
         this.stage = gameStage;
         playerNavigator.navigatePlayers(stage.playerView());
         bigScreenNavigator.navigateBigScreen(stage.bigScreenView());
     }
 
     @Override
-    public List<GameStage<?, ?>> allStages() {
+    public List<GameStage> allStages() {
         return _allStages;
     }
 
-    private List<GameStage<?, ?>> computeAllStages() {
+    private List<GameStage> computeAllStages() {
         if (quiz == null) return List.of();
-        return Stream.<Stream<GameStage<?, ?>>>of(
+        return Stream.<Stream<GameStage>>of(
                 Stream.of(new GameStage.Invite()),
                 Streams.mapWithIndex(quiz.levels().stream(), this::roundStages),
                 Stream.of(new GameStage.WrapUp())
@@ -108,7 +108,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
                         new GameStage.RoundPiece(
                                 new GameStage.PieceNumber(index + 1, level.pieces().size()),
                                 piece,
-                                List.of(GameStage.PieceStage.LISTEN, GameStage.PieceStage.REPORT)
+                                List.of(GameStage.PieceStage.LISTEN, GameStage.PieceStage.ANSWER)
                         )
                 ).toList(),
                 new GameStage.RoundSummary(new RoundNumber(roundIndex + 1, quiz.levels().size()))

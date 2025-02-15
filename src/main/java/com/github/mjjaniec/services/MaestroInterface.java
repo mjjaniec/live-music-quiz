@@ -11,7 +11,7 @@ public interface MaestroInterface extends GameService {
 
     void reset();
 
-    void setStage(GameStage<?,?> gameStage);
+    void setStage(GameStage gameStage);
 
-    List<GameStage<?,?>> allStages();
+    List<GameStage> allStages();
 }

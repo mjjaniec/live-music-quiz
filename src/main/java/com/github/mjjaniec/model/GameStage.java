@@ -3,19 +3,16 @@ package com.github.mjjaniec.model;
 import com.github.mjjaniec.views.bigscreen.BigScreenRoute;
 import com.github.mjjaniec.views.bigscreen.InviteView;
 import com.github.mjjaniec.views.bigscreen.RoundInitView;
-import com.github.mjjaniec.views.player.PlayerRoute;
-import com.github.mjjaniec.views.player.WaitForOthersView;
-import com.github.mjjaniec.views.player.WaitForRoundView;
-import com.vaadin.flow.component.Component;
+import com.github.mjjaniec.views.player.*;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface GameStage<PV extends Component & PlayerRoute, BSV extends Component & BigScreenRoute> {
+public interface GameStage {
 
-    Class<PV> playerView();
+    Class<? extends PlayerRoute> playerView();
 
-    Class<BSV> bigScreenView();
+    Class<? extends BigScreenRoute> bigScreenView();
 
     default Optional<Invite> asInvite() {
         return switch (this) {
@@ -39,10 +36,10 @@ public interface GameStage<PV extends Component & PlayerRoute, BSV extends Compo
 
 
     enum PieceStage {
-        LISTEN, REPORT
+        LISTEN, ANSWER
     }
 
-    record Invite() implements GameStage<WaitForOthersView, InviteView> {
+    record Invite() implements GameStage {
 
         @Override
         public Class<WaitForOthersView> playerView() {
@@ -59,7 +56,7 @@ public interface GameStage<PV extends Component & PlayerRoute, BSV extends Compo
     record RoundInit(RoundNumber roundNumber,
                      MainSet.Difficulty difficulty,
                      List<RoundPiece> pieces,
-                     RoundSummary roundSummary) implements GameStage<WaitForRoundView, RoundInitView> {
+                     RoundSummary roundSummary) implements GameStage {
         @Override
         public Class<WaitForRoundView> playerView() {
             return WaitForRoundView.class;
@@ -72,8 +69,34 @@ public interface GameStage<PV extends Component & PlayerRoute, BSV extends Compo
 
     }
 
-    record RoundPiece(PieceNumber pieceNumber, MainSet.Piece piece,
-                      List<PieceStage> pieceStage) implements GameStage<WaitForRoundView, RoundInitView> {
+    class RoundPiece implements GameStage {
+        public final PieceNumber pieceNumber;
+        public final MainSet.Piece piece;
+        public final List<PieceStage> innerStages;
+        private PieceStage currentStage;
+
+        public RoundPiece(PieceNumber pieceNumber, MainSet.Piece piece, List<PieceStage> innerStages) {
+            this.pieceNumber = pieceNumber;
+            this.piece = piece;
+            this.currentStage = innerStages.getFirst();
+            this.innerStages = innerStages;
+        }
+
+        @Override
+        public Class<? extends PlayerRoute> playerView() {
+            return switch (currentStage) {
+                case LISTEN -> ListenView.class;
+                case ANSWER -> AnswerView.class;
+            };
+        }
+
+        @Override
+        public Class<RoundInitView> bigScreenView() {
+            return RoundInitView.class;
+        }
+    }
+
+    record RoundSummary(RoundNumber roundNumber) implements GameStage {
         @Override
         public Class<WaitForRoundView> playerView() {
             return WaitForRoundView.class;
@@ -83,22 +106,10 @@ public interface GameStage<PV extends Component & PlayerRoute, BSV extends Compo
         public Class<RoundInitView> bigScreenView() {
             return RoundInitView.class;
         }
-    }
-
-    record RoundSummary(RoundNumber roundNumber) implements GameStage<WaitForRoundView, RoundInitView> {
-        @Override
-        public Class<WaitForRoundView> playerView() {
-            return WaitForRoundView.class;
-        }
-
-        @Override
-        public Class<RoundInitView> bigScreenView() {
-            return RoundInitView.class;
-        }
 
     }
 
-    record WrapUp() implements GameStage<WaitForRoundView, RoundInitView> {
+    record WrapUp() implements GameStage {
         @Override
         public Class<WaitForRoundView> playerView() {
             return WaitForRoundView.class;

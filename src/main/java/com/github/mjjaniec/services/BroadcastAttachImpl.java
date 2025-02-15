@@ -48,8 +48,8 @@ public class BroadcastAttachImpl implements BroadcastAttach, BigScreenNavigator,
     }
 
     @Override
-    public  <T extends Component & BigScreenRoute> void navigateBigScreen(Class<T> view) {
-        bigScreenUIs.forEach(ui -> ui.access(() -> ui.navigate(view)));
+    public  <T extends BigScreenRoute> void navigateBigScreen(Class<T> view) {
+        bigScreenUIs.forEach(ui -> ui.access(() -> ui.navigate((Class<? extends Component>)view)));
     }
 
     @Override
@@ -58,8 +58,8 @@ public class BroadcastAttachImpl implements BroadcastAttach, BigScreenNavigator,
     }
 
     @Override
-    public <T extends Component & PlayerRoute> void navigatePlayers(Class<T> view) {
-        playerUIs.forEach(ui -> ui.access(() -> ui.navigate(view)));
+    public <T extends PlayerRoute> void navigatePlayers(Class<T> view) {
+        playerUIs.forEach(ui -> ui.access(() -> ui.navigate((Class<? extends Component>)view)));
     }
 
     @Override

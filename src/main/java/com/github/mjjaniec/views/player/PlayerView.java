@@ -8,6 +8,7 @@ import com.github.mjjaniec.services.GameService;
 import com.github.mjjaniec.util.LocalStorage;
 import com.github.mjjaniec.util.Palete;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -65,7 +66,7 @@ public class PlayerView extends VerticalLayout implements RouterLayoutWithOutlet
                 player -> {
                     if (gameService.hasPlayer(player)) {
                         ui.access(() -> Optional.ofNullable(gameService.stage()).ifPresentOrElse(
-                                stage -> ui.navigate(stage.playerView()),
+                                stage -> ui.navigate((Class<? extends Component>)stage.playerView()),
                                 () -> ui.navigate(WaitForOthersView.class)
                         ));
                     } else {
