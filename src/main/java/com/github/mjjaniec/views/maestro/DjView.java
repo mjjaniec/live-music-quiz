@@ -1,6 +1,7 @@
 package com.github.mjjaniec.views.maestro;
 
 import com.github.mjjaniec.components.ActivateComponent;
+import com.github.mjjaniec.components.PieceStageButton;
 import com.github.mjjaniec.components.StageHeader;
 import com.github.mjjaniec.model.GameStage;
 import com.github.mjjaniec.model.MainSet;
@@ -10,10 +11,7 @@ import com.github.mjjaniec.services.MaestroInterface;
 import com.github.mjjaniec.util.Palete;
 import com.github.mjjaniec.views.bigscreen.InviteView;
 import com.github.mjjaniec.views.player.JoinView;
-import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.DetachEvent;
-import com.vaadin.flow.component.HtmlContainer;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
@@ -31,7 +29,10 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RouterLink;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Route(value = "dj", layout = MaestroView.class)
 public class DjView extends VerticalLayout implements RouterLayout {
@@ -71,7 +72,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
     }
 
     private AccordionPanel createStagePanel(GameStage stage) {
-        return switch(stage) {
+        return switch (stage) {
             case GameStage.Invite invite -> inviteComponent(invite);
             case GameStage.RoundInit roundInit -> roundComponent(roundInit);
             case GameStage.WrapUp wrapUp -> wrapUpComponent(wrapUp);
@@ -83,7 +84,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
 
 
     private AccordionPanel inviteComponent(GameStage.Invite invite) {
-        Component header = createPanelHeader("\uD83D\uDCF2 Zaproszenie", invite);
+        Component header = createPanelHeader(new Text("\uD83D\uDCF2 Zaproszenie"), invite);
         VerticalLayout main = new VerticalLayout();
         main.setPadding(false);
         HorizontalLayout buttons = new HorizontalLayout(
@@ -98,7 +99,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
     }
 
     private ActivateComponent createActivateComponent(GameStage stage) {
-        ActivateComponent result = new ActivateComponent(stage,gameService.stage() == stage, this::onActivate);
+        ActivateComponent result = new ActivateComponent(stage, gameService.stage() == stage, this::onActivate);
         activateComponents.put(stage, result);
         return result;
     }
@@ -113,8 +114,8 @@ public class DjView extends VerticalLayout implements RouterLayout {
     }
 
 
-    private StageHeader createPanelHeader(String text, GameStage stage) {
-        StageHeader result = new StageHeader(text, gameService.stage() == stage, currentParentHeader);
+    private StageHeader createPanelHeader(Component content, GameStage stage) {
+        StageHeader result = new StageHeader(content, gameService.stage() == stage, currentParentHeader);
         if (stage != null) {
             headers.put(stage, result);
         }
@@ -144,7 +145,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
 
     private AccordionPanel wrapUpComponent(GameStage.WrapUp wrapUp) {
         HorizontalLayout content = new HorizontalLayout();
-        return new AccordionPanel(createPanelHeader("\uD83C\uDFC6 Podsumowanie", wrapUp), content);
+        return new AccordionPanel(createPanelHeader(new Text("\uD83C\uDFC6 Podsumowanie"), wrapUp), content);
     }
 
     private AccordionPanel roundInitComponent(GameStage.RoundInit roundInit) {
@@ -152,18 +153,18 @@ public class DjView extends VerticalLayout implements RouterLayout {
         content.add(createActivateComponent(roundInit));
         MainSet.Difficulty difficulty = roundInit.difficulty();
         content.add(new Span("typ: " + difficulty.mode + ", za-artystę: " + difficulty.points.artist() + ", za-tytuł: " + difficulty.points.title()));
-        return new AccordionPanel(createPanelHeader("▶️ Rozpoczęcie rundy", roundInit), content);
+        return new AccordionPanel(createPanelHeader(new Text("▶️ Rozpoczęcie rundy"), roundInit), content);
     }
 
     private AccordionPanel roundSummaryComponent(GameStage.RoundSummary roundSummary) {
-        StageHeader header = createPanelHeader("\uD83D\uDCC8 podsumowanie rundy", roundSummary);
+        StageHeader header = createPanelHeader(new Text("\uD83D\uDCC8 podsumowanie rundy"), roundSummary);
         Component content = createActivateComponent(roundSummary);
         return new AccordionPanel(header, content);
     }
 
 
     private AccordionPanel roundComponent(GameStage.RoundInit roundInit) {
-        StageHeader header = createPanelHeader("\uD83C\uDFAF Runda " + roundInit.roundNumber().number(), null);
+        StageHeader header = createPanelHeader(new Text("\uD83C\uDFAF Runda " + roundInit.roundNumber().number()), null);
         currentParentHeader = Optional.of(header);
         Accordion content = new Accordion();
         content.getStyle().setMarginLeft("3em");
@@ -192,7 +193,8 @@ public class DjView extends VerticalLayout implements RouterLayout {
     }
 
     private AccordionPanel pieceComponent(GameStage.RoundPiece piece) {
-        Div header = new Div(icon(piece.piece.instrument()), new Span(" " + piece.piece.artist() + " - " + piece.piece.title()));
+        Div headerComponent = new Div(icon(piece.piece.instrument()), new Span(" " + piece.piece.artist() + " - " + piece.piece.title()));
+        Div header = createPanelHeader(headerComponent, piece);
         HorizontalLayout content = new HorizontalLayout();
         content.setWidthFull();
         Div instr = new Div(icon(piece.piece.instrument()), new Span(" " + piece.piece.instrument().name()));
@@ -200,14 +202,15 @@ public class DjView extends VerticalLayout implements RouterLayout {
         Span tempo = new Span("\uD83E\uDD41 " + Optional.ofNullable(piece.piece.tempo()).map(Object::toString).orElse("zmienne"));
         tempo.setWidth("10%");
         Span hint = new Span(piece.piece.hint());
-        Button play = new Button("▶ Play");
-        play.addClickListener(event -> this.onActivate(piece));
-        Button guess = new Button("� Guess");
-        content.add(instr, tempo, hint, play, guess);
+
+        content.add(instr, tempo, hint);
+
+        piece.innerStages.stream()
+                .map(innerStage -> new PieceStageButton(piece, innerStage, this::onActivate))
+                .forEach(content::add);
         content.getStyle().setMarginLeft("2em");
         return new AccordionPanel(header, content);
     }
-
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {

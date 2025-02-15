@@ -4,6 +4,7 @@ import com.github.mjjaniec.views.bigscreen.BigScreenRoute;
 import com.github.mjjaniec.views.bigscreen.InviteView;
 import com.github.mjjaniec.views.bigscreen.RoundInitView;
 import com.github.mjjaniec.views.player.*;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.Optional;
@@ -73,6 +74,7 @@ public interface GameStage {
         public final PieceNumber pieceNumber;
         public final MainSet.Piece piece;
         public final List<PieceStage> innerStages;
+        @Setter
         private PieceStage currentStage;
 
         public RoundPiece(PieceNumber pieceNumber, MainSet.Piece piece, List<PieceStage> innerStages) {
