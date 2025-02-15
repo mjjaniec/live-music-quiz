@@ -7,5 +7,5 @@ public class Palete {
     public static String DARKER = "rgba(0, 0, 0, 0.75)";
     public static String BLACK = "rgba(0, 0, 0)";
     public static String LIGHTER = "rgba(0, 0, 0, 0.45)";
-    public static String HIGHLIGHT = "rgb(247, 246, 181)";
+    public static String HIGHLIGHT = "rgb(254, 253, 210)";
 }

@@ -1,12 +1,17 @@
 package com.github.mjjaniec.services;
 
 import com.github.mjjaniec.model.GameStage;
+import com.github.mjjaniec.model.GameStage.RoundInit;
+import com.github.mjjaniec.model.GameStage.RoundNumber;
 import com.github.mjjaniec.model.MainSet;
 import com.github.mjjaniec.model.Player;
 import com.github.mjjaniec.views.player.JoinView;
+import com.google.common.collect.Streams;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 @Component
 public class GameServiceImpl implements GameService, MaestroInterface {
@@ -15,6 +20,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     private final PlayerStore playerStore;
     private MainSet quiz;
     private GameStage<?, ?> stage;
+    private List<GameStage<?, ?>> _allStages;
 
 
     public GameServiceImpl(BigScreenNavigator bigScreenNavigator, PlayerNavigator playerNavigator, PlayerStore playerStore) {
@@ -37,7 +43,8 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     @Override
     public void initGame(MainSet set) {
         this.quiz = set;
-        this.stage = new GameStage.Invite();
+        this._allStages = computeAllStages();
+        this.stage = _allStages.getFirst();
         playerNavigator.navigatePlayers(JoinView.class);
     }
 
@@ -78,5 +85,34 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         this.stage = gameStage;
         playerNavigator.navigatePlayers(stage.playerView());
         bigScreenNavigator.navigateBigScreen(stage.getBigScreenView());
+    }
+
+    @Override
+    public List<GameStage<?, ?>> allStages() {
+        return _allStages;
+    }
+
+    private List<GameStage<?, ?>> computeAllStages() {
+        if (quiz == null) return List.of();
+        return Stream.<Stream<GameStage<?, ?>>>of(
+                Stream.of(new GameStage.Invite()),
+                Streams.mapWithIndex(quiz.levels().stream(), this::roundStages),
+                Stream.of(new GameStage.WrapUp())
+        ).flatMap(Function.identity()).toList();
+    }
+
+    private RoundInit roundStages(MainSet.LevelPieces level, long roundIndex) {
+        return new RoundInit(
+                new RoundNumber(roundIndex + 1, quiz.levels().size()),
+                level.level(),
+                Streams.mapWithIndex(level.pieces().stream(), (piece, index) ->
+                        new GameStage.RoundPiece(
+                                new GameStage.PieceNumber(index + 1, level.pieces().size()),
+                                piece,
+                                List.of(GameStage.PieceStage.LISTEN, GameStage.PieceStage.REPORT)
+                        )
+                ).toList(),
+                new GameStage.RoundSummary(new RoundNumber(roundIndex + 1, quiz.levels().size()))
+        );
     }
 }

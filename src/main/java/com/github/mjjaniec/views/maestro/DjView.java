@@ -1,5 +1,7 @@
 package com.github.mjjaniec.views.maestro;
 
+import com.github.mjjaniec.components.ActivateComponent;
+import com.github.mjjaniec.components.StageHeader;
 import com.github.mjjaniec.model.GameStage;
 import com.github.mjjaniec.model.MainSet;
 import com.github.mjjaniec.model.Player;
@@ -8,7 +10,6 @@ import com.github.mjjaniec.services.MaestroInterface;
 import com.github.mjjaniec.util.Palete;
 import com.github.mjjaniec.views.bigscreen.InviteView;
 import com.github.mjjaniec.views.player.JoinView;
-import com.google.common.collect.Streams;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
@@ -30,7 +31,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RouterLink;
 
-import java.util.Optional;
+import java.util.*;
 
 @Route(value = "dj", layout = MaestroView.class)
 public class DjView extends VerticalLayout implements RouterLayout {
@@ -38,11 +39,16 @@ public class DjView extends VerticalLayout implements RouterLayout {
     private final MaestroInterface gameService;
     private final BroadcastAttach broadcastAttach;
     private final Grid<Player> playersGrid = new Grid<>(Player.class, false);
-    private final GameStage.Invite invite = new GameStage.Invite();
+    private final Map<GameStage<?, ?>, ActivateComponent> activateComponents = new HashMap<>();
+    private final Map<GameStage<?, ?>, StageHeader> headers = new HashMap<>();
+    private Optional<StageHeader> currentParentHeader = Optional.empty();
+
 
     DjView(MaestroInterface gameService, BroadcastAttach broadcastAttach) {
         this.gameService = gameService;
         this.broadcastAttach = broadcastAttach;
+        List<GameStage<?, ?>> allStages = gameService.allStages();
+
         setSizeFull();
         setPadding(false);
 
@@ -58,20 +64,30 @@ public class DjView extends VerticalLayout implements RouterLayout {
         } else {
             Accordion main = new Accordion();
             main.setSizeFull();
-            main.add(inviteComponent());
-            Streams.mapWithIndex(quiz.levels().stream(), this::roundComponent).forEach(main::add);
-            main.add(finishComponent());
+            allStages.stream().map(this::createStagePanel).forEach(main::add);
             add(main);
             add(reset);
         }
     }
 
-    private AccordionPanel inviteComponent() {
-        Span header = panelHeader("\uD83D\uDCF2 Zaproszenie", invite);
+    private AccordionPanel createStagePanel(GameStage<?,?> stage) {
+        return switch(stage) {
+            case GameStage.Invite invite -> inviteComponent(invite);
+            case GameStage.RoundInit roundInit -> roundComponent(roundInit);
+            case GameStage.WrapUp wrapUp -> wrapUpComponent(wrapUp);
+            case GameStage.RoundPiece roundPiece -> pieceComponent(roundPiece);
+            case GameStage.RoundSummary roundSummary -> roundSummaryComponent(roundSummary);
+            default -> throw new UnsupportedOperationException("unsupported stage" + stage);
+        };
+    }
+
+
+    private AccordionPanel inviteComponent(GameStage.Invite invite) {
+        Component header = createPanelHeader("\uD83D\uDCF2 Zaproszenie", invite);
         VerticalLayout main = new VerticalLayout();
         main.setPadding(false);
         HorizontalLayout buttons = new HorizontalLayout(
-                activateComponent(invite),
+                createActivateComponent(invite),
                 new RouterLink("BigScreen", InviteView.class),
                 new RouterLink("Player Join", JoinView.class)
         );
@@ -81,27 +97,26 @@ public class DjView extends VerticalLayout implements RouterLayout {
         return new AccordionPanel(header, main);
     }
 
-    private Span panelHeader(String text, GameStage<?, ?> expectedStage) {
-        if (gameService.stage().equals(expectedStage)) {
-            Span result = new Span(text  + " ⭐");
-            result.getStyle().setBackgroundColor(Palete.HIGHLIGHT).setColor(Palete.BLACK);
-            result.getElement().getThemeList().add("badge success pill");
-            return result;
-        } else {
-            return new Span(text);
-        }
+    private ActivateComponent createActivateComponent(GameStage<?,?> stage) {
+        ActivateComponent result = new ActivateComponent(stage,gameService.stage() == stage, newStage -> {
+            GameStage<?, ?> oldStage = gameService.stage();
+            Optional.ofNullable(activateComponents.get(oldStage)).ifPresent(ac -> ac.setActive(false));
+            Optional.ofNullable(headers.get(oldStage)).ifPresent(h -> h.setActive(false));
+            gameService.setStage(newStage);
+            Optional.ofNullable(activateComponents.get(newStage)).ifPresent(ac -> ac.setActive(true));
+            Optional.ofNullable(headers.get(newStage)).ifPresent(h -> h.setActive(true));
+        });
+        activateComponents.put(stage, result);
+        return result;
     }
 
-    private Component activateComponent(GameStage<?, ?> expectedStage) {
-        if (gameService.stage().equals(expectedStage)) {
-            Span badge = new Span("Aktywne ✨⭐\uD83D\uDD25");
-            badge.getElement().getThemeList().add("badge success pill");
-            return badge;
-        } else {
-            Button button = new Button("Aktywuj", event -> gameService.setStage(expectedStage));
-            button.addThemeVariants(ButtonVariant.LUMO_SMALL);
-            return button;
+
+    private StageHeader createPanelHeader(String text, GameStage<?, ?> stage) {
+        StageHeader result = new StageHeader(text, gameService.stage() == stage, currentParentHeader);
+        if (stage != null) {
+            headers.put(stage, result);
         }
+        return result;
     }
 
     private Component playersList() {
@@ -125,34 +140,36 @@ public class DjView extends VerticalLayout implements RouterLayout {
         playersGrid.setItems(gameService.getPlayers());
     }
 
-    private AccordionPanel finishComponent() {
-        Span header = new Span("\uD83C\uDFC6 Podsumowanie");
+    private AccordionPanel wrapUpComponent(GameStage.WrapUp wrapUp) {
         HorizontalLayout content = new HorizontalLayout();
-        return new AccordionPanel(header, content);
+        return new AccordionPanel(createPanelHeader("\uD83C\uDFC6 Podsumowanie", wrapUp), content);
     }
 
-    private AccordionPanel roundInitComponent(MainSet.Difficulty difficulty) {
-        Span header = new Span("▶️ Rozpoczęcie rundy");
+    private AccordionPanel roundInitComponent(GameStage.RoundInit roundInit) {
         HorizontalLayout content = new HorizontalLayout();
-        content.add(activateComponent(new GameStage.RoundInit(new GameStage.RoundNumber(1,3), difficulty.mode)));
+        content.add(createActivateComponent(roundInit));
+        MainSet.Difficulty difficulty = roundInit.difficulty();
         content.add(new Span("typ: " + difficulty.mode + ", za-artystę: " + difficulty.points.artist() + ", za-tytuł: " + difficulty.points.title()));
+        return new AccordionPanel(createPanelHeader("▶️ Rozpoczęcie rundy", roundInit), content);
+    }
+
+    private AccordionPanel roundSummaryComponent(GameStage.RoundSummary roundSummary) {
+        StageHeader header = createPanelHeader("\uD83D\uDCC8 podsumowanie rundy", roundSummary);
+        Component content = createActivateComponent(roundSummary);
         return new AccordionPanel(header, content);
     }
 
-    private AccordionPanel roundSummaryComponent() {
-        Span header = new Span("\uD83D\uDCC8 podsumowanie rundy");
-        HorizontalLayout content = new HorizontalLayout();
-        return new AccordionPanel(header, content);
-    }
 
-
-    private AccordionPanel roundComponent(MainSet.LevelPieces pieces, long number) {
-        Div header = new Div(new Span("\uD83C\uDFAF Runda " + (number + 1)));
+    private AccordionPanel roundComponent(GameStage.RoundInit roundInit) {
+        StageHeader header = createPanelHeader("\uD83C\uDFAF Runda " + roundInit.roundNumber().number(), null);
+        currentParentHeader = Optional.of(header);
         Accordion content = new Accordion();
         content.getStyle().setMarginLeft("3em");
-        content.add(roundInitComponent(pieces.level()));
-        pieces.pieces().stream().map(this::pieceComponent).forEach(content::add);
-        content.add(roundSummaryComponent());
+        content.add(roundInitComponent(roundInit));
+        roundInit.pieces().stream().map(this::createStagePanel).forEach(content::add);
+        content.add(createStagePanel(roundInit.roundSummary()));
+        currentParentHeader = Optional.empty();
+        header.setActive(gameService.stage() == roundInit);
         return new AccordionPanel(header, content);
     }
 
@@ -173,15 +190,15 @@ public class DjView extends VerticalLayout implements RouterLayout {
         }
     }
 
-    private AccordionPanel pieceComponent(MainSet.Piece piece) {
-        Div header = new Div(icon(piece.instrument()), new Span(" " + piece.artist() + " - " + piece.title()));
+    private AccordionPanel pieceComponent(GameStage.RoundPiece piece) {
+        Div header = new Div(icon(piece.piece().instrument()), new Span(" " + piece.piece().artist() + " - " + piece.piece().title()));
         HorizontalLayout content = new HorizontalLayout();
         content.setWidthFull();
-        Div instr = new Div(icon(piece.instrument()), new Span(" " + piece.instrument().name()));
+        Div instr = new Div(icon(piece.piece().instrument()), new Span(" " + piece.piece().instrument().name()));
         instr.setWidth("10%");
-        Span tempo = new Span("\uD83E\uDD41 " + Optional.ofNullable(piece.tempo()).map(Object::toString).orElse("zmienne"));
+        Span tempo = new Span("\uD83E\uDD41 " + Optional.ofNullable(piece.piece().tempo()).map(Object::toString).orElse("zmienne"));
         tempo.setWidth("10%");
-        Span hint = new Span(piece.hint());
+        Span hint = new Span(piece.piece().hint());
         Button Play = new Button("▶ Play");
         Button Guess = new Button("� Guess");
         content.add(instr, tempo, hint, Play, Guess);

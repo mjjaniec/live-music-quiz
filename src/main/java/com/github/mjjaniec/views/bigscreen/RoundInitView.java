@@ -29,7 +29,7 @@ public class RoundInitView extends VerticalLayout implements BigScreenRoute {
     }
 
 
-    private HorizontalLayout createProgress(String label, int step, int of, String color) {
+    private HorizontalLayout createProgress(String label, long step, long of, String color) {
         HorizontalLayout result = new HorizontalLayout();
         result.getStyle().setColor(Palete.WHITE);
         result.setSpacing(false);
@@ -38,7 +38,7 @@ public class RoundInitView extends VerticalLayout implements BigScreenRoute {
         VerticalLayout left = new VerticalLayout();
         left.setPadding(false);
         left.getStyle().setPaddingLeft("1em").setPaddingTop("0.1em");
-        int leftW = step * 100 / of;
+        long leftW = step * 100 / of;
         left.setWidth(leftW + "%");
         left.setHeight("2em");
         left.add(new Text(label + " " + step + " / " + of));
