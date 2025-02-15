@@ -5,7 +5,6 @@ import com.github.mjjaniec.model.GameStage.RoundInit;
 import com.github.mjjaniec.model.GameStage.RoundNumber;
 import com.github.mjjaniec.model.MainSet;
 import com.github.mjjaniec.model.Player;
-import com.github.mjjaniec.views.player.JoinView;
 import com.google.common.collect.Streams;
 import org.springframework.stereotype.Component;
 
@@ -44,15 +43,14 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     public void initGame(MainSet set) {
         this.quiz = set;
         this._allStages = computeAllStages();
-        this.stage = _allStages.getFirst();
-        playerNavigator.navigatePlayers(JoinView.class);
+        setStage(_allStages.getFirst());
     }
 
     @Override
     public boolean addPlayer(String name) {
         boolean result = playerStore.addPlayer(name);
         if (result) {
-            bigScreenNavigator.refreshPlayers();
+            bigScreenNavigator.refreshPlayerLists();
 
         }
         return result;
@@ -61,7 +59,8 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     @Override
     public void removePlayer(Player player) {
         playerStore.removePlayer(player);
-        bigScreenNavigator.refreshPlayers();
+        playerNavigator.refreshAllPlayers();
+        bigScreenNavigator.refreshPlayerLists();
     }
 
     @Override
@@ -84,7 +83,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     public void setStage(GameStage<?, ?> gameStage) {
         this.stage = gameStage;
         playerNavigator.navigatePlayers(stage.playerView());
-        bigScreenNavigator.navigateBigScreen(stage.getBigScreenView());
+        bigScreenNavigator.navigateBigScreen(stage.bigScreenView());
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.github.mjjaniec.views.player;
 
 import com.github.mjjaniec.services.GameService;
-import com.github.mjjaniec.util.Cookies;
+import com.github.mjjaniec.util.LocalStorage;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 @Route("/")
 @RequiredArgsConstructor
-public class RootView extends HorizontalLayout implements RouterLayout, PlayerRoute {
+public class RootView extends HorizontalLayout implements RouterLayout {
 
     private final GameService gameService;
 
@@ -19,15 +19,16 @@ public class RootView extends HorizontalLayout implements RouterLayout, PlayerRo
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
         UI ui = attachEvent.getUI();
-        Cookies.readPlayer().ifPresentOrElse(
+        LocalStorage.readPlayer(ui).thenAccept(playerOpt -> playerOpt.ifPresentOrElse(
                 player -> {
-                    if (gameService.hasPlayer(player)) {
-                        ui.navigate(WaitForRoundView.class);
+                    if (!gameService.hasPlayer(player)) {
+                        LocalStorage.removePlayer(ui);
+                        ui.access(() -> ui.navigate(JoinView.class));
                     } else {
-                        Cookies.removePlayer();
-                        ui.navigate(JoinView.class);
+                        attachEvent.getUI().navigate(PlayerView.class);
                     }
                 },
-                () -> ui.navigate(JoinView.class));
+                () -> ui.access(() -> ui.navigate(JoinView.class))
+        ));
     }
 }

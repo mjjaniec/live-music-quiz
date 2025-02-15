@@ -5,5 +5,5 @@ import com.vaadin.flow.component.Component;
 
 public interface BigScreenNavigator {
     <T extends Component & BigScreenRoute> void navigateBigScreen(Class<T> view);
-    void refreshPlayers();
+    void refreshPlayerLists();
 }

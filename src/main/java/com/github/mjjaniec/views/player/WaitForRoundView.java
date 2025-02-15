@@ -15,10 +15,9 @@ import com.vaadin.flow.router.Route;
 @Route(value = "wait-for-round", layout = PlayerView.class)
 public class WaitForRoundView extends HorizontalLayout implements PlayerRoute {
 
-    private final BroadcastAttach broadcaster;
+
 
     public WaitForRoundView(GameService gameService, BroadcastAttach broadcaster) {
-        this.broadcaster = broadcaster;
         setSpacing(false);
         setPadding(false);
         setSizeFull();
@@ -42,17 +41,5 @@ public class WaitForRoundView extends HorizontalLayout implements PlayerRoute {
         content.add(new Div(new Text("to start")));
         add(content);
 
-    }
-
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
-        broadcaster.attachPlayerUI(attachEvent.getUI());
-    }
-
-    @Override
-    protected void onDetach(DetachEvent detachEvent) {
-        super.onDetach(detachEvent);
-        broadcaster.detachPlayerUI(detachEvent.getUI());
     }
 }

@@ -4,7 +4,7 @@ import com.github.mjjaniec.views.bigscreen.BigScreenRoute;
 import com.github.mjjaniec.views.bigscreen.InviteView;
 import com.github.mjjaniec.views.bigscreen.RoundInitView;
 import com.github.mjjaniec.views.player.PlayerRoute;
-import com.github.mjjaniec.views.player.RootView;
+import com.github.mjjaniec.views.player.WaitForOthersView;
 import com.github.mjjaniec.views.player.WaitForRoundView;
 import com.vaadin.flow.component.Component;
 
@@ -15,7 +15,7 @@ public interface GameStage<PV extends Component & PlayerRoute, BSV extends Compo
 
     Class<PV> playerView();
 
-    Class<BSV> getBigScreenView();
+    Class<BSV> bigScreenView();
 
     default Optional<Invite> asInvite() {
         return switch (this) {
@@ -42,15 +42,15 @@ public interface GameStage<PV extends Component & PlayerRoute, BSV extends Compo
         LISTEN, REPORT;
     }
 
-    record Invite() implements GameStage<RootView, InviteView> {
+    record Invite() implements GameStage<WaitForOthersView, InviteView> {
 
         @Override
-        public Class<RootView> playerView() {
-            return RootView.class;
+        public Class<WaitForOthersView> playerView() {
+            return WaitForOthersView.class;
         }
 
         @Override
-        public Class<InviteView> getBigScreenView() {
+        public Class<InviteView> bigScreenView() {
             return InviteView.class;
         }
 
@@ -66,7 +66,7 @@ public interface GameStage<PV extends Component & PlayerRoute, BSV extends Compo
         }
 
         @Override
-        public Class<RoundInitView> getBigScreenView() {
+        public Class<RoundInitView> bigScreenView() {
             return RoundInitView.class;
         }
 
@@ -80,7 +80,7 @@ public interface GameStage<PV extends Component & PlayerRoute, BSV extends Compo
         }
 
         @Override
-        public Class<RoundInitView> getBigScreenView() {
+        public Class<RoundInitView> bigScreenView() {
             return RoundInitView.class;
         }
     }
@@ -92,7 +92,7 @@ public interface GameStage<PV extends Component & PlayerRoute, BSV extends Compo
         }
 
         @Override
-        public Class<RoundInitView> getBigScreenView() {
+        public Class<RoundInitView> bigScreenView() {
             return RoundInitView.class;
         }
 
@@ -105,7 +105,7 @@ public interface GameStage<PV extends Component & PlayerRoute, BSV extends Compo
         }
 
         @Override
-        public Class<RoundInitView> getBigScreenView() {
+        public Class<RoundInitView> bigScreenView() {
             return RoundInitView.class;
         }
 
