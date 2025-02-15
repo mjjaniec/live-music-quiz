@@ -1,10 +1,7 @@
 package com.github.mjjaniec.views.player;
 
-import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.GameService;
 import com.github.mjjaniec.util.Palete;
-import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -16,8 +13,7 @@ import com.vaadin.flow.router.Route;
 public class WaitForRoundView extends HorizontalLayout implements PlayerRoute {
 
 
-
-    public WaitForRoundView(GameService gameService, BroadcastAttach broadcaster) {
+    public WaitForRoundView(GameService gameService) {
         setSpacing(false);
         setPadding(false);
         setSizeFull();
@@ -40,6 +36,5 @@ public class WaitForRoundView extends HorizontalLayout implements PlayerRoute {
         content.add(outlet);
         content.add(new Div(new Text("to start")));
         add(content);
-
     }
 }

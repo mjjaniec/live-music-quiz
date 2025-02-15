@@ -39,7 +39,7 @@ public interface GameStage<PV extends Component & PlayerRoute, BSV extends Compo
 
 
     enum PieceStage {
-        LISTEN, REPORT;
+        LISTEN, REPORT
     }
 
     record Invite() implements GameStage<WaitForOthersView, InviteView> {
