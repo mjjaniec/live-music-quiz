@@ -1,11 +1,11 @@
 package com.github.mjjaniec.views.bigscreen;
 
 import com.github.mjjaniec.components.UserBadge;
+import com.github.mjjaniec.model.GameStage;
 import com.github.mjjaniec.model.Player;
 import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.GameService;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -14,6 +14,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinService;
 
 import java.util.List;
+import java.util.Optional;
 
 @Route(value = "invite", layout = BigScreenView.class)
 public class InviteView extends HorizontalLayout implements BigScreenRoute {
@@ -71,5 +72,16 @@ public class InviteView extends HorizontalLayout implements BigScreenRoute {
     protected void onDetach(DetachEvent detachEvent) {
         super.onDetach(detachEvent);
         broadcastAttach.detachPlayerList(detachEvent.getUI());
+    }
+
+
+    @Override
+    public Optional<GameStage.RoundPiece> testPiece() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<GameStage.RoundInit> testInit() {
+        return Optional.empty();
     }
 }
