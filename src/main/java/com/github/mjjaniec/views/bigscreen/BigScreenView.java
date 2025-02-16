@@ -4,7 +4,7 @@ import com.github.mjjaniec.components.BannerBand;
 import com.github.mjjaniec.components.FooterBand;
 import com.github.mjjaniec.components.RouterLayoutWithOutlet;
 import com.github.mjjaniec.services.BroadcastAttach;
-import com.github.mjjaniec.util.Palete;
+import com.github.mjjaniec.util.Palette;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -27,14 +27,14 @@ public class BigScreenView extends VerticalLayout implements RouterLayoutWithOut
         this.broadcaster = broadcaster;
         outlet.setSizeFull();
         outlet.setPadding(false);
-        outlet.getStyle().setBackgroundColor(Palete.WHITE);
+        outlet.getStyle().setBackgroundColor(Palette.WHITE);
         setPadding(true);
         setSpacing(false);
-        getStyle().setBackground(Palete.GREEN);
+        getStyle().setBackground(Palette.GREEN);
         setSizeFull();
-        add(new BannerBand(Palete.GREEN));
+        add(new BannerBand(Palette.GREEN));
         add(outlet);
-        add(new FooterBand(Palete.GREEN));
+        add(new FooterBand(Palette.GREEN));
     }
 
     @Override

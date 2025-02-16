@@ -1,6 +1,6 @@
 package com.github.mjjaniec.components;
 
-import com.github.mjjaniec.util.Palete;
+import com.github.mjjaniec.util.Palette;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.html.Div;
@@ -22,7 +22,7 @@ public class StageHeader extends Div {
     public void setActive(boolean active) {
         removeAll();
         if (active) {
-            getStyle().setBackgroundColor(Palete.HIGHLIGHT).setColor(Palete.BLACK);
+            getStyle().setBackgroundColor(Palette.HIGHLIGHT).setColor(Palette.BLACK);
             add(content, new Text(" ⭐"));
         } else {
             getStyle().remove("background-color");

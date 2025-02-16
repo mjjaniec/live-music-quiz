@@ -1,7 +1,7 @@
 package com.github.mjjaniec.views.player;
 
 import com.github.mjjaniec.services.GameService;
-import com.github.mjjaniec.util.Palete;
+import com.github.mjjaniec.util.Palette;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -17,14 +17,14 @@ public class WaitForRoundView extends HorizontalLayout implements PlayerRoute {
         setSpacing(false);
         setPadding(false);
         setSizeFull();
-        getStyle().setColor(Palete.WHITE).setFontSize("1.6em");
+        getStyle().setColor(Palette.WHITE).setFontSize("1.6em");
         Div outlet = new Div();
         gameService.stage().asRoundInit()
                 .map(round -> String.valueOf(round.roundNumber().number()))
                 .ifPresent(outlet::setText);
         outlet.getStyle().setFontSize("7em").setFontWeight(Style.FontWeight.BOLD).setLineHeight("1.5");
         outlet.setClassName("pulse pt-mono-regular");
-        getStyle().setBackground(Palete.BLUE);
+        getStyle().setBackground(Palette.BLUE);
         setAlignItems(Alignment.CENTER);
 
         VerticalLayout content = new VerticalLayout();

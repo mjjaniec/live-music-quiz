@@ -7,7 +7,7 @@ import com.github.mjjaniec.config.ApplicationConfig;
 import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.GameService;
 import com.github.mjjaniec.util.LocalStorage;
-import com.github.mjjaniec.util.Palete;
+import com.github.mjjaniec.util.Palette;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
@@ -42,9 +42,9 @@ public class PlayerView extends VerticalLayout implements RouterLayoutWithOutlet
         outlet.setSizeFull();
         setSizeFull();
 
-        add(new BannerBand(Palete.BLUE));
+        add(new BannerBand(Palette.BLUE));
         add(outlet);
-        add(new FooterBand(Palete.BLUE));
+        add(new FooterBand(Palette.BLUE));
 
         // temporary:
         setWidth("360px");

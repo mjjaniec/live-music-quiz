@@ -8,7 +8,7 @@ import com.github.mjjaniec.model.MainSet;
 import com.github.mjjaniec.model.Player;
 import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.MaestroInterface;
-import com.github.mjjaniec.util.Palete;
+import com.github.mjjaniec.util.Palette;
 import com.github.mjjaniec.views.bigscreen.InviteView;
 import com.github.mjjaniec.views.player.JoinView;
 import com.vaadin.flow.component.*;
@@ -180,7 +180,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
     private HtmlContainer icon(MainSet.Instrument instrument) {
         Div result = new Div(instrument.icon);
         if (MainSet.Instrument.Bass == instrument) {
-            result.getStyle().setColor(Palete.BLUE).setFontWeight(Style.FontWeight.BOLD)
+            result.getStyle().setColor(Palette.BLUE).setFontWeight(Style.FontWeight.BOLD)
                     .setWidth("22px")
                     .setTransform("translate(3px, 3px)")
                     .setFontSize("120%")
