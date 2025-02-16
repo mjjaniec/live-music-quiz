@@ -3,6 +3,7 @@ package com.github.mjjaniec.views.player;
 import com.github.mjjaniec.components.BannerBand;
 import com.github.mjjaniec.components.FooterBand;
 import com.github.mjjaniec.components.RouterLayoutWithOutlet;
+import com.github.mjjaniec.config.ApplicationConfig;
 import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.GameService;
 import com.github.mjjaniec.util.LocalStorage;
@@ -25,15 +26,17 @@ public class PlayerView extends VerticalLayout implements RouterLayoutWithOutlet
     private final HorizontalLayout outlet = new HorizontalLayout();
     private final BroadcastAttach broadcaster;
     private final GameService gameService;
+    private final ApplicationConfig config;
 
     @Override
     public HorizontalLayout outlet() {
         return outlet;
     }
 
-    public PlayerView(BroadcastAttach broadcaster, GameService gameService) {
+    public PlayerView(BroadcastAttach broadcaster, GameService gameService, ApplicationConfig config) {
         this.broadcaster = broadcaster;
         this.gameService = gameService;
+        this.config = config;
         setPadding(false);
         setSpacing(false);
         outlet.setSizeFull();
@@ -62,20 +65,22 @@ public class PlayerView extends VerticalLayout implements RouterLayoutWithOutlet
     }
 
     private void kickOutOrDirect(UI ui) {
-        LocalStorage.readPlayer(ui).thenAccept(playerOpt -> playerOpt.ifPresentOrElse(
-                player -> {
-                    if (gameService.hasPlayer(player)) {
-                        ui.access(() -> Optional.ofNullable(gameService.stage()).ifPresentOrElse(
-                                stage -> ui.navigate((Class<? extends Component>)stage.playerView()),
-                                () -> ui.navigate(WaitForOthersView.class)
-                        ));
-                    } else {
-                        LocalStorage.removePlayer(ui);
-                        ui.access(() -> ui.navigate(JoinView.class));
-                    }
-                },
-                () -> ui.access(() -> ui.navigate(JoinView.class))
-        ));
+        if (config.enableFrontRouting()) {
+            LocalStorage.readPlayer(ui).thenAccept(playerOpt -> playerOpt.ifPresentOrElse(
+                    player -> {
+                        if (gameService.hasPlayer(player)) {
+                            ui.access(() -> Optional.ofNullable(gameService.stage()).ifPresentOrElse(
+                                    stage -> ui.navigate((Class<? extends Component>) stage.playerView()),
+                                    () -> ui.navigate(WaitForOthersView.class)
+                            ));
+                        } else {
+                            LocalStorage.removePlayer(ui);
+                            ui.access(() -> ui.navigate(JoinView.class));
+                        }
+                    },
+                    () -> ui.access(() -> ui.navigate(JoinView.class))
+            ));
+        }
     }
 
 }

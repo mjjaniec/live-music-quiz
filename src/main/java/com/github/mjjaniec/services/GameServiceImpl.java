@@ -9,6 +9,7 @@ import com.google.common.collect.Streams;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -26,6 +27,10 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         this.bigScreenNavigator = bigScreenNavigator;
         this.playerNavigator = playerNavigator;
         this.playerStore = playerStore;
+
+        initGame(MainSet.TheSet);
+        _allStages.stream().flatMap(s -> s.asPiece().stream()).findFirst()
+                .ifPresent(this::setStage);
     }
 
     @Override
@@ -89,6 +94,11 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     @Override
     public List<GameStage> allStages() {
         return _allStages;
+    }
+
+    @Override
+    public void reportResult(Optional<Player> player, boolean artist, boolean title, boolean bonus) {
+        // ignore for now
     }
 
     private List<GameStage> computeAllStages() {

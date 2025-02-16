@@ -29,6 +29,13 @@ public interface GameStage {
         };
     }
 
+    default Optional<RoundPiece> asPiece() {
+        return switch (this) {
+            case RoundPiece it -> Optional.of(it);
+            default -> Optional.empty();
+        };
+    }
+
     record RoundNumber(long number, long of) {
     }
 
@@ -76,12 +83,15 @@ public interface GameStage {
         public final List<PieceStage> innerStages;
         @Setter
         private PieceStage currentStage;
+        @Setter
+        private boolean bonus;
 
         public RoundPiece(PieceNumber pieceNumber, MainSet.Piece piece, List<PieceStage> innerStages) {
             this.pieceNumber = pieceNumber;
             this.piece = piece;
             this.currentStage = innerStages.getFirst();
             this.innerStages = innerStages;
+            this.bonus = false;
         }
 
         @Override

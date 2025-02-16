@@ -6,6 +6,7 @@ import com.github.mjjaniec.model.MainSet;
 import com.github.mjjaniec.model.Player;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface GameService {
 
@@ -21,4 +22,5 @@ public interface GameService {
 
     MainSet quiz();
 
+    void reportResult(Optional<Player> player, boolean artist, boolean title, boolean bonus);
 }

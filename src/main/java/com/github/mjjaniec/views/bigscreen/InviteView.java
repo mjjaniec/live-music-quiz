@@ -1,5 +1,6 @@
 package com.github.mjjaniec.views.bigscreen;
 
+import com.github.mjjaniec.components.UserBadge;
 import com.github.mjjaniec.model.Player;
 import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.GameService;
@@ -52,23 +53,12 @@ public class InviteView extends HorizontalLayout implements BigScreenRoute {
         add(invitation, players);
     }
 
-    private Component userBadge(String user, boolean small) {
-        Span badge = new Span(user);
-        String fontSize = small ? "2em" : "2.5em" ;
-        String margin = small ?  "0.4em" : "0.5em";
-        badge.getStyle().setFontSize(fontSize);
-        badge.getStyle().setMarginRight(margin);
-        badge.getStyle().setMarginBottom(margin);
-        badge.getElement().getThemeList().add("badge success pill");
-        return badge;
-    }
-
     private void refreshPlayers() {
         playersContainer.removeAll();
         List<Player> plaersList = gameService.getPlayers();
 
-        plaersList.forEach(user -> playersContainer.add(userBadge(user.name(), plaersList.size() > 10)));
-        playersContainer.add(new H2(plaersList.isEmpty() ? "Czekamy na graczy" : "grają z nami!"));
+        plaersList.forEach(user -> playersContainer.add(new UserBadge(user.name(), plaersList.size() > 10, true)));
+        playersContainer.add(new H2(plaersList.isEmpty() ? "Czekamy na graczy" : "grają z nami! (" + plaersList.size() + " os)"));
     }
 
     @Override

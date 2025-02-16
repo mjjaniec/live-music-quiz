@@ -1,3 +1,8 @@
+html {
+ --vaadin-checkbox-label-font-size: var(--lumo-font-size-l);
+ --vaadin-checkbox-size: 1.4em;
+}
+
 .pulse {
   animation: pulse 1s infinite;
 }
@@ -15,51 +20,60 @@
 }
 
 .note1 {
-  animation: note1 2s infinite;
+  animation: note1 1.2s infinite;
 }
 
 .note2 {
-  animation: note2 2s infinite;
+  animation: note2 1.2s infinite;
 }
 
 .note3 {
-  animation: note3 2s infinite;
+  animation: note3 1.2s infinite;
 }
 
 .note4 {
-  animation: note4 2s infinite;
+  animation: note4 1.2s infinite;
+}
+
+
+.pseudo-radio > vaadin-button::part(prefix) {
+  width: 100%;
+  text-align: left;
+}
+
+vaadin-radio-button[checked]::part(radio) {
+    background-color: #ffffffaa;
 }
 
 
 
 @keyframes note1 {
   0% { transform: scale(1) translateY(0); }
-  6.25% { transform: scale(1.2) translateY(-0.2em);}
-  18.75% { transform: scale(1.2) translateY(-0.2em);}
-  25% { transform: scale(1) translateY(0); }
+  11.1% { transform: scale(1.2) translateY(-0.2em);}
+  22.2% { transform: scale(1.2) translateY(-0.2em);}
+  33.2% { transform: scale(1) translateY(0); }
 }
 
 @keyframes note2 {
   0% { transform: scale(1) translateY(-0.1em); }
-  25% { transform: scale(1) translateY(-0.1em); }
-  31.25% { transform: scale(1.2) translateY(-0.3em); }
-  37.5% { transform: scale(1) translateY(-0.1em); }
+  33.3% { transform: scale(1) translateY(-0.1em); }
+  41.7% { transform: scale(1.2) translateY(-0.3em); }
+  50% { transform: scale(1) translateY(-0.1em); }
   100% { transform: scale(1) translateY(-0.1em); }
 }
 
 @keyframes note3 {
   0% { transform: scale(1) translateY(0.1em); }
-  37.5% { transform: scale(1) translateY(0.1em); }
-  43.25% { transform: scale(1.2) translateY(-0.1em); }
   50% { transform: scale(1) translateY(0.1em); }
+  58.3% { transform: scale(1.2) translateY(-0.1em); }
+  66.7% { transform: scale(1) translateY(0.1em); }
   100% { transform: scale(1) translateY(0.1em); }
 }
 
 @keyframes note4 {
   0% { transform: scale(1) translateY(0); }
-  50% { transform: scale(1) translateY(0); }
-  56.25% { transform: scale(1.2) translateY(-0.2em); }
-  83.75% { transform: scale(1.2) translateY(-0.2em); }
+  66.7% { transform: scale(1) translateY(0); }
+  88.9% { transform: scale(1.2) translateY(-0.2em); }
   100% { transform: scale(1) translateY(0); }
 }
 

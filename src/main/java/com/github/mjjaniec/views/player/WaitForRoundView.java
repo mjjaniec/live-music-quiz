@@ -22,7 +22,7 @@ public class WaitForRoundView extends HorizontalLayout implements PlayerRoute {
         gameService.stage().asRoundInit()
                 .map(round -> String.valueOf(round.roundNumber().number()))
                 .ifPresent(outlet::setText);
-        outlet.getStyle().setFontSize("10em").setFontWeight(Style.FontWeight.BOLD).setLineHeight("1");
+        outlet.getStyle().setFontSize("7em").setFontWeight(Style.FontWeight.BOLD).setLineHeight("1.5");
         outlet.setClassName("pulse pt-mono-regular");
         getStyle().setBackground(Palete.BLUE);
         setAlignItems(Alignment.CENTER);
@@ -32,9 +32,9 @@ public class WaitForRoundView extends HorizontalLayout implements PlayerRoute {
         content.setPadding(false);
         content.setWidthFull();
         content.setAlignItems(Alignment.CENTER);
-        content.add(new Div(new Text("Please wait for round")));
+        content.add(new Div(new Text("Zaczekaj na start")));
         content.add(outlet);
-        content.add(new Div(new Text("to start")));
+        content.add(new Div(new Text("rundy!")));
         add(content);
     }
 }

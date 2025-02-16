@@ -1,16 +1,18 @@
 package com.github.mjjaniec;
 
+import com.github.mjjaniec.config.ApplicationConfig;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.server.AppShellSettings;
 import com.vaadin.flow.theme.Theme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 import java.io.IOException;
 
-
 @SpringBootApplication
+@EnableConfigurationProperties(ApplicationConfig.class)
 @Theme(value = "live-music-quiz")
 @Push
 public class LiveMusicQuizApp implements AppShellConfigurator {
@@ -24,3 +26,4 @@ public class LiveMusicQuizApp implements AppShellConfigurator {
         SpringApplication.run(LiveMusicQuizApp.class, args);
     }
 }
+

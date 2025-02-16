@@ -10,21 +10,20 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
-@Route(value = "wait-for-others", layout = PlayerView.class)
-public class WaitForOthersView extends VerticalLayout implements PlayerRoute {
+@Route(value = "piece-result", layout = PlayerView.class)
+public class PieceResultView extends VerticalLayout implements PlayerRoute {
 
     private final Div badgeHolder = new Div();
 
-    public WaitForOthersView() {
+    public PieceResultView() {
         setSpacing(true);
         setPadding(true);
 
         setSizeFull();
         setAlignItems(Alignment.CENTER);
-        add(new H3("witaj"));
         add(badgeHolder);
-        add(new H3("poczekaj na pozostałych graczy"));
-        add(new H1("\uD83E\uDD71 \uD83D\uDCA4 \uD83D\uDCA4"));
+        add(new H3("zdobywa"));
+        add(new H1("12 punktów"));
     }
 
     @Override

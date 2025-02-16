@@ -2,6 +2,7 @@ package com.github.mjjaniec.views.player;
 
 import com.github.mjjaniec.components.BannerBand;
 import com.github.mjjaniec.components.FooterBand;
+import com.github.mjjaniec.config.ApplicationConfig;
 import com.github.mjjaniec.model.Player;
 import com.github.mjjaniec.services.GameService;
 import com.github.mjjaniec.util.LocalStorage;
@@ -21,9 +22,11 @@ import com.vaadin.flow.router.Route;
 public class JoinView extends VerticalLayout {
 
     private final GameService service;
+    private final ApplicationConfig config;
 
-    public JoinView(GameService service) {
+    public JoinView(GameService service, ApplicationConfig config) {
         this.service = service;
+        this.config = config;
         VerticalLayout outlet = new VerticalLayout();
         setPadding(false);
         setSpacing(false);
@@ -61,10 +64,12 @@ public class JoinView extends VerticalLayout {
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
-        UI ui = attachEvent.getUI();
-        LocalStorage.readPlayer(ui).thenAccept(playerOpt -> playerOpt
-                .filter(service::hasPlayer)
-                .ifPresent(player -> ui.access(() -> ui.navigate(PlayerView.class)))
-        );
+        if (config.enableFrontRouting()) {
+            UI ui = attachEvent.getUI();
+            LocalStorage.readPlayer(ui).thenAccept(playerOpt -> playerOpt
+                    .filter(service::hasPlayer)
+                    .ifPresent(player -> ui.access(() -> ui.navigate(PlayerView.class)))
+            );
+        }
     }
 }

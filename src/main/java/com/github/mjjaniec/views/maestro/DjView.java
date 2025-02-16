@@ -205,6 +205,11 @@ public class DjView extends VerticalLayout implements RouterLayout {
 
         content.add(instr, tempo, hint);
 
+        Checkbox bonus = new Checkbox("Bonus");
+        bonus.addValueChangeListener(event -> piece.setBonus(event.getValue()));
+
+        content.add(bonus);
+
         piece.innerStages.stream()
                 .map(innerStage -> new PieceStageButton(piece, innerStage, this::onActivate))
                 .forEach(content::add);
