@@ -63,7 +63,7 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
         confirm.addThemeVariants(ButtonVariant.LUMO_LARGE, ButtonVariant.LUMO_PRIMARY);
         add(confirm);
 
-        confirm.addClickListener(_ -> {
+        confirm.addClickListener(event -> {
             UI ui = UI.getCurrent();
             LocalStorage.readPlayer(ui).thenAccept(player -> {
                 gameService.reportResult(player, artist, title, bonus);
@@ -86,7 +86,7 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
         Button hit = new Button(hitCaption);
         hit.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_LARGE);
 
-        miss.addClickListener(_ -> {
+        miss.addClickListener(event -> {
             miss.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             hit.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
             missCaption.setActive(true);
@@ -94,7 +94,7 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
             onSelect.accept(false);
         });
 
-        hit.addClickListener(_ -> {
+        hit.addClickListener(event -> {
             hit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             miss.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
             hitCaption.setActive(true);

@@ -23,7 +23,7 @@ public class TestDataProvider {
                 new GameStage.PieceNumber(3, 10),
                 new MainSet.Piece("Red Hot Chilli Pepper", "Callifornication", MainSet.Instrument.Bass, null, null, Set.of()),
                 List.of(GameStage.PieceStage.LISTEN, GameStage.PieceStage.ANSWER)
-        )).filter(_ -> config.testData());
+        )).filter(event -> config.testData());
 
     }
 
@@ -32,6 +32,6 @@ public class TestDataProvider {
                 MainSet.Difficulty.Easy,
                 List.of(),
                 new GameStage.RoundSummary(new GameStage.RoundNumber(1,3))
-        )).filter(_ -> config.testData());
+        )).filter(event -> config.testData());
     }
 }

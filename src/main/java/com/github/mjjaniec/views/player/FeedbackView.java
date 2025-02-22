@@ -23,12 +23,12 @@ public class FeedbackView extends VerticalLayout implements PlayerRoute {
         button.setEnabled(false);
         button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         input.setValueChangeMode(ValueChangeMode.EAGER);
-        input.addInputListener(_ -> button.setEnabled(!input.getValue().isBlank()));
+        input.addInputListener(event -> button.setEnabled(!input.getValue().isBlank()));
         add(input, button);
         setAlignItems(Alignment.CENTER);
 
 
-        button.addClickListener(_ -> {
+        button.addClickListener(event -> {
             removeAll();
             add(new H3("Diękówa!"));
             H1 heart = new H1("❤️");
