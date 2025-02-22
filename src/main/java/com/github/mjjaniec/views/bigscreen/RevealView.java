@@ -45,6 +45,6 @@ public class RevealView extends VerticalLayout implements BigScreenRoute {
         slackersContainer.removeAll();
         List<Player> slackers = List.of(new Player("Makumba"), new Player("Kasie"), new Player("ktoś tam"), new Player("Antylopa"));
         slackersContainer.add(new H4("czekamy na"));
-        slackers.forEach(player -> slackersContainer.add(new UserBadge(player.name(), true, true)));
+        slackers.forEach(player -> slackersContainer.add(new UserBadge(player.name, true, true)));
     }
 }

@@ -7,6 +7,7 @@ import com.github.mjjaniec.model.MainSet;
 import com.github.mjjaniec.model.Player;
 import com.google.common.collect.Streams;
 import org.springframework.stereotype.Component;
+import com.github.mjjaniec.stores.PlayerStore;
 
 import java.util.List;
 import java.util.Optional;

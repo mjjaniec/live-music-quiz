@@ -16,7 +16,7 @@ public class LocalStorage {
     }
 
     public static void savePlayer(UI ui, Player player) {
-        WebStorage.setItem(ui, WebStorage.Storage.LOCAL_STORAGE, USERNAME, player.name());
+        WebStorage.setItem(ui, WebStorage.Storage.LOCAL_STORAGE, USERNAME, player.name);
     }
 
     public static void removePlayer(UI ui) {

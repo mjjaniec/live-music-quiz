@@ -1,4 +1,4 @@
-package com.github.mjjaniec.services;
+package com.github.mjjaniec.stores;
 
 import com.github.mjjaniec.model.Player;
 

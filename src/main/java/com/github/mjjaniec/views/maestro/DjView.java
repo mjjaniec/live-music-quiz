@@ -122,7 +122,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
     }
 
     private Component playersList() {
-        playersGrid.addColumn(Player::name).setHeader("Ksywka");
+        playersGrid.addColumn(p -> p.name).setHeader("Ksywka");
         playersGrid.addColumn(new ComponentRenderer<>((SerializableFunction<Player, Component>) player -> {
             Div result = new Div();
             Checkbox danger = new Checkbox("danger", false);

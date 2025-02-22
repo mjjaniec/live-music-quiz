@@ -18,7 +18,7 @@ public class RoundSummaryView extends VerticalLayout implements BigScreenRoute {
 
     public RoundSummaryView(GameService gameService) {
         Grid<Player> playersGrid = new Grid<>(Player.class, false);
-        playersGrid.addColumn(Player::name).setHeader("Ksywka");
+        playersGrid.addColumn(p -> p.name).setHeader("Ksywka");
         playersGrid.addColumn(new ComponentRenderer<>((SerializableFunction<Player, Component>) player -> {
             Div result = new Div();
             Checkbox danger = new Checkbox("danger", false);
