@@ -12,6 +12,7 @@ public class Player {
     @Id
     public final String name;
 
+    @SuppressWarnings("unused") //needed for hibernate
     private Player() {
         name = "";
     }
