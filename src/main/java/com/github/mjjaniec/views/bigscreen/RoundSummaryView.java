@@ -22,7 +22,7 @@ public class RoundSummaryView extends VerticalLayout implements BigScreenRoute {
         playersGrid.addColumn(new ComponentRenderer<>((SerializableFunction<Player, Component>) player -> {
             Div result = new Div();
             Checkbox danger = new Checkbox("danger", false);
-            Button bumpOut = new Button("Wyrzuć", event -> gameService.removePlayer(player));
+            Button bumpOut = new Button("Wyrzuć", _ -> gameService.removePlayer(player));
             bumpOut.addThemeVariants(ButtonVariant.LUMO_ERROR);
             bumpOut.setEnabled(false);
             danger.addValueChangeListener(event -> bumpOut.setEnabled(event.getValue()));

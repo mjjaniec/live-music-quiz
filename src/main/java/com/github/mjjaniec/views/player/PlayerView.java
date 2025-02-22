@@ -64,6 +64,7 @@ public class PlayerView extends VerticalLayout implements RouterLayoutWithOutlet
         broadcaster.detachPlayerUI(detachEvent.getUI());
     }
 
+    @SuppressWarnings("unchecked")
     private void kickOutOrDirect(UI ui) {
         if (config.enableFrontRouting()) {
             LocalStorage.readPlayer(ui).thenAccept(playerOpt -> playerOpt.ifPresentOrElse(

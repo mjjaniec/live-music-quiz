@@ -2,6 +2,7 @@ package com.github.mjjaniec.model;
 
 import com.github.mjjaniec.views.bigscreen.*;
 import com.github.mjjaniec.views.player.*;
+import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
@@ -12,13 +13,6 @@ public interface GameStage {
     Class<? extends PlayerRoute> playerView();
 
     Class<? extends BigScreenRoute> bigScreenView();
-
-    default Optional<Invite> asInvite() {
-        return switch (this) {
-            case Invite it -> Optional.of(it);
-            default -> Optional.empty();
-        };
-    }
 
     default Optional<RoundInit> asRoundInit() {
         return switch (this) {
@@ -81,7 +75,7 @@ public interface GameStage {
         public final List<PieceStage> innerStages;
         @Setter
         private PieceStage currentStage;
-        @Setter
+        @Setter @Getter
         private boolean bonus;
 
         public RoundPiece(PieceNumber pieceNumber, MainSet.Piece piece, List<PieceStage> innerStages) {

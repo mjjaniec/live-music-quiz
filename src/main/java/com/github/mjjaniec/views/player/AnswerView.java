@@ -52,17 +52,18 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
             }
         }));
 
+        Checkbox bonusCheckbox = new Checkbox("bonus!", event -> bonus = event.getValue());
+        gameService.stage().asPiece().ifPresent(piece -> bonusCheckbox.setVisible(piece.isBonus()));
+
         add(new Div());
-        add(new Checkbox("bonus!", event -> {
-            bonus = event.getValue();
-        }));
+        add(bonusCheckbox);
         add(new Div());
         confirm.setEnabled(false);
         confirm.setWidthFull();
         confirm.addThemeVariants(ButtonVariant.LUMO_LARGE, ButtonVariant.LUMO_PRIMARY);
         add(confirm);
 
-        confirm.addClickListener(event -> {
+        confirm.addClickListener(_ -> {
             UI ui = UI.getCurrent();
             LocalStorage.readPlayer(ui).thenAccept(player -> {
                 gameService.reportResult(player, artist, title, bonus);

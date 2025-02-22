@@ -4,7 +4,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -24,12 +23,12 @@ public class FeedbackView extends VerticalLayout implements PlayerRoute {
         button.setEnabled(false);
         button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         input.setValueChangeMode(ValueChangeMode.EAGER);
-        input.addInputListener(event -> button.setEnabled(!input.getValue().isBlank()));
+        input.addInputListener(_ -> button.setEnabled(!input.getValue().isBlank()));
         add(input, button);
         setAlignItems(Alignment.CENTER);
 
 
-        button.addClickListener(event -> {
+        button.addClickListener(_ -> {
             removeAll();
             add(new H3("Diękówa!"));
             H1 heart = new H1("❤️");
