@@ -42,6 +42,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
     private final Grid<Player> playersGrid = new Grid<>(Player.class, false);
     private final Map<GameStage, ActivateComponent> activateComponents = new HashMap<>();
     private final Map<GameStage, StageHeader> headers = new HashMap<>();
+    private final Button reset = new Button("Reset");
     private Optional<StageHeader> currentParentHeader = Optional.empty();
 
 
@@ -53,7 +54,6 @@ public class DjView extends VerticalLayout implements RouterLayout {
         setSizeFull();
         setPadding(false);
 
-        Button reset = new Button("Reset");
         reset.addClickListener(event -> {
             gameService.reset();
             getUI().ifPresent(ui -> ui.navigate(StartGameView.class));
@@ -67,7 +67,6 @@ public class DjView extends VerticalLayout implements RouterLayout {
             main.setSizeFull();
             allStages.stream().map(this::createStagePanel).forEach(main::add);
             add(main);
-            add(reset);
         }
     }
 
@@ -145,7 +144,10 @@ public class DjView extends VerticalLayout implements RouterLayout {
 
     private AccordionPanel wrapUpComponent(GameStage.WrapUp wrapUp) {
         HorizontalLayout content = new HorizontalLayout();
+        content.add(createActivateComponent(wrapUp));
+        content.add(reset);
         return new AccordionPanel(createPanelHeader(new Text("\uD83C\uDFC6 Podsumowanie"), wrapUp), content);
+
     }
 
     private AccordionPanel roundInitComponent(GameStage.RoundInit roundInit) {

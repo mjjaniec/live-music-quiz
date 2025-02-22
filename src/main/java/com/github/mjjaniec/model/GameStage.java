@@ -101,8 +101,11 @@ public interface GameStage {
         }
 
         @Override
-        public Class<RoundInitView> bigScreenView() {
-            return RoundInitView.class;
+        public Class<? extends BigScreenRoute> bigScreenView() {
+            return switch (currentStage) {
+                case LISTEN -> BigScreenListenView.class;
+                case ANSWER -> RevealView.class;
+            };
         }
     }
 
