@@ -11,12 +11,13 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
-@Route(value = "piece-result", layout = PlayerView.class)
-public class PieceResultView extends VerticalLayout implements PlayerRoute {
+@Route(value = "round-result", layout = PlayerView.class)
+public class RoundResultView extends VerticalLayout implements PlayerRoute {
+
 
     private final Div badgeHolder = new Div();
 
-    public PieceResultView() {
+    public RoundResultView() {
         setSpacing(true);
         setPadding(true);
 
@@ -25,9 +26,10 @@ public class PieceResultView extends VerticalLayout implements PlayerRoute {
         setJustifyContentMode(JustifyContentMode.EVENLY);
         add(badgeHolder);
         add(new H3("zdobywa"));
-        add(new H1("12"));
-        add(new H3(Plural.points(12)));
+        add(new H1("38"));
+        add(new H3(Plural.points(38)));
     }
+
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {

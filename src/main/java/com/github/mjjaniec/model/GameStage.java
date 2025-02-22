@@ -1,8 +1,6 @@
 package com.github.mjjaniec.model;
 
-import com.github.mjjaniec.views.bigscreen.BigScreenRoute;
-import com.github.mjjaniec.views.bigscreen.InviteView;
-import com.github.mjjaniec.views.bigscreen.RoundInitView;
+import com.github.mjjaniec.views.bigscreen.*;
 import com.github.mjjaniec.views.player.*;
 import lombok.Setter;
 
@@ -110,26 +108,26 @@ public interface GameStage {
 
     record RoundSummary(RoundNumber roundNumber) implements GameStage {
         @Override
-        public Class<WaitForRoundView> playerView() {
-            return WaitForRoundView.class;
+        public Class<RoundResultView> playerView() {
+            return RoundResultView.class;
         }
 
         @Override
-        public Class<RoundInitView> bigScreenView() {
-            return RoundInitView.class;
+        public Class<RoundSummaryView> bigScreenView() {
+            return RoundSummaryView.class;
         }
 
     }
 
     record WrapUp() implements GameStage {
         @Override
-        public Class<WaitForRoundView> playerView() {
-            return WaitForRoundView.class;
+        public Class<FeedbackView> playerView() {
+            return FeedbackView.class;
         }
 
         @Override
-        public Class<RoundInitView> bigScreenView() {
-            return RoundInitView.class;
+        public Class<WrapUpView> bigScreenView() {
+            return WrapUpView.class;
         }
 
     }

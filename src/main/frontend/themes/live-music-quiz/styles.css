@@ -1,6 +1,9 @@
 html {
  --vaadin-checkbox-label-font-size: var(--lumo-font-size-l);
  --vaadin-checkbox-size: 1.4em;
+ --lumo-font-size-xxxl: 4em;
+ --lumo-font-size-xxl: 3em;
+ --lumo-font-size-xl: 2.2em;
 }
 
 .pulse {

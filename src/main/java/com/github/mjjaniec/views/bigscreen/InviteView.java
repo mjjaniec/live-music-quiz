@@ -14,7 +14,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinService;
 
 import java.util.List;
-import java.util.Optional;
 
 @Route(value = "invite", layout = BigScreenView.class)
 public class InviteView extends HorizontalLayout implements BigScreenRoute {
@@ -72,16 +71,5 @@ public class InviteView extends HorizontalLayout implements BigScreenRoute {
     protected void onDetach(DetachEvent detachEvent) {
         super.onDetach(detachEvent);
         broadcastAttach.detachPlayerList(detachEvent.getUI());
-    }
-
-
-    @Override
-    public Optional<GameStage.RoundPiece> testPiece() {
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<GameStage.RoundInit> testInit() {
-        return Optional.empty();
     }
 }

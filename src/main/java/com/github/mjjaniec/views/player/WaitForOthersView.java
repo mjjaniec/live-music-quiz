@@ -4,9 +4,7 @@ import com.github.mjjaniec.components.UserBadge;
 import com.github.mjjaniec.util.LocalStorage;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
@@ -21,10 +19,10 @@ public class WaitForOthersView extends VerticalLayout implements PlayerRoute {
 
         setSizeFull();
         setAlignItems(Alignment.CENTER);
-        add(new H3("witaj"));
+        add(new H4("witaj"));
         add(badgeHolder);
-        add(new H3("poczekaj na pozostałych graczy"));
-        add(new H1("\uD83E\uDD71 \uD83D\uDCA4 \uD83D\uDCA4"));
+        add(new H4("poczekaj na pozostałych graczy"));
+        add(new H2("\uD83E\uDD71 \uD83D\uDCA4 \uD83D\uDCA4"));
     }
 
     @Override
@@ -35,6 +33,5 @@ public class WaitForOthersView extends VerticalLayout implements PlayerRoute {
             badgeHolder.removeAll();
             badgeHolder.add(new UserBadge(player.name(), false, false));
         })));
-
     }
 }

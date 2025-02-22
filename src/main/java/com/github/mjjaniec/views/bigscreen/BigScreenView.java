@@ -6,6 +6,7 @@ import com.github.mjjaniec.components.ProgressBar;
 import com.github.mjjaniec.components.RouterLayoutWithOutlet;
 import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.GameService;
+import com.github.mjjaniec.services.TestDataProvider;
 import com.github.mjjaniec.util.Palette;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
@@ -27,7 +28,7 @@ public class BigScreenView extends VerticalLayout implements RouterLayoutWithOut
         return outlet;
     }
 
-    public BigScreenView(BroadcastAttach broadcaster, GameService gameService) {
+    public BigScreenView(BroadcastAttach broadcaster, GameService gameService, TestDataProvider testDataProvider) {
         this.broadcaster = broadcaster;
         outlet.setSizeFull();
         outlet.setPadding(false);
@@ -37,19 +38,19 @@ public class BigScreenView extends VerticalLayout implements RouterLayoutWithOut
         getStyle().setBackground(Palette.GREEN);
         setSizeFull();
         add(new BannerBand(Palette.GREEN));
-        add(makeProgressBars(gameService));
+        add(makeProgressBars(gameService, testDataProvider));
         add(outlet);
         add(new FooterBand(Palette.GREEN));
     }
 
-    private Component makeProgressBars(GameService gameService) {
+    private Component makeProgressBars(GameService gameService, TestDataProvider testDataProvider) {
         Div container = new Div();
         container.setWidthFull();
         container.getStyle().setBackgroundColor(Palette.GREEN);
 
-        var roundP = gameService.stage().asRoundInit().or(this::testInit).map(init ->
+        var roundP = gameService.stage().asRoundInit().or(testDataProvider::init).map(init ->
                 new ProgressBar("Runda", init.roundNumber().number(), init.roundNumber().of(), Palette.DARKER));
-        var pieceP = gameService.stage().asPiece().or(this::testPiece).map(piece ->
+        var pieceP = gameService.stage().asPiece().or(testDataProvider::piece).map(piece ->
                 new ProgressBar("Utwór", piece.pieceNumber.number(), piece.pieceNumber.of(), Palette.DARKER));
 
         roundP.ifPresent(round -> pieceP.ifPresent(piece -> {

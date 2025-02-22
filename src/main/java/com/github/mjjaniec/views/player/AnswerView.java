@@ -9,8 +9,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -34,9 +33,9 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
         setAlignItems(Alignment.CENTER);
         Button confirm = new Button("Potwierdzam");
 
-        add(new H3("Pokaż na co Cię stać!"));
+        add(new H5("Pokaż na co Cię stać!"));
         add(new Div());
-        add(new H4("Wykonawca"));
+        add(new H5("Wykonawca"));
 
         add(createRadio(x -> {
             artist = x;
@@ -45,7 +44,7 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
             }
         }));
         add(new Div());
-        add(new H4("Tytył"));
+        add(new H5("Tytył"));
         add(createRadio(x -> {
             title = x;
             if (artist != null) {
@@ -67,7 +66,7 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
             UI ui = UI.getCurrent();
             LocalStorage.readPlayer(ui).thenAccept(player -> {
                 gameService.reportResult(player, artist, title, bonus);
-                ui.access(()-> ui.navigate(PieceResultView.class));
+                ui.access(() -> ui.navigate(PieceResultView.class));
             });
         });
     }
