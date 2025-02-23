@@ -5,6 +5,7 @@ import com.github.mjjaniec.model.GameStage.RoundInit;
 import com.github.mjjaniec.model.GameStage.RoundNumber;
 import com.github.mjjaniec.model.MainSet;
 import com.github.mjjaniec.model.Player;
+import com.github.mjjaniec.stores.QuizStore;
 import com.google.common.collect.Streams;
 import org.springframework.stereotype.Component;
 import com.github.mjjaniec.stores.PlayerStore;
@@ -19,19 +20,19 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     private final BigScreenNavigator bigScreenNavigator;
     private final PlayerNavigator playerNavigator;
     private final PlayerStore playerStore;
+    private final QuizStore quizStore;
     private MainSet quiz;
     private GameStage stage;
     private List<GameStage> _allStages;
 
 
-    public GameServiceImpl(BigScreenNavigator bigScreenNavigator, PlayerNavigator playerNavigator, PlayerStore playerStore) {
+    public GameServiceImpl(BigScreenNavigator bigScreenNavigator, PlayerNavigator playerNavigator, PlayerStore playerStore, QuizStore quizStore) {
         this.bigScreenNavigator = bigScreenNavigator;
         this.playerNavigator = playerNavigator;
         this.playerStore = playerStore;
+        this.quizStore = quizStore;
 
-        initGame(MainSet.TheSet);
-        _allStages.stream().flatMap(s -> s.asPiece().stream()).findFirst()
-                .ifPresent(this::setStage);
+        quizStore.getQuiz().ifPresent(this::initGame);
     }
 
     @Override
@@ -47,6 +48,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
 
     @Override
     public void initGame(MainSet set) {
+        quizStore.setQuiz(set);
         this.quiz = set;
         this._allStages = computeAllStages();
         setStage(_allStages.getFirst());
@@ -81,6 +83,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
 
     @Override
     public void reset() {
+        quizStore.clearQuiz();
         quiz = null;
         stage = null;
     }

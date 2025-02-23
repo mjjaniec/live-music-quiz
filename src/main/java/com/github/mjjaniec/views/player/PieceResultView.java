@@ -35,7 +35,7 @@ public class PieceResultView extends VerticalLayout implements PlayerRoute {
         UI ui = attachEvent.getUI();
         LocalStorage.readPlayer(ui).thenAccept(opt -> opt.ifPresent(player -> ui.access(() -> {
             badgeHolder.removeAll();
-            badgeHolder.add(new UserBadge(player.name, false, false));
+            badgeHolder.add(new UserBadge(player.name(), false, false));
         })));
     }
 }

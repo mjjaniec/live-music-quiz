@@ -59,7 +59,7 @@ public class InviteView extends HorizontalLayout implements BigScreenRoute {
         playersContainer.removeAll();
         List<Player> plaersList = gameService.getPlayers();
 
-        plaersList.forEach(user -> playersContainer.add(new UserBadge(user.name, plaersList.size() > 10, true)));
+        plaersList.forEach(user -> playersContainer.add(new UserBadge(user.name(), plaersList.size() > 10, true)));
         playersContainer.add(new H2(plaersList.isEmpty() ? "Czekamy na graczy" : "grają z nami! (" + plaersList.size() + " os)"));
     }
 

@@ -23,7 +23,6 @@ ARG db_url
 ENV db_pass=$db_pass
 ENV db_url=$db_url
 ENV db_user=$db_user
-ENV SPRING_PROFILES_ACTIVE="db-user0${db_user}"
 VOLUME /tmp
 
 # Copy the JAR from the build stage
