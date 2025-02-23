@@ -1,7 +1,3 @@
-ARG db_pass
-ARG db_user
-ARG db_url
-
 # Importing JDK and copying required files
 FROM eclipse-temurin:21 AS build
 
@@ -20,10 +16,14 @@ RUN ./mvnw --no-transfer-progress clean package -Pproduction
 # Stage 2: Create the final Docker image using OpenJDK 19
 FROM eclipse-temurin:21
 
+ARG db_pass
+ARG db_user
+ARG db_url
+
 ENV db_pass=$db_pass
 ENV db_url=$db_url
 ENV db_user=$db_user
-ENV SPRING_PROFILES_ACTIVE="makota${db_url}k"
+ENV SPRING_PROFILES_ACTIVE="db-user0${db_user}"
 VOLUME /tmp
 
 # Copy the JAR from the build stage
