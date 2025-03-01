@@ -22,7 +22,9 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.router.Route;
@@ -49,7 +51,6 @@ public class DjView extends VerticalLayout implements RouterLayout {
     DjView(MaestroInterface gameService, BroadcastAttach broadcastAttach) {
         this.gameService = gameService;
         this.broadcastAttach = broadcastAttach;
-        List<GameStage> allStages = gameService.allStages();
 
         setSizeFull();
         setPadding(false);
@@ -65,9 +66,34 @@ public class DjView extends VerticalLayout implements RouterLayout {
         } else {
             Accordion main = new Accordion();
             main.setSizeFull();
-            allStages.stream().map(this::createStagePanel).forEach(main::add);
+            gameService.stageSet().toLevelStages().stream().map(this::createStagePanel).forEach(main::add);
+            add(customMessageComponent());
             add(main);
         }
+    }
+
+    private Component customMessageComponent() {
+        HorizontalLayout layout = new HorizontalLayout();
+        layout.setWidthFull();
+        TextField message = new TextField("Wiadomość do publiczności", "jeśli ustawiona, zastępuje logo na dużym ekranie");
+        Button button = new Button("Wyczyść");
+        message.setValueChangeMode(ValueChangeMode.EAGER);
+        message.addInputListener(event -> button.setText(message.getValue().isBlank() ? "Wyczyść" : "Ustaw"));
+        button.addClickListener(event -> {
+           if (message.getValue().isBlank()) {
+               gameService.clearCustomMessage();
+           } else {
+               gameService.setCustomMessage(message.getValue());
+           }
+        });
+        gameService.customMessage().ifPresent(msg -> {
+            button.setText("Ustaw");
+            message.setValue(msg);
+        });
+        layout.add(message);
+        layout.add(button);
+        message.setWidthFull();
+        return layout;
     }
 
     private AccordionPanel createStagePanel(GameStage stage) {
@@ -77,7 +103,6 @@ public class DjView extends VerticalLayout implements RouterLayout {
             case GameStage.WrapUp wrapUp -> wrapUpComponent(wrapUp);
             case GameStage.RoundPiece roundPiece -> pieceComponent(roundPiece);
             case GameStage.RoundSummary roundSummary -> roundSummaryComponent(roundSummary);
-            default -> throw new UnsupportedOperationException("unsupported stage" + stage);
         };
     }
 

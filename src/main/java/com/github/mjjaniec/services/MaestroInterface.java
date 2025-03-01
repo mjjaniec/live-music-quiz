@@ -2,8 +2,7 @@ package com.github.mjjaniec.services;
 
 import com.github.mjjaniec.model.GameStage;
 import com.github.mjjaniec.model.MainSet;
-
-import java.util.List;
+import com.github.mjjaniec.model.StageSet;
 
 public interface MaestroInterface extends GameService {
 
@@ -13,5 +12,9 @@ public interface MaestroInterface extends GameService {
 
     void setStage(GameStage gameStage);
 
-    List<GameStage> allStages();
+    StageSet stageSet();
+
+    void setCustomMessage(String customMessage);
+
+    void clearCustomMessage();
 }

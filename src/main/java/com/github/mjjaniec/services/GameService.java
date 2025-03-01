@@ -22,5 +22,7 @@ public interface GameService {
 
     MainSet quiz();
 
+    Optional<String> customMessage();
+
     void reportResult(Optional<Player> player, boolean artist, boolean title, boolean bonus);
 }

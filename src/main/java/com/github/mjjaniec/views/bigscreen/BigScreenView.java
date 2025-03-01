@@ -12,6 +12,8 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RoutePrefix;
@@ -37,10 +39,28 @@ public class BigScreenView extends VerticalLayout implements RouterLayoutWithOut
         setSpacing(false);
         getStyle().setBackground(Palette.GREEN);
         setSizeFull();
-        add(new BannerBand(Palette.GREEN));
+        Component topComponent = gameService.customMessage()
+                .map(this::customMessageComponent)
+                .orElse(new BannerBand(Palette.GREEN));
+        add(topComponent);
         add(makeProgressBars(gameService, testDataProvider));
         add(outlet);
         add(new FooterBand(Palette.GREEN));
+    }
+
+    private Component customMessageComponent(String message) {
+        HorizontalLayout result = new HorizontalLayout();
+        result.setPadding(true);
+        result.setHeight("20vh");
+        result.getStyle().setBackground(Palette.GREEN);
+        result.setWidthFull();
+        result.setAlignItems(Alignment.CENTER);
+        H1 msg = new H1(message);
+        msg.getStyle().setColor(Palette.WHITE);
+        result.setJustifyContentMode(JustifyContentMode.CENTER);
+        result.setVerticalComponentAlignment(Alignment.CENTER);
+        result.add(msg);
+        return result;
     }
 
     private Component makeProgressBars(GameService gameService, TestDataProvider testDataProvider) {

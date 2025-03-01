@@ -1,19 +1,16 @@
 package com.github.mjjaniec.services;
 
 import com.github.mjjaniec.model.GameStage;
-import com.github.mjjaniec.model.GameStage.RoundInit;
-import com.github.mjjaniec.model.GameStage.RoundNumber;
 import com.github.mjjaniec.model.MainSet;
 import com.github.mjjaniec.model.Player;
-import com.github.mjjaniec.stores.QuizStore;
-import com.google.common.collect.Streams;
-import org.springframework.stereotype.Component;
+import com.github.mjjaniec.model.StageSet;
+import com.github.mjjaniec.stores.CustomMessageStore;
 import com.github.mjjaniec.stores.PlayerStore;
+import com.github.mjjaniec.stores.QuizStore;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
 @Component
 public class GameServiceImpl implements GameService, MaestroInterface {
@@ -21,16 +18,17 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     private final PlayerNavigator playerNavigator;
     private final PlayerStore playerStore;
     private final QuizStore quizStore;
+    private final CustomMessageStore messageStore;
     private MainSet quiz;
     private GameStage stage;
-    private List<GameStage> _allStages;
+    private StageSet stageSet;
 
-
-    public GameServiceImpl(BigScreenNavigator bigScreenNavigator, PlayerNavigator playerNavigator, PlayerStore playerStore, QuizStore quizStore) {
+    public GameServiceImpl(BigScreenNavigator bigScreenNavigator, PlayerNavigator playerNavigator, PlayerStore playerStore, QuizStore quizStore, CustomMessageStore messageStore) {
         this.bigScreenNavigator = bigScreenNavigator;
         this.playerNavigator = playerNavigator;
         this.playerStore = playerStore;
         this.quizStore = quizStore;
+        this.messageStore = messageStore;
 
         quizStore.getQuiz().ifPresent(this::initGame);
     }
@@ -50,8 +48,8 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     public void initGame(MainSet set) {
         quizStore.setQuiz(set);
         this.quiz = set;
-        this._allStages = computeAllStages();
-        setStage(_allStages.getFirst());
+        this.stageSet = new StageSet(set);
+        this.stage = stageSet.initStage();
     }
 
     @Override
@@ -59,7 +57,6 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         boolean result = playerStore.addPlayer(name);
         if (result) {
             bigScreenNavigator.refreshPlayerLists();
-
         }
         return result;
     }
@@ -96,8 +93,8 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     }
 
     @Override
-    public List<GameStage> allStages() {
-        return _allStages;
+    public StageSet stageSet() {
+        return stageSet;
     }
 
     @Override
@@ -105,27 +102,20 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         // ignore for now
     }
 
-    private List<GameStage> computeAllStages() {
-        if (quiz == null) return List.of();
-        return Stream.<Stream<GameStage>>of(
-                Stream.of(new GameStage.Invite()),
-                Streams.mapWithIndex(quiz.levels().stream(), this::roundStages),
-                Stream.of(new GameStage.WrapUp())
-        ).flatMap(Function.identity()).toList();
+    @Override
+    public void setCustomMessage(String customMessage) {
+        messageStore.setMessage(customMessage);
+        bigScreenNavigator.refreshBigScreen();
     }
 
-    private RoundInit roundStages(MainSet.LevelPieces level, long roundIndex) {
-        return new RoundInit(
-                new RoundNumber(roundIndex + 1, quiz.levels().size()),
-                level.level(),
-                Streams.mapWithIndex(level.pieces().stream(), (piece, index) ->
-                        new GameStage.RoundPiece(
-                                new GameStage.PieceNumber(index + 1, level.pieces().size()),
-                                piece,
-                                List.of(GameStage.PieceStage.LISTEN, GameStage.PieceStage.ANSWER)
-                        )
-                ).toList(),
-                new GameStage.RoundSummary(new RoundNumber(roundIndex + 1, quiz.levels().size()))
-        );
+    @Override
+    public void clearCustomMessage() {
+        messageStore.clearMessage();
+        bigScreenNavigator.refreshBigScreen();
+    }
+
+    @Override
+    public Optional<String> customMessage() {
+        return messageStore.readMessage();
     }
 }

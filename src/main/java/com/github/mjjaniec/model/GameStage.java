@@ -8,7 +8,7 @@ import lombok.Setter;
 import java.util.List;
 import java.util.Optional;
 
-public interface GameStage {
+public sealed interface GameStage {
 
     Class<? extends PlayerRoute> playerView();
 
@@ -28,10 +28,10 @@ public interface GameStage {
         };
     }
 
-    record RoundNumber(long number, long of) {
+    record RoundNumber(int number, int of) {
     }
 
-    record PieceNumber(long number, long of) {
+    record PieceNumber(int number, int of) {
     }
 
 
@@ -69,16 +69,18 @@ public interface GameStage {
 
     }
 
-    class RoundPiece implements GameStage {
+    final class RoundPiece implements GameStage {
+        public final int roundNumber;
         public final PieceNumber pieceNumber;
         public final MainSet.Piece piece;
         public final List<PieceStage> innerStages;
-        @Setter
+        @Setter @Getter
         private PieceStage currentStage;
         @Setter @Getter
         private boolean bonus;
 
-        public RoundPiece(PieceNumber pieceNumber, MainSet.Piece piece, List<PieceStage> innerStages) {
+        public RoundPiece(int roundNumber, PieceNumber pieceNumber, MainSet.Piece piece, List<PieceStage> innerStages) {
+            this.roundNumber = roundNumber;
             this.pieceNumber = pieceNumber;
             this.piece = piece;
             this.currentStage = innerStages.getFirst();

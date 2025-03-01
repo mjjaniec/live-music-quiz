@@ -69,5 +69,8 @@ public class BroadcastAttachImpl implements BroadcastAttach, BigScreenNavigator,
         List.copyOf(playerUIs).forEach(ui -> ui.access(() -> ui.refreshCurrentRoute(true)));
     }
 
-
+    @Override
+    public void refreshBigScreen() {
+        bigScreenUIs.forEach(ui -> ui.access(() -> ui.refreshCurrentRoute(true)));
+    }
 }

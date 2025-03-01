@@ -8,10 +8,9 @@ public class BannerBand extends HorizontalLayout {
         Image banner = new Image("themes/live-music-quiz/banner.svg", "banner");
         banner.setSizeFull();
         add(banner);
-        setSizeFull();
         setPadding(true);
         getStyle().setBackground(color);
-        setHeight("12em");
+        setHeight("12rem");
         setWidthFull();
         setAlignItems(Alignment.CENTER);
     }
