@@ -144,14 +144,31 @@ public class GameServiceImpl implements GameService, MaestroInterface {
 
     @Override
     public int getCurrentPlayerPoints(Player player) {
-        return stage.asPiece().map(
-                piece -> answerStore.playerAnswer(player.name(), piece.roundNumber, piece.pieceNumber.number()).map(
-                        answer -> stageSet.roundInit(piece.roundNumber).map(
-                                round -> answer.bonus() * b2i(answer.artist()) * round.difficulty().points.artist() +
-                                        answer.bonus() * b2i(answer.title()) * round.difficulty().points.title()
-                        ).orElse(0)
+        return stage.asPiece().map(piece -> piecePoints(player, piece))
+                .or(() -> stage.asRoundSummary().map(summary -> roundPoints(player, summary)))
+                .orElse(0);
+    }
+
+    private int roundPoints(Player player, GameStage.RoundSummary summary) {
+        return stageSet.roundInit(summary.roundNumber().number()).map(GameStage.RoundInit::difficulty).map(d -> d.points)
+                .map(points ->
+                        answerStore.playerAnswers(player.name(), summary.roundNumber().number())
+                                .mapToInt(answer -> forAnswer(points, answer))
+                                .sum()
+                ).orElse(0);
+    }
+
+    private int piecePoints(Player player, GameStage.RoundPiece piece) {
+        return answerStore.playerAnswer(player.name(), piece.roundNumber, piece.pieceNumber.number()).map(
+                answer -> stageSet.roundInit(piece.roundNumber).map(
+                        round -> forAnswer(round.difficulty().points, answer)
                 ).orElse(0)
         ).orElse(0);
+    }
+
+    private int forAnswer(MainSet.RoundPoints roundPoints, Answer answer) {
+        return answer.bonus() * b2i(answer.title()) * roundPoints.title()
+                + answer.bonus() * b2i(answer.artist()) * roundPoints.artist();
     }
 
     private int b2i(boolean b) {

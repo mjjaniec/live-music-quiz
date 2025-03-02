@@ -18,7 +18,7 @@ levels:
         instrument: Bass
         tempo: 115
         hint: D mol
-        sets: [ A ]
+        sets: [ A, Demo ]
       - artist: Beethoven
         title: Ode to Joy
         instrument: Piano
@@ -339,7 +339,7 @@ levels:
         instrument: bass
         tempo:
         hint:
-        sets: [ B ]
+        sets: [ B, Demo ]
       - artist: Metallica
         title: Call of Ktulu
         instrument: bass

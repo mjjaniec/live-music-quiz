@@ -4,8 +4,9 @@ import com.github.mjjaniec.model.Answer;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Component
 public interface JpaAnswerStore extends CrudRepository<AnswerDto, String>, AnswerStore  {
@@ -15,8 +16,8 @@ public interface JpaAnswerStore extends CrudRepository<AnswerDto, String>, Answe
     }
 
     @Override
-    default Map<Integer, Map<String, Integer>> levelToPlayerToPoints() {
-        return Map.of();
+    default Stream<Answer> playerAnswers(String player, int round) {
+        return findByPlayerAndRound(player, round).stream().map(this::mapFromDto);
     }
 
     @Override
@@ -28,6 +29,8 @@ public interface JpaAnswerStore extends CrudRepository<AnswerDto, String>, Answe
     default Optional<Answer> playerAnswer(String player, int round, int piece) {
         return findById(id(player, round, piece)).map(this::mapFromDto);
     }
+
+    List<AnswerDto> findByPlayerAndRound(String player, int round);
 
     private Answer mapFromDto(AnswerDto dto) {
         return new Answer(dto.isArtist(), dto.isTitle(), dto.getBonus(), dto.getPlayer(), dto.getRound(), dto.getPiece());
