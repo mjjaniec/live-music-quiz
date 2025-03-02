@@ -6,11 +6,12 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 public class BannerBand extends HorizontalLayout {
     public BannerBand(String color) {
         Image banner = new Image("themes/live-music-quiz/banner.svg", "banner");
-        banner.setSizeFull();
+        banner.setWidthFull();
+        banner.setHeight("9rem");
         add(banner);
         setPadding(true);
         getStyle().setBackground(color);
-        setHeight("12rem");
+        setHeight("15rem");
         setWidthFull();
         setAlignItems(Alignment.CENTER);
     }

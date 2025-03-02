@@ -32,7 +32,6 @@ import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RouterLink;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -77,6 +76,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
         layout.setWidthFull();
         TextField message = new TextField("Wiadomość do publiczności", "jeśli ustawiona, zastępuje logo na dużym ekranie");
         Button button = new Button("Wyczyść");
+        button.setWidth("6rem");
         message.setValueChangeMode(ValueChangeMode.EAGER);
         message.addInputListener(event -> button.setText(message.getValue().isBlank() ? "Wyczyść" : "Ustaw"));
         button.addClickListener(event -> {
@@ -92,6 +92,8 @@ public class DjView extends VerticalLayout implements RouterLayout {
         });
         layout.add(message);
         layout.add(button);
+        layout.setAlignItems(Alignment.END);
+        layout.setVerticalComponentAlignment(Alignment.END);
         message.setWidthFull();
         return layout;
     }

@@ -51,7 +51,7 @@ public class BigScreenView extends VerticalLayout implements RouterLayoutWithOut
     private Component customMessageComponent(String message) {
         HorizontalLayout result = new HorizontalLayout();
         result.setPadding(true);
-        result.setHeight("20vh");
+        result.setHeight("15rem");
         result.getStyle().setBackground(Palette.GREEN);
         result.setWidthFull();
         result.setAlignItems(Alignment.CENTER);
