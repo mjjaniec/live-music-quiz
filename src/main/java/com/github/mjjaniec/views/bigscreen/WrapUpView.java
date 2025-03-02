@@ -1,37 +1,15 @@
 package com.github.mjjaniec.views.bigscreen;
 
-import com.github.mjjaniec.model.Player;
 import com.github.mjjaniec.services.GameService;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.router.Route;
 
 @Route(value = "wrap-up", layout = BigScreenView.class)
 public class WrapUpView extends VerticalLayout implements BigScreenRoute {
 
     public WrapUpView(GameService gameService) {
-        Grid<Player> playersGrid = new Grid<>(Player.class, false);
-        playersGrid.addColumn(Player::name).setHeader("Ksywka");
-        playersGrid.addColumn(new ComponentRenderer<>((SerializableFunction<Player, Component>) player -> {
-            Div result = new Div();
-            Checkbox danger = new Checkbox("danger", false);
-            Button bumpOut = new Button("Wyrzuć", event -> gameService.removePlayer(player));
-            bumpOut.addThemeVariants(ButtonVariant.LUMO_ERROR);
-            bumpOut.setEnabled(false);
-            danger.addValueChangeListener(event -> bumpOut.setEnabled(event.getValue()));
-            result.add(danger, bumpOut);
-            return result;
-        })).setHeader("Akcje");
-        playersGrid.setItems(gameService.getPlayers());
-        playersGrid.getStyle().setMarginRight("1em");
-        add(playersGrid);
-
+        add(new H1("dzięki za udział w grze!! Tu może kiedyś narysuję podium ;)"));
+        add(new H1("Live Music Quiz by Michał Janiec"));
     }
 }

@@ -5,9 +5,7 @@ import com.github.mjjaniec.stores.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -147,6 +145,19 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         return stage.asPiece().map(piece -> piecePoints(player, piece))
                 .or(() -> stage.asRoundSummary().map(summary -> roundPoints(player, summary)))
                 .orElse(0);
+    }
+
+    @Override
+    public Map<String, Map<Integer, Integer>> totalPoints() {
+        Map<String, Map<Integer, Integer>> result = new HashMap<>();
+        answerStore.allAnswers().forEach(answer ->
+                stageSet.roundInit(answer.piece()).map(GameStage.RoundInit::difficulty).map(d -> d.points).ifPresent(points -> {
+                            var players = result.computeIfAbsent(answer.player(), k -> new HashMap<>());
+                            players.put(answer.round(), players.getOrDefault(answer.round(), 0) + forAnswer(points, answer));
+                        }
+                )
+        );
+        return result;
     }
 
     private int roundPoints(Player player, GameStage.RoundSummary summary) {

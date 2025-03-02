@@ -1,6 +1,7 @@
 package com.github.mjjaniec.stores;
 
 import com.github.mjjaniec.model.Answer;
+import com.google.common.collect.Streams;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +19,11 @@ public interface JpaAnswerStore extends CrudRepository<AnswerDto, String>, Answe
     @Override
     default Stream<Answer> playerAnswers(String player, int round) {
         return findByPlayerAndRound(player, round).stream().map(this::mapFromDto);
+    }
+
+    @Override
+    default Stream<Answer> allAnswers() {
+        return Streams.stream(findAll()).map(this::mapFromDto);
     }
 
     @Override

@@ -14,4 +14,6 @@ public interface AnswerStore {
 
     Stream<Answer> playerAnswers(String player, int round);
 
+    Stream<Answer> allAnswers();
+
 }

@@ -171,6 +171,10 @@ public class DjView extends VerticalLayout implements RouterLayout {
     private AccordionPanel wrapUpComponent(GameStage.WrapUp wrapUp) {
         HorizontalLayout content = new HorizontalLayout();
         content.add(createActivateComponent(wrapUp));
+        Checkbox danger = new Checkbox("danger");
+        reset.setEnabled(false);
+        danger.addValueChangeListener(event -> reset.setEnabled(event.getValue()));
+        content.add(danger);
         content.add(reset);
         return new AccordionPanel(createPanelHeader(new Text("\uD83C\uDFC6 Podsumowanie"), wrapUp), content);
 

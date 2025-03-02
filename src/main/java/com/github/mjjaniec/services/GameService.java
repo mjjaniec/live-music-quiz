@@ -6,6 +6,7 @@ import com.github.mjjaniec.model.Player;
 import com.github.mjjaniec.model.StageSet;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface GameService {
@@ -29,4 +30,6 @@ public interface GameService {
     void reportResult(Player player, boolean artist, boolean title, boolean bonus);
 
     StageSet stageSet();
+
+    Map<String, Map<Integer, Integer>> totalPoints();
 }
