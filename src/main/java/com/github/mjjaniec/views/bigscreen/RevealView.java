@@ -1,7 +1,6 @@
 package com.github.mjjaniec.views.bigscreen;
 
 import com.github.mjjaniec.components.UserBadge;
-import com.github.mjjaniec.model.Player;
 import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.GameService;
 import com.github.mjjaniec.services.TestDataProvider;
@@ -13,7 +12,6 @@ import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
-import java.util.List;
 
 @Route(value = "reveal", layout = BigScreenView.class)
 public class RevealView extends VerticalLayout implements BigScreenRoute {

@@ -1,6 +1,5 @@
 package com.github.mjjaniec.views.maestro;
 
-import com.github.mjjaniec.services.GameService;
 import com.github.mjjaniec.services.MaestroInterface;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
