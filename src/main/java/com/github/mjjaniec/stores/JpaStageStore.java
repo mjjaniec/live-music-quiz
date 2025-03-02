@@ -23,6 +23,7 @@ public interface JpaStageStore extends CrudRepository<StageDto, Long>, StageStor
 
     @Override
     default void saveStage(GameStage stage) {
+        deleteAll();
         save(toDto(stage));
     }
 

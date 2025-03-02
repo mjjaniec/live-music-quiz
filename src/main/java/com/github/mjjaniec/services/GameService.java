@@ -20,8 +20,6 @@ public interface GameService {
 
     List<Player> getPlayers();
 
-    MainSet quiz();
-
     Optional<String> customMessage();
 
     void reportResult(Optional<Player> player, boolean artist, boolean title, boolean bonus);

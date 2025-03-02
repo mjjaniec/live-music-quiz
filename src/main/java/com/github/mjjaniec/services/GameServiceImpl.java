@@ -7,6 +7,7 @@ import com.github.mjjaniec.model.StageSet;
 import com.github.mjjaniec.stores.CustomMessageStore;
 import com.github.mjjaniec.stores.PlayerStore;
 import com.github.mjjaniec.stores.QuizStore;
+import com.github.mjjaniec.stores.StageStore;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -19,18 +20,24 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     private final PlayerStore playerStore;
     private final QuizStore quizStore;
     private final CustomMessageStore messageStore;
+    private final StageStore stageStore;
     private MainSet quiz;
     private GameStage stage;
     private StageSet stageSet;
 
-    public GameServiceImpl(BigScreenNavigator bigScreenNavigator, PlayerNavigator playerNavigator, PlayerStore playerStore, QuizStore quizStore, CustomMessageStore messageStore) {
+    public GameServiceImpl(BigScreenNavigator bigScreenNavigator, PlayerNavigator playerNavigator,
+                           PlayerStore playerStore, QuizStore quizStore, CustomMessageStore messageStore, StageStore stageStore) {
         this.bigScreenNavigator = bigScreenNavigator;
         this.playerNavigator = playerNavigator;
         this.playerStore = playerStore;
         this.quizStore = quizStore;
         this.messageStore = messageStore;
+        this.stageStore = stageStore;
 
         quizStore.getQuiz().ifPresent(this::initGame);
+        stageStore.readStage(stageSet).ifPresentOrElse(this::setStage, () -> {
+            if (quiz != null) setStage(stageSet.initStage());
+        });
     }
 
     @Override
@@ -40,8 +47,8 @@ public class GameServiceImpl implements GameService, MaestroInterface {
 
 
     @Override
-    public MainSet quiz() {
-        return quiz;
+    public boolean isGameStarted() {
+        return quiz != null;
     }
 
     @Override
@@ -49,7 +56,6 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         quizStore.setQuiz(set);
         this.quiz = set;
         this.stageSet = new StageSet(set);
-        this.stage = stageSet.initStage();
     }
 
     @Override
@@ -83,13 +89,15 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         quizStore.clearQuiz();
         quiz = null;
         stage = null;
+        stageStore.clearStage();
     }
 
     @Override
     public void setStage(GameStage gameStage) {
         this.stage = gameStage;
-        playerNavigator.navigatePlayers(stage.playerView());
-        bigScreenNavigator.navigateBigScreen(stage.bigScreenView());
+        stageStore.saveStage(gameStage);
+        playerNavigator.navigatePlayers(gameStage.playerView());
+        bigScreenNavigator.navigateBigScreen(gameStage.bigScreenView());
     }
 
     @Override

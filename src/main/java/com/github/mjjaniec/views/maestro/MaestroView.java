@@ -1,6 +1,7 @@
 package com.github.mjjaniec.views.maestro;
 
 import com.github.mjjaniec.services.GameService;
+import com.github.mjjaniec.services.MaestroInterface;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -14,13 +15,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MaestroView extends VerticalLayout implements RouterLayout {
 
-    private final GameService service;
+    private final MaestroInterface service;
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
         UI ui = attachEvent.getUI();
-        if (service.quiz() != null) {
+        if (service.isGameStarted()) {
             ui.navigate(DjView.class);
         } else {
             ui.navigate(StartGameView.class);

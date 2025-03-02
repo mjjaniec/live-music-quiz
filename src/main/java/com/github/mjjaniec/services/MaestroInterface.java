@@ -8,6 +8,8 @@ public interface MaestroInterface extends GameService {
 
     void initGame(MainSet set);
 
+    boolean isGameStarted();
+
     void reset();
 
     void setStage(GameStage gameStage);
