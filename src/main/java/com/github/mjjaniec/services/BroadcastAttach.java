@@ -12,4 +12,7 @@ public interface BroadcastAttach {
 
     void attachPlayerList(UI  ui, Runnable refresh);
     void detachPlayerList(UI  ui);
+
+    void attachSlackersList(UI ui, Runnable refresh);
+    void detachSlackersList(UI ui);
 }

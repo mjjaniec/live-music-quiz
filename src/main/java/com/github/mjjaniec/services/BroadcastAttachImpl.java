@@ -16,6 +16,7 @@ public class BroadcastAttachImpl implements BroadcastAttach, BigScreenNavigator,
     private final List<UI> playerUIs = new ArrayList<>();
     private final List<UI> bigScreenUIs = new ArrayList<>();
     private final Map<UI, Runnable> playerLists = new HashMap<>();
+    private final Map<UI, Runnable> slackersList = new HashMap<>();
 
     @Override
     public void attachPlayerUI(UI ui) {
@@ -48,6 +49,16 @@ public class BroadcastAttachImpl implements BroadcastAttach, BigScreenNavigator,
     }
 
     @Override
+    public void attachSlackersList(UI ui, Runnable refresh) {
+        slackersList.put(ui, refresh);
+    }
+
+    @Override
+    public void detachSlackersList(UI ui) {
+        slackersList.remove(ui);
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public  <T extends BigScreenRoute> void navigateBigScreen(Class<T> view) {
         bigScreenUIs.forEach(ui -> ui.access(() -> ui.navigate((Class<? extends Component>)view)));
@@ -72,5 +83,10 @@ public class BroadcastAttachImpl implements BroadcastAttach, BigScreenNavigator,
     @Override
     public void refreshBigScreen() {
         bigScreenUIs.forEach(ui -> ui.access(() -> ui.refreshCurrentRoute(true)));
+    }
+
+    @Override
+    public void refreshSlackersList() {
+        slackersList.forEach((ui, runnable) -> ui.access(runnable::run));
     }
 }

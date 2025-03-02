@@ -1,6 +1,7 @@
 package com.github.mjjaniec.views.player;
 
 import com.github.mjjaniec.components.UserBadge;
+import com.github.mjjaniec.services.GameService;
 import com.github.mjjaniec.util.LocalStorage;
 import com.github.mjjaniec.util.Plural;
 import com.vaadin.flow.component.AttachEvent;
@@ -14,9 +15,13 @@ import com.vaadin.flow.router.Route;
 @Route(value = "piece-result", layout = PlayerView.class)
 public class PieceResultView extends VerticalLayout implements PlayerRoute {
 
+    private final GameService gameService;
     private final Div badgeHolder = new Div();
+    private final H1 pointsHolder = new H1();
+    private final H3 pointsCaptionHolder = new H3();
 
-    public PieceResultView() {
+    public PieceResultView(GameService gameService) {
+        this.gameService = gameService;
         setSpacing(true);
         setPadding(true);
 
@@ -24,9 +29,10 @@ public class PieceResultView extends VerticalLayout implements PlayerRoute {
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.EVENLY);
         add(badgeHolder);
+
         add(new H3("zdobywa"));
-        add(new H1("12"));
-        add(new H3(Plural.points(12)));
+        add(pointsHolder);
+        add(pointsCaptionHolder);
     }
 
     @Override
@@ -36,6 +42,9 @@ public class PieceResultView extends VerticalLayout implements PlayerRoute {
         LocalStorage.readPlayer(ui).thenAccept(opt -> opt.ifPresent(player -> ui.access(() -> {
             badgeHolder.removeAll();
             badgeHolder.add(new UserBadge(player.name(), false, false));
+            int points = gameService.getCurrentPlayerPoints(player);
+            pointsHolder.setText(String.valueOf(points));
+            pointsCaptionHolder.setText(Plural.points(points));
         })));
     }
 }

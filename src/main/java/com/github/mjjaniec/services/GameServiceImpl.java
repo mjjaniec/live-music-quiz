@@ -1,18 +1,15 @@
 package com.github.mjjaniec.services;
 
-import com.github.mjjaniec.model.GameStage;
-import com.github.mjjaniec.model.MainSet;
-import com.github.mjjaniec.model.Player;
-import com.github.mjjaniec.model.StageSet;
-import com.github.mjjaniec.stores.CustomMessageStore;
-import com.github.mjjaniec.stores.PlayerStore;
-import com.github.mjjaniec.stores.QuizStore;
-import com.github.mjjaniec.stores.StageStore;
+import com.github.mjjaniec.model.*;
+import com.github.mjjaniec.stores.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Component
 public class GameServiceImpl implements GameService, MaestroInterface {
     private final BigScreenNavigator bigScreenNavigator;
@@ -21,18 +18,21 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     private final QuizStore quizStore;
     private final CustomMessageStore messageStore;
     private final StageStore stageStore;
+    private final AnswerStore answerStore;
     private MainSet quiz;
     private GameStage stage;
     private StageSet stageSet;
 
-    public GameServiceImpl(BigScreenNavigator bigScreenNavigator, PlayerNavigator playerNavigator,
-                           PlayerStore playerStore, QuizStore quizStore, CustomMessageStore messageStore, StageStore stageStore) {
+    private final List<Player> slackers = new ArrayList<>();
+
+    public GameServiceImpl(BigScreenNavigator bigScreenNavigator, PlayerNavigator playerNavigator, PlayerStore playerStore, QuizStore quizStore, CustomMessageStore messageStore, StageStore stageStore, AnswerStore answerStore) {
         this.bigScreenNavigator = bigScreenNavigator;
         this.playerNavigator = playerNavigator;
         this.playerStore = playerStore;
         this.quizStore = quizStore;
         this.messageStore = messageStore;
         this.stageStore = stageStore;
+        this.answerStore = answerStore;
 
         quizStore.getQuiz().ifPresent(this::initGame);
         stageStore.readStage(stageSet).ifPresentOrElse(this::setStage, () -> {
@@ -86,10 +86,11 @@ public class GameServiceImpl implements GameService, MaestroInterface {
 
     @Override
     public void reset() {
-        quizStore.clearQuiz();
         quiz = null;
+        quizStore.clearQuiz();
         stage = null;
         stageStore.clearStage();
+        answerStore.clearAnswers();
     }
 
     @Override
@@ -98,7 +99,11 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         stageStore.saveStage(gameStage);
         playerNavigator.navigatePlayers(gameStage.playerView());
         bigScreenNavigator.navigateBigScreen(gameStage.bigScreenView());
+        if (gameStage.asPiece().map(piece -> piece.getCurrentStage() == GameStage.PieceStage.ANSWER).orElse(false)) {
+            initAnswers();
+        }
     }
+
 
     @Override
     public StageSet stageSet() {
@@ -106,8 +111,12 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     }
 
     @Override
-    public void reportResult(Optional<Player> player, boolean artist, boolean title, boolean bonus) {
-        // ignore for now
+    public void reportResult(Player player, boolean artist, boolean title, boolean bonus) {
+        stage.asPiece().ifPresentOrElse(piece -> {
+            answerStore.saveAnswer(new Answer(artist, title, bonus ? 2 : 1, player.name(), piece.roundNumber, piece.pieceNumber.number()));
+            slackers.remove(player);
+            bigScreenNavigator.refreshSlackersList();
+        }, () -> log.error("Report result called in wrong state (expected Piece but it is: {}", stage));
     }
 
     @Override
@@ -125,5 +134,31 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     @Override
     public Optional<String> customMessage() {
         return messageStore.readMessage();
+    }
+
+    @Override
+    public List<Player> getSlackers() {
+        return List.copyOf(slackers);
+    }
+
+    @Override
+    public int getCurrentPlayerPoints(Player player) {
+        return stage.asPiece().map(
+                piece -> answerStore.playerAnswer(player.name(), piece.roundNumber, piece.pieceNumber.number()).map(
+                        answer -> stageSet.roundInit(piece.roundNumber).map(
+                                round -> answer.bonus() * b2i(answer.artist()) * round.difficulty().points.artist() +
+                                        answer.bonus() * b2i(answer.title()) * round.difficulty().points.title()
+                        ).orElse(0)
+                ).orElse(0)
+        ).orElse(0);
+    }
+
+    private int b2i(boolean b) {
+        return b ? 1 : 0;
+    }
+
+    private void initAnswers() {
+        slackers.clear();
+        slackers.addAll(playerStore.getPlayers());
     }
 }

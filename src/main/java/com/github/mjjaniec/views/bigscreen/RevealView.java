@@ -2,8 +2,11 @@ package com.github.mjjaniec.views.bigscreen;
 
 import com.github.mjjaniec.components.UserBadge;
 import com.github.mjjaniec.model.Player;
+import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.GameService;
 import com.github.mjjaniec.services.TestDataProvider;
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H4;
@@ -15,9 +18,13 @@ import java.util.List;
 @Route(value = "reveal", layout = BigScreenView.class)
 public class RevealView extends VerticalLayout implements BigScreenRoute {
 
-    Div slackersContainer = new Div();
+    private final GameService gameService;
+    private final BroadcastAttach broadcastAttach;
+    private final Div slackersContainer = new Div();
 
-    public RevealView(GameService gameService, TestDataProvider testDataProvider) {
+    public RevealView(GameService gameService, TestDataProvider testDataProvider, BroadcastAttach broadcastAttach) {
+        this.gameService = gameService;
+        this.broadcastAttach = broadcastAttach;
         setSpacing(false);
         setPadding(true);
 
@@ -41,10 +48,21 @@ public class RevealView extends VerticalLayout implements BigScreenRoute {
         refreshSlackers();
     }
 
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        broadcastAttach.attachSlackersList(attachEvent.getUI(), this::refreshSlackers);
+    }
+
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        broadcastAttach.detachSlackersList(detachEvent.getUI());
+        super.onDetach(detachEvent);
+    }
+
     private void refreshSlackers() {
         slackersContainer.removeAll();
-        List<Player> slackers = List.of(new Player("Makumba"), new Player("Kasie"), new Player("ktoś tam"), new Player("Antylopa"));
         slackersContainer.add(new H4("czekamy na"));
-        slackers.forEach(player -> slackersContainer.add(new UserBadge(player.name(), true, true)));
+        gameService.getSlackers().forEach(player -> slackersContainer.add(new UserBadge(player.name(), true, true)));
     }
 }
