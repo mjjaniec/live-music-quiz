@@ -99,6 +99,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         stageStore.saveStage(gameStage);
         playerNavigator.navigatePlayers(gameStage.playerView());
         bigScreenNavigator.navigateBigScreen(gameStage.bigScreenView());
+        bigScreenNavigator.refreshProgressBar();
         if (gameStage.asPiece().map(piece -> piece.getCurrentStage() == GameStage.PieceStage.ANSWER).orElse(false)) {
             initAnswers();
         }

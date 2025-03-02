@@ -28,6 +28,13 @@ public sealed interface GameStage {
         };
     }
 
+    default Optional<RoundSummary> asRoundSummary() {
+        return switch (this) {
+            case RoundSummary it -> Optional.of(it);
+            default -> Optional.empty();
+        };
+    }
+
     record RoundNumber(int number, int of) {
     }
 

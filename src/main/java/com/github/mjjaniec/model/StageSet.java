@@ -34,7 +34,7 @@ public class StageSet {
         return mainStages.get(roundNumber).asRoundInit();
     }
 
-    public List<GameStage> toLevelStages() {
+    public List<GameStage> topLevelStages() {
         return mainStages;
     }
 

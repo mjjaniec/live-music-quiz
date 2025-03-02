@@ -7,4 +7,5 @@ public interface BigScreenNavigator {
     void refreshPlayerLists();
     void refreshSlackersList();
     void refreshBigScreen();
+    void refreshProgressBar();
 }

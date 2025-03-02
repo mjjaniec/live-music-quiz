@@ -62,7 +62,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
         if (gameService.isGameStarted()) {
             Accordion main = new Accordion();
             main.setSizeFull();
-            gameService.stageSet().toLevelStages().stream().map(this::createStagePanel).forEach(main::add);
+            gameService.stageSet().topLevelStages().stream().map(this::createStagePanel).forEach(main::add);
             add(customMessageComponent());
             add(main);
         } else {

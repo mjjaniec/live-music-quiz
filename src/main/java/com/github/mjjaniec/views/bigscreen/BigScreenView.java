@@ -23,7 +23,10 @@ import com.vaadin.flow.router.RoutePrefix;
 @RoutePrefix("big-screen")
 public class BigScreenView extends VerticalLayout implements RouterLayoutWithOutlet<VerticalLayout>, BigScreenRoute {
     private final VerticalLayout outlet = new VerticalLayout();
+    private final Div progressBarsOutlet = new Div();
     private final BroadcastAttach broadcaster;
+    private final GameService gameService;
+    private final TestDataProvider testDataProvider;
 
     @Override
     public VerticalLayout outlet() {
@@ -32,6 +35,9 @@ public class BigScreenView extends VerticalLayout implements RouterLayoutWithOut
 
     public BigScreenView(BroadcastAttach broadcaster, GameService gameService, TestDataProvider testDataProvider) {
         this.broadcaster = broadcaster;
+        this.gameService = gameService;
+        this.testDataProvider = testDataProvider;
+
         outlet.setSizeFull();
         outlet.setPadding(false);
         outlet.getStyle().setBackgroundColor(Palette.WHITE);
@@ -39,13 +45,18 @@ public class BigScreenView extends VerticalLayout implements RouterLayoutWithOut
         setSpacing(false);
         getStyle().setBackground(Palette.GREEN);
         setSizeFull();
+
+        progressBarsOutlet.setWidthFull();
+        progressBarsOutlet.getStyle().setBackgroundColor(Palette.GREEN);
+
         Component topComponent = gameService.customMessage()
                 .map(this::customMessageComponent)
                 .orElse(new BannerBand(Palette.GREEN));
         add(topComponent);
-        add(makeProgressBars(gameService, testDataProvider));
+        add(progressBarsOutlet);
         add(outlet);
         add(new FooterBand(Palette.GREEN));
+        refreshProgressBars();
     }
 
     private Component customMessageComponent(String message) {
@@ -63,13 +74,14 @@ public class BigScreenView extends VerticalLayout implements RouterLayoutWithOut
         return result;
     }
 
-    private Component makeProgressBars(GameService gameService, TestDataProvider testDataProvider) {
-        Div container = new Div();
-        container.setWidthFull();
-        container.getStyle().setBackgroundColor(Palette.GREEN);
+    private void refreshProgressBars() {
+        progressBarsOutlet.removeAll();
 
-        var roundP = gameService.stage().asRoundInit().or(testDataProvider::init).map(init ->
-                new ProgressBar("Runda", init.roundNumber().number(), init.roundNumber().of(), Palette.DARKER));
+        var roundP = gameService.stage().asRoundInit()
+                .or(() -> gameService.stage().asPiece().flatMap(piece -> gameService.stageSet().roundInit(piece.roundNumber)))
+                .or(() -> gameService.stage().asRoundSummary().flatMap(summary -> gameService.stageSet().roundInit(summary.roundNumber().number())))
+                .or(testDataProvider::init).map(init ->
+                        new ProgressBar("Runda", init.roundNumber().number(), init.roundNumber().of(), Palette.DARKER));
         var pieceP = gameService.stage().asPiece().or(testDataProvider::piece).map(piece ->
                 new ProgressBar("Utwór", piece.pieceNumber.number(), piece.pieceNumber.of(), Palette.DARKER));
 
@@ -79,24 +91,25 @@ public class BigScreenView extends VerticalLayout implements RouterLayoutWithOut
             piece.getStyle().setBorderRadius("0 0 0.3em 0.3em");
         }));
 
-        roundP.ifPresent(container::add);
-        pieceP.ifPresent(container::add);
+        roundP.ifPresent(progressBarsOutlet::add);
+        pieceP.ifPresent(progressBarsOutlet::add);
 
-        if (container.getChildren().findFirst().isPresent()) {
-            container.getStyle().setPaddingBottom("1em");
+        if (progressBarsOutlet.getChildren().findFirst().isPresent()) {
+            progressBarsOutlet.getStyle().setPaddingBottom("1em");
         }
-        return container;
     }
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
         broadcaster.attachBigScreenUI(attachEvent.getUI());
+        broadcaster.attachProgressBar(attachEvent.getUI(), this::refreshProgressBars);
     }
 
     @Override
     protected void onDetach(DetachEvent detachEvent) {
         broadcaster.detachBigScreenUI(detachEvent.getUI());
+        broadcaster.detachProgressBar(detachEvent.getUI());
         super.onDetach(detachEvent);
     }
 }

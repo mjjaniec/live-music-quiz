@@ -15,4 +15,7 @@ public interface BroadcastAttach {
 
     void attachSlackersList(UI ui, Runnable refresh);
     void detachSlackersList(UI ui);
+
+    void attachProgressBar(UI ui, Runnable refresh);
+    void detachProgressBar(UI ui);
 }

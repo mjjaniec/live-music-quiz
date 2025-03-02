@@ -17,6 +17,7 @@ public class BroadcastAttachImpl implements BroadcastAttach, BigScreenNavigator,
     private final List<UI> bigScreenUIs = new ArrayList<>();
     private final Map<UI, Runnable> playerLists = new HashMap<>();
     private final Map<UI, Runnable> slackersList = new HashMap<>();
+    private final Map<UI, Runnable> progressBars = new HashMap<>();
 
     @Override
     public void attachPlayerUI(UI ui) {
@@ -59,6 +60,16 @@ public class BroadcastAttachImpl implements BroadcastAttach, BigScreenNavigator,
     }
 
     @Override
+    public void attachProgressBar(UI ui, Runnable refresh) {
+        progressBars.put(ui, refresh);
+    }
+
+    @Override
+    public void detachProgressBar(UI ui) {
+        progressBars.remove(ui);
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public  <T extends BigScreenRoute> void navigateBigScreen(Class<T> view) {
         bigScreenUIs.forEach(ui -> ui.access(() -> ui.navigate((Class<? extends Component>)view)));
@@ -88,5 +99,10 @@ public class BroadcastAttachImpl implements BroadcastAttach, BigScreenNavigator,
     @Override
     public void refreshSlackersList() {
         slackersList.forEach((ui, runnable) -> ui.access(runnable::run));
+    }
+
+    @Override
+    public void refreshProgressBar() {
+        progressBars.forEach((ui, runnable) -> ui.access(runnable::run));
     }
 }
