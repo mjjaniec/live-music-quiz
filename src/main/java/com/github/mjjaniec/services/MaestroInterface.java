@@ -4,6 +4,8 @@ import com.github.mjjaniec.model.GameStage;
 import com.github.mjjaniec.model.MainSet;
 import com.github.mjjaniec.model.StageSet;
 
+import java.util.List;
+
 public interface MaestroInterface extends GameService {
 
     void initGame(MainSet set);
@@ -19,4 +21,6 @@ public interface MaestroInterface extends GameService {
     void setCustomMessage(String customMessage);
 
     void clearCustomMessage();
+
+    List<String> getFeedbacks();
 }

@@ -1,5 +1,6 @@
 package com.github.mjjaniec.views.player;
 
+import com.github.mjjaniec.services.GameService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H1;
@@ -12,7 +13,7 @@ import com.vaadin.flow.router.Route;
 @Route(value = "feedback", layout = PlayerView.class)
 public class FeedbackView extends VerticalLayout implements PlayerRoute {
 
-    public FeedbackView() {
+    public FeedbackView(GameService gameService) {
         setSpacing(false);
         setSizeFull();
 
@@ -29,6 +30,7 @@ public class FeedbackView extends VerticalLayout implements PlayerRoute {
 
 
         button.addClickListener(event -> {
+            gameService.saveFeedback(input.getValue());
             removeAll();
             add(new H3("Diękówa!"));
             H1 heart = new H1("❤️");

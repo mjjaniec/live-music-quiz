@@ -32,4 +32,7 @@ public interface GameService {
     StageSet stageSet();
 
     Map<String, Map<Integer, Integer>> totalPoints();
+
+    void saveFeedback(String value);
+
 }

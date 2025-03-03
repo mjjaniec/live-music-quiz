@@ -17,13 +17,21 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     private final CustomMessageStore messageStore;
     private final StageStore stageStore;
     private final AnswerStore answerStore;
+    private final FeedbackStore feedbackStore;
     private MainSet quiz;
     private GameStage stage;
     private StageSet stageSet;
 
     private final List<Player> slackers = new ArrayList<>();
 
-    public GameServiceImpl(BigScreenNavigator bigScreenNavigator, PlayerNavigator playerNavigator, PlayerStore playerStore, QuizStore quizStore, CustomMessageStore messageStore, StageStore stageStore, AnswerStore answerStore) {
+    public GameServiceImpl(BigScreenNavigator bigScreenNavigator,
+                           PlayerNavigator playerNavigator,
+                           PlayerStore playerStore,
+                           QuizStore quizStore,
+                           CustomMessageStore messageStore,
+                           StageStore stageStore,
+                           AnswerStore answerStore,
+                           FeedbackStore feedbackStore) {
         this.bigScreenNavigator = bigScreenNavigator;
         this.playerNavigator = playerNavigator;
         this.playerStore = playerStore;
@@ -31,6 +39,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         this.messageStore = messageStore;
         this.stageStore = stageStore;
         this.answerStore = answerStore;
+        this.feedbackStore = feedbackStore;
 
         quizStore.getQuiz().ifPresent(this::initGame);
         stageStore.readStage(stageSet).ifPresentOrElse(this::setStage, () -> {
@@ -158,6 +167,16 @@ public class GameServiceImpl implements GameService, MaestroInterface {
                 )
         );
         return result;
+    }
+
+    @Override
+    public void saveFeedback(String value) {
+        feedbackStore.saveFeedback(value);
+    }
+
+    @Override
+    public List<String> getFeedbacks() {
+        return feedbackStore.readFeedback();
     }
 
     private int roundPoints(Player player, GameStage.RoundSummary summary) {

@@ -19,11 +19,11 @@ public class MaestroView extends VerticalLayout implements RouterLayout {
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
-        UI ui = attachEvent.getUI();
-        if (service.isGameStarted()) {
-            ui.navigate(DjView.class);
-        } else {
-            ui.navigate(StartGameView.class);
-        }
+//        UI ui = attachEvent.getUI();
+//        if (service.isGameStarted()) {
+//            ui.navigate(DjView.class);
+//        } else {
+//            ui.navigate(StartGameView.class);
+//        }
     }
 }
