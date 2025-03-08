@@ -11,13 +11,14 @@ import java.util.List;
 import java.util.Map;
 
 @org.springframework.stereotype.Component
-public class BroadcastAttachImpl implements BroadcastAttach, BigScreenNavigator, PlayerNavigator {
+public class BroadcastAttachImpl implements BroadcastAttach, Navigator {
 
     private final List<UI> playerUIs = new ArrayList<>();
     private final List<UI> bigScreenUIs = new ArrayList<>();
     private final Map<UI, Runnable> playerLists = new HashMap<>();
     private final Map<UI, Runnable> slackersList = new HashMap<>();
     private final Map<UI, Runnable> progressBars = new HashMap<>();
+    private final Map<UI, Runnable> plays = new HashMap<>();
 
     @Override
     public void attachPlayerUI(UI ui) {
@@ -70,6 +71,17 @@ public class BroadcastAttachImpl implements BroadcastAttach, BigScreenNavigator,
     }
 
     @Override
+    public void attachPlay(UI ui, Runnable refreshState) {
+        plays.put(ui, refreshState);
+    }
+
+    @Override
+    public void detachPlay(UI ui) {
+        plays.remove(ui);
+    }
+
+
+    @Override
     @SuppressWarnings("unchecked")
     public  <T extends BigScreenRoute> void navigateBigScreen(Class<T> view) {
         bigScreenUIs.forEach(ui -> ui.access(() -> ui.navigate((Class<? extends Component>)view)));
@@ -104,5 +116,10 @@ public class BroadcastAttachImpl implements BroadcastAttach, BigScreenNavigator,
     @Override
     public void refreshProgressBar() {
         progressBars.forEach((ui, runnable) -> ui.access(runnable::run));
+    }
+
+    @Override
+    public void refreshPlay() {
+        plays.forEach((ui, runnable) -> ui.access(runnable::run));
     }
 }

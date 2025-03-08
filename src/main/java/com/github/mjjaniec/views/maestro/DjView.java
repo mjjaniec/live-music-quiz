@@ -205,7 +205,8 @@ public class DjView extends VerticalLayout implements RouterLayout {
         content.add(createStagePanel(roundInit.roundSummary()));
         currentParentHeader = Optional.empty();
         GameStage stage = gameService.stage();
-        header.setActive(stage == roundInit || stage == roundInit.roundSummary() || roundInit.pieces().contains(stage));
+        header.setActive(stage == roundInit || stage == roundInit.roundSummary() ||
+                (stage instanceof GameStage.RoundPiece rp && roundInit.pieces().contains(rp)));
         return new AccordionPanel(header, content);
     }
 
@@ -238,7 +239,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
         content.add(instr, tempo, hint);
 
         Checkbox bonus = new Checkbox("Bonus");
-        bonus.addValueChangeListener(event -> piece.setBonus(event.getValue()));
+        bonus.addValueChangeListener(event -> piece.setBonus(event.getValue() ? 2 : 1));
 
         content.add(bonus);
 

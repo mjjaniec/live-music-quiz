@@ -17,8 +17,9 @@ public class PieceStageButton extends Button {
 
     private String caption(GameStage.PieceStage pieceStage) {
         return switch (pieceStage) {
-            case LISTEN -> "▶ Play";
+            case LISTEN -> "\uD83C\uDFB5 Listen";
             case ANSWER -> "� Guess";
+            case PLAY -> "▶ play";
         };
     }
 }

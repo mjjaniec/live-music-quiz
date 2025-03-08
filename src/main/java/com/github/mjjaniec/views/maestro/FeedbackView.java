@@ -6,7 +6,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 
-@Route(value = "feedback", layout = MaestroView.class)
+@Route(value = "maestro/feedback")
 public class FeedbackView extends VerticalLayout implements RouterLayout {
 
     FeedbackView(MaestroInterface gameService) {

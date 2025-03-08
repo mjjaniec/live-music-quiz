@@ -4,6 +4,7 @@ import com.github.mjjaniec.views.bigscreen.*;
 import com.github.mjjaniec.views.player.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +44,7 @@ public sealed interface GameStage {
 
 
     enum PieceStage {
-        LISTEN, ANSWER
+        LISTEN, ANSWER, PLAY
     }
 
     record Invite() implements GameStage {
@@ -84,7 +85,12 @@ public sealed interface GameStage {
         @Setter @Getter
         private PieceStage currentStage;
         @Setter @Getter
-        private boolean bonus;
+        private int bonus;
+        @Setter @Getter
+        private List<String> failedResponders;
+        @Setter @Getter
+        @Nullable
+        private String currentResponder;
 
         public RoundPiece(int roundNumber, PieceNumber pieceNumber, MainSet.Piece piece, List<PieceStage> innerStages) {
             this.roundNumber = roundNumber;
@@ -92,7 +98,8 @@ public sealed interface GameStage {
             this.piece = piece;
             this.currentStage = innerStages.getFirst();
             this.innerStages = innerStages;
-            this.bonus = false;
+            this.bonus = 1;
+            failedResponders = List.of();
         }
 
         @Override
@@ -100,6 +107,7 @@ public sealed interface GameStage {
             return switch (currentStage) {
                 case LISTEN -> ListenView.class;
                 case ANSWER -> AnswerView.class;
+                case PLAY -> PlayView.class;
             };
         }
 
@@ -108,6 +116,7 @@ public sealed interface GameStage {
             return switch (currentStage) {
                 case LISTEN -> BigScreenListenView.class;
                 case ANSWER -> RevealView.class;
+                case PLAY -> BigScreenPlayView.class;
             };
         }
     }

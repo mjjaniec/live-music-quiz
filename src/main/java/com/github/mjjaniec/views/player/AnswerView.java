@@ -53,7 +53,7 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
         }));
 
         Checkbox bonusCheckbox = new Checkbox("bonus!", event -> bonus = event.getValue());
-        gameService.stage().asPiece().ifPresent(piece -> bonusCheckbox.setVisible(piece.isBonus()));
+        gameService.stage().asPiece().ifPresent(piece -> bonusCheckbox.setVisible(piece.getBonus() > 1));
 
         add(new Div());
         add(bonusCheckbox);

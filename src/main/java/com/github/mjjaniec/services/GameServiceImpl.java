@@ -10,8 +10,7 @@ import java.util.*;
 @Slf4j
 @Component
 public class GameServiceImpl implements GameService, MaestroInterface {
-    private final BigScreenNavigator bigScreenNavigator;
-    private final PlayerNavigator playerNavigator;
+    private final Navigator navigator;
     private final PlayerStore playerStore;
     private final QuizStore quizStore;
     private final CustomMessageStore messageStore;
@@ -24,16 +23,14 @@ public class GameServiceImpl implements GameService, MaestroInterface {
 
     private final List<Player> slackers = new ArrayList<>();
 
-    public GameServiceImpl(BigScreenNavigator bigScreenNavigator,
-                           PlayerNavigator playerNavigator,
+    public GameServiceImpl(Navigator navigator,
                            PlayerStore playerStore,
                            QuizStore quizStore,
                            CustomMessageStore messageStore,
                            StageStore stageStore,
                            AnswerStore answerStore,
                            FeedbackStore feedbackStore) {
-        this.bigScreenNavigator = bigScreenNavigator;
-        this.playerNavigator = playerNavigator;
+        this.navigator = navigator;
         this.playerStore = playerStore;
         this.quizStore = quizStore;
         this.messageStore = messageStore;
@@ -63,13 +60,14 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         quizStore.setQuiz(set);
         this.quiz = set;
         this.stageSet = new StageSet(set);
+        this.stage = stageSet.initStage();
     }
 
     @Override
     public boolean addPlayer(String name) {
         boolean result = playerStore.addPlayer(name);
         if (result) {
-            bigScreenNavigator.refreshPlayerLists();
+            navigator.refreshPlayerLists();
         }
         return result;
     }
@@ -77,8 +75,8 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     @Override
     public void removePlayer(Player player) {
         playerStore.removePlayer(player);
-        playerNavigator.refreshAllPlayers();
-        bigScreenNavigator.refreshPlayerLists();
+        navigator.refreshAllPlayers();
+        navigator.refreshPlayerLists();
     }
 
     @Override
@@ -100,16 +98,27 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         answerStore.clearAnswers();
     }
 
+    private void initAnswers() {
+        slackers.clear();
+        slackers.addAll(playerStore.getPlayers());
+    }
+
     @Override
     public void setStage(GameStage gameStage) {
         this.stage = gameStage;
         stageStore.saveStage(gameStage);
-        playerNavigator.navigatePlayers(gameStage.playerView());
-        bigScreenNavigator.navigateBigScreen(gameStage.bigScreenView());
-        bigScreenNavigator.refreshProgressBar();
-        if (gameStage.asPiece().map(piece -> piece.getCurrentStage() == GameStage.PieceStage.ANSWER).orElse(false)) {
-            initAnswers();
-        }
+        navigator.navigatePlayers(gameStage.playerView());
+        navigator.navigateBigScreen(gameStage.bigScreenView());
+        navigator.refreshProgressBar();
+
+        gameStage.asPiece().map(GameStage.RoundPiece::getCurrentStage).ifPresent(pieceStage -> {
+            switch (pieceStage) {
+                case ANSWER -> initAnswers();
+                case PLAY -> navigator.refreshPlay();
+                default -> {}
+            }
+        });
+
     }
 
 
@@ -123,20 +132,20 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         stage.asPiece().ifPresentOrElse(piece -> {
             answerStore.saveAnswer(new Answer(artist, title, bonus ? 2 : 1, player.name(), piece.roundNumber, piece.pieceNumber.number()));
             slackers.remove(player);
-            bigScreenNavigator.refreshSlackersList();
+            navigator.refreshSlackersList();
         }, () -> log.error("Report result called in wrong state (expected Piece but it is: {}", stage));
     }
 
     @Override
     public void setCustomMessage(String customMessage) {
         messageStore.setMessage(customMessage);
-        bigScreenNavigator.refreshBigScreen();
+        navigator.refreshBigScreen();
     }
 
     @Override
     public void clearCustomMessage() {
         messageStore.clearMessage();
-        bigScreenNavigator.refreshBigScreen();
+        navigator.refreshBigScreen();
     }
 
     @Override
@@ -205,8 +214,4 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         return b ? 1 : 0;
     }
 
-    private void initAnswers() {
-        slackers.clear();
-        slackers.addAll(playerStore.getPlayers());
-    }
 }

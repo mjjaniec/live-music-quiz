@@ -47,7 +47,9 @@ public class StageSet {
                                 (int) roundIndex + 1,
                                 new GameStage.PieceNumber((int) index + 1, level.pieces().size()),
                                 piece,
-                                List.of(GameStage.PieceStage.LISTEN, GameStage.PieceStage.ANSWER)
+                                level.level().mode == MainSet.RoundMode.EVERYBODY ?
+                                        List.of(GameStage.PieceStage.LISTEN, GameStage.PieceStage.ANSWER) :
+                                        List.of(GameStage.PieceStage.PLAY)
                         )
                 ).toList(),
                 new GameStage.RoundSummary(new GameStage.RoundNumber((int) roundIndex + 1, quiz.levels().size()))

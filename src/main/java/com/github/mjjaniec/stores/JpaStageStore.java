@@ -5,9 +5,12 @@ import com.github.mjjaniec.model.StageSet;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public interface JpaStageStore extends CrudRepository<StageDto, Long>, StageStore {
@@ -65,12 +68,20 @@ public interface JpaStageStore extends CrudRepository<StageDto, Long>, StageStor
 
     private GameStage.RoundPiece setUpAdditions(GameStage.RoundPiece piece, String additions) {
         String[] a = additions.split(":");
-        piece.setBonus("true".equals(a[0]));
+        piece.setBonus(Integer.parseInt(a[0]));
         piece.setCurrentStage(GameStage.PieceStage.valueOf(a[1]));
+        if (a.length >= 3) {
+            piece.setCurrentResponder(a[2]);
+        } if (a.length >= 4) {
+            piece.setFailedResponders(Arrays.stream(a, 3, a.length).toList());
+        }
         return piece;
     }
 
     private String toPieceAdditions(GameStage.RoundPiece piece) {
-        return piece.isBonus() + ":" + piece.getCurrentStage().name();
+        return Stream.concat(
+                Stream.of(String.valueOf(piece.getBonus()), piece.getCurrentStage().name(), piece.getCurrentResponder()),
+                piece.getFailedResponders().stream()
+        ).collect(Collectors.joining(":"));
     }
 }
