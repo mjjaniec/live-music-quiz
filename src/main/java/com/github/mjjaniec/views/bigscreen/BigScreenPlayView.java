@@ -26,6 +26,7 @@ public class BigScreenPlayView extends VerticalLayout implements BigScreenRoute 
         setSpacing(true);
         setPadding(true);
         getThemeList().add("spacing-l");
+        refreshState();
     }
 
     private void refreshState() {
@@ -35,6 +36,7 @@ public class BigScreenPlayView extends VerticalLayout implements BigScreenRoute 
             if (piece.getCurrentResponder() == null) {
                 add(new Div());
                 add(new H1("Słuchaj słuchaj jaj jaj"));
+                add(new H1("No i zgłoś się!"));
                 add(new VerticalLayout());
 
                 Component animation = new NotesAnimation();

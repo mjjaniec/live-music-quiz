@@ -72,16 +72,19 @@ public interface JpaStageStore extends CrudRepository<StageDto, Long>, StageStor
         piece.setCurrentStage(GameStage.PieceStage.valueOf(a[1]));
         if (a.length >= 3) {
             piece.setCurrentResponder(a[2]);
-        } if (a.length >= 4) {
+        }
+        if (a.length >= 4) {
             piece.setFailedResponders(Arrays.stream(a, 3, a.length).toList());
         }
         return piece;
     }
 
     private String toPieceAdditions(GameStage.RoundPiece piece) {
-        return Stream.concat(
-                Stream.of(String.valueOf(piece.getBonus()), piece.getCurrentStage().name(), piece.getCurrentResponder()),
-                piece.getFailedResponders().stream()
-        ).collect(Collectors.joining(":"));
+        return Stream.of(
+                        Stream.of(String.valueOf(piece.getBonus()), piece.getCurrentStage().name()),
+                        Optional.ofNullable(piece.getCurrentResponder()).stream(),
+                        piece.getFailedResponders().stream()
+                ).flatMap(Function.identity())
+                .collect(Collectors.joining(":"));
     }
 }

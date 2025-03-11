@@ -115,7 +115,8 @@ public class GameServiceImpl implements GameService, MaestroInterface {
             switch (pieceStage) {
                 case ANSWER -> initAnswers();
                 case PLAY -> navigator.refreshPlay();
-                default -> {}
+                default -> {
+                }
             }
         });
 
@@ -186,6 +187,17 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     @Override
     public List<String> getFeedbacks() {
         return feedbackStore.readFeedback();
+    }
+
+    @Override
+    public synchronized void raise(Player player) {
+        stage.asPiece().ifPresent(piece -> {
+            if (piece.getCurrentResponder() == null) {
+                piece.setCurrentResponder(player.name());
+                stageStore.saveStage(stage);
+                navigator.refreshPlay();
+            }
+        });
     }
 
     private int roundPoints(Player player, GameStage.RoundSummary summary) {

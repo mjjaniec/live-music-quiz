@@ -35,4 +35,5 @@ public interface GameService {
 
     void saveFeedback(String value);
 
+    void raise(Player player);
 }
