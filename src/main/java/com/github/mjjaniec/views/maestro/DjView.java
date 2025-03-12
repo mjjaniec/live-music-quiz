@@ -298,9 +298,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
                     pieceContent.add(new Paragraph("Czekamy na: " + slackers.stream().map(Player::name).collect(Collectors.joining(","))));
                 }
             }
-            case PLAY -> {
-                pieceContent.add(new PlayTimeComponent(piece, gameService));
-            }
+            case PLAY -> pieceContent.add(new PlayTimeComponent(piece, gameService));
         }
 
     }
