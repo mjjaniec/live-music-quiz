@@ -19,6 +19,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -32,8 +33,10 @@ import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RouterLink;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Route(value = "dj", layout = MaestroView.class)
 public class DjView extends VerticalLayout implements RouterLayout {
@@ -45,6 +48,8 @@ public class DjView extends VerticalLayout implements RouterLayout {
     private final Map<GameStage, StageHeader> headers = new HashMap<>();
     private final Button reset = new Button("Reset");
     private Optional<StageHeader> currentParentHeader = Optional.empty();
+
+    private final Div pieceContent = new Div();
 
 
     DjView(MaestroInterface gameService, BroadcastAttach broadcastAttach) {
@@ -79,11 +84,11 @@ public class DjView extends VerticalLayout implements RouterLayout {
         message.setValueChangeMode(ValueChangeMode.EAGER);
         message.addInputListener(event -> button.setText(message.getValue().isBlank() ? "Wyczyść" : "Ustaw"));
         button.addClickListener(event -> {
-           if (message.getValue().isBlank()) {
-               gameService.clearCustomMessage();
-           } else {
-               gameService.setCustomMessage(message.getValue());
-           }
+            if (message.getValue().isBlank()) {
+                gameService.clearCustomMessage();
+            } else {
+                gameService.setCustomMessage(message.getValue());
+            }
         });
         gameService.customMessage().ifPresent(msg -> {
             button.setText("Ustaw");
@@ -228,31 +233,73 @@ public class DjView extends VerticalLayout implements RouterLayout {
     private AccordionPanel pieceComponent(GameStage.RoundPiece piece) {
         Div headerComponent = new Div(icon(piece.piece.instrument()), new Span(" " + piece.piece.artist() + " - " + piece.piece.title()));
         Div header = createPanelHeader(headerComponent, piece);
-        HorizontalLayout content = new HorizontalLayout();
+        VerticalLayout content = new VerticalLayout();
         content.setWidthFull();
+        HorizontalLayout row = new HorizontalLayout();
+        row.setPadding(false);
+        row.setWidthFull();
         Div instr = new Div(icon(piece.piece.instrument()), new Span(" " + piece.piece.instrument().name()));
         instr.setWidth("10%");
         Span tempo = new Span("\uD83E\uDD41 " + Optional.ofNullable(piece.piece.tempo()).map(Object::toString).orElse("zmienne"));
         tempo.setWidth("10%");
         Span hint = new Span(piece.piece.hint());
+        content.add(row);
 
-        content.add(instr, tempo, hint);
-
-        Checkbox bonus = new Checkbox("Bonus");
-        bonus.addValueChangeListener(event -> piece.setBonus(event.getValue() ? 2 : 1));
-
-        content.add(bonus);
-
+        row.add(instr, tempo, hint);
+        if (gameService.stage() == piece) {
+            pieceContent.removeFromParent();
+            content.add(pieceContent);
+            refreshPieceContent(piece);
+        }
         piece.innerStages.stream()
-                .map(innerStage -> new PieceStageButton(piece, innerStage, this::onActivate))
-                .forEach(content::add);
-        content.getStyle().setMarginLeft("2em");
+                .map(innerStage -> new PieceStageButton(piece, innerStage, stage -> {
+                    onActivate(stage);
+                    pieceContent.removeFromParent();
+                    content.add(pieceContent);
+                    refreshPieceContent(stage);
+                }))
+                .forEach(row::add);
+        row.getStyle().setMarginLeft("2em");
         return new AccordionPanel(header, content);
+    }
+
+    private void refreshSlackers() {
+        if (gameService.stage() instanceof GameStage.RoundPiece piece) {
+            if (piece.getCurrentStage() == GameStage.PieceStage.ANSWER) {
+                refreshPieceContent(piece);
+            }
+        }
+    }
+
+    private void refreshPieceContent(GameStage.RoundPiece piece) {
+        pieceContent.removeAll();
+        switch (piece.getCurrentStage()) {
+            case LISTEN -> {
+                Checkbox bonus = new Checkbox("Bonus");
+                bonus.addValueChangeListener(event -> piece.setBonus(event.getValue() ? 2 : 1));
+                pieceContent.add(bonus);
+            }
+            case ANSWER -> {
+                List<Player> slackers = gameService.getSlackers();
+                if (slackers.isEmpty()) {
+                    Paragraph h = new Paragraph("Wszyscy odpowiedzieli!");
+                    h.getStyle().setColor(Palette.GREEN);
+                    pieceContent.add(h);
+                } else {
+                    pieceContent.add(new Paragraph("Czekamy na: " + slackers.stream().map(Player::name).collect(Collectors.joining(","))));
+                }
+            }
+            case PLAY -> {
+                pieceContent.add(new Text("playtime"));
+            }
+        }
+
     }
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
+        broadcastAttach.attachSlackersList(attachEvent.getUI(), this::refreshSlackers);
         broadcastAttach.attachPlayerList(attachEvent.getUI(), this::refreshPlayers);
     }
 
@@ -260,5 +307,6 @@ public class DjView extends VerticalLayout implements RouterLayout {
     protected void onDetach(DetachEvent detachEvent) {
         super.onDetach(detachEvent);
         broadcastAttach.detachPlayerList(detachEvent.getUI());
+        broadcastAttach.detachSlackersList(detachEvent.getUI());
     }
 }

@@ -1,4 +1,4 @@
-# LQM or Live Music Quiz by Michał Janiec
+# LMQ or Live Music Quiz by Michał Janiec
 
 Application is composed of 3 parts:
  * module for person conducting the quiz - maestro. It allows to define quiz and steer it.
