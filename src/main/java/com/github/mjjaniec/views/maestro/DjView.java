@@ -271,6 +271,15 @@ public class DjView extends VerticalLayout implements RouterLayout {
         }
     }
 
+    private void refreshPlay() {
+        if (gameService.stage() instanceof GameStage.RoundPiece piece) {
+            if (piece.getCurrentStage() == GameStage.PieceStage.PLAY) {
+                refreshPieceContent(piece);
+            }
+        }
+    }
+
+
     private void refreshPieceContent(GameStage.RoundPiece piece) {
         pieceContent.removeAll();
         switch (piece.getCurrentStage()) {
@@ -290,7 +299,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
                 }
             }
             case PLAY -> {
-                pieceContent.add(new Text("playtime"));
+                pieceContent.add(new PlayTimeComponent(piece, gameService));
             }
         }
 
@@ -301,6 +310,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
         super.onAttach(attachEvent);
         broadcastAttach.attachSlackersList(attachEvent.getUI(), this::refreshSlackers);
         broadcastAttach.attachPlayerList(attachEvent.getUI(), this::refreshPlayers);
+        broadcastAttach.attachPlay(attachEvent.getUI(), this::refreshPlay);
     }
 
     @Override
@@ -308,5 +318,6 @@ public class DjView extends VerticalLayout implements RouterLayout {
         super.onDetach(detachEvent);
         broadcastAttach.detachPlayerList(detachEvent.getUI());
         broadcastAttach.detachSlackersList(detachEvent.getUI());
+        broadcastAttach.detachPlay(detachEvent.getUI());
     }
 }

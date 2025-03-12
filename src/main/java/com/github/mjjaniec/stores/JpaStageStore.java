@@ -74,7 +74,7 @@ public interface JpaStageStore extends CrudRepository<StageDto, Long>, StageStor
             piece.setCurrentResponder(a[2]);
         }
         if (a.length >= 4) {
-            piece.setFailedResponders(Arrays.stream(a, 3, a.length).toList());
+           Arrays.stream(a, 3, a.length).forEach(piece::addFailedResponder);
         }
         return piece;
     }

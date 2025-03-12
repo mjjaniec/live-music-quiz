@@ -66,7 +66,7 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
         confirm.addClickListener(event -> {
             UI ui = UI.getCurrent();
             LocalStorage.readPlayer(ui).thenAccept(playerOpt -> playerOpt.ifPresent(player -> {
-                gameService.reportResult(player, artist, title, bonus);
+                gameService.reportResult(player, artist, title, bonus ? 2 : 1);
                 ui.access(() -> ui.navigate(PieceResultView.class));
             }));
         });

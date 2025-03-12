@@ -27,7 +27,7 @@ public interface GameService {
 
     Optional<String> customMessage();
 
-    void reportResult(Player player, boolean artist, boolean title, boolean bonus);
+    void reportResult(Player player, boolean artist, boolean title, int bonus);
 
     StageSet stageSet();
 

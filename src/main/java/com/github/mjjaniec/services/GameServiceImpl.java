@@ -129,9 +129,9 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     }
 
     @Override
-    public void reportResult(Player player, boolean artist, boolean title, boolean bonus) {
+    public void reportResult(Player player, boolean artist, boolean title, int bonus) {
         stage.asPiece().ifPresentOrElse(piece -> {
-            answerStore.saveAnswer(new Answer(artist, title, bonus ? 2 : 1, player.name(), piece.roundNumber, piece.pieceNumber.number()));
+            answerStore.saveAnswer(new Answer(artist, title, bonus, player.name(), piece.roundNumber, piece.pieceNumber.number()));
             slackers.remove(player);
             navigator.refreshSlackersList();
         }, () -> log.error("Report result called in wrong state (expected Piece but it is: {}", stage));

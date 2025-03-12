@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.lang.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -86,8 +87,8 @@ public sealed interface GameStage {
         private PieceStage currentStage;
         @Setter @Getter
         private int bonus;
-        @Setter @Getter
-        private List<String> failedResponders;
+        @Getter
+        private final List<String> failedResponders;
         @Setter @Getter
         @Nullable
         private String currentResponder;
@@ -99,7 +100,12 @@ public sealed interface GameStage {
             this.currentStage = innerStages.getFirst();
             this.innerStages = innerStages;
             this.bonus = 1;
-            failedResponders = List.of();
+            failedResponders = new ArrayList<>();
+        }
+
+        public void addFailedResponder(String responder) {
+            this.failedResponders.add(responder);
+            this.currentResponder = null;
         }
 
         @Override
