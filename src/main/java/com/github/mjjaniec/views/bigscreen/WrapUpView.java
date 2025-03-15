@@ -9,6 +9,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Optional;
+
 @Route(value = "wrap-up", layout = BigScreenView.class)
 @RequiredArgsConstructor
 public class WrapUpView extends VerticalLayout implements BigScreenRoute {
@@ -17,10 +19,12 @@ public class WrapUpView extends VerticalLayout implements BigScreenRoute {
     private final GameService gameService;
 
     void refresh() {
-        gameService.stage().asWrapUp().ifPresent(wrapUp -> {
-            removeAll();
-            add(new Paragraph(wrapUp.getDisplay().name()));
-        });
+        gameService.stage().asWrapUp()
+                .flatMap(w -> Optional.ofNullable(w.getDisplay()))
+                .ifPresent(display -> {
+                    removeAll();
+                    add(new Paragraph(display.name()));
+                });
     }
 
     @Override
