@@ -12,7 +12,7 @@ public class FeedbackDto {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(length=8192)
+    @Column(length = 8192)
     private String message;
 }
 

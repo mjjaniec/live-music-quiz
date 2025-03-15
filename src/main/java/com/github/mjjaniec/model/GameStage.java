@@ -91,18 +91,23 @@ public sealed interface GameStage {
         public final PieceNumber pieceNumber;
         public final MainSet.Piece piece;
         public final List<PieceStage> innerStages;
-        @Setter @Getter
+        @Setter
+        @Getter
         private PieceStage currentStage;
-        @Setter @Getter
+        @Setter
+        @Getter
         private int bonus;
         @Getter
         private final List<String> failedResponders;
-        @Setter @Getter
+        @Setter
+        @Getter
         @Nullable
         private String currentResponder;
-        @Getter @Setter
+        @Getter
+        @Setter
         private boolean artistAnswered;
-        @Getter @Setter
+        @Getter
+        @Setter
         private boolean titleAnswered;
 
         public boolean isCompleted() {
@@ -164,7 +169,7 @@ public sealed interface GameStage {
         FIFTIETH(true, 5),
         FOURTH(true, 4),
         THIRD_PODIUM(false, 3),
-        SECOND_PODIUM(false, 2 ),
+        SECOND_PODIUM(false, 2),
         FULL_PODIUM(false, 1),
         FULL_TABLE(true, 1);
         public final boolean table;
@@ -175,7 +180,7 @@ public sealed interface GameStage {
     @Getter
     final class WrapUp implements GameStage {
         @Nullable
-         private Display display = Display.SIXTH;
+        private Display display = Display.SIXTH;
 
         @Override
         public Class<FeedbackView> playerView() {

@@ -6,6 +6,8 @@ import java.util.Optional;
 
 public interface QuizStore {
     void setQuiz(MainSet set);
+
     Optional<MainSet> getQuiz();
+
     void clearQuiz();
 }

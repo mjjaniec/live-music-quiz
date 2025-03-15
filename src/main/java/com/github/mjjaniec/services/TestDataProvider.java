@@ -22,17 +22,17 @@ public class TestDataProvider {
         return Optional.of(new GameStage.RoundPiece(
                 4,
                 new GameStage.PieceNumber(3, 10),
-                new MainSet.Piece( "Red Hot Chilli Pepper", "Callifornication", MainSet.Instrument.Bass, null, null, Set.of()),
+                new MainSet.Piece("Red Hot Chilli Pepper", "Callifornication", MainSet.Instrument.Bass, null, null, Set.of()),
                 List.of(GameStage.PieceStage.LISTEN, GameStage.PieceStage.ANSWER)
         )).filter(event -> config.testData());
 
     }
 
     public Optional<GameStage.RoundInit> init() {
-        return Optional.of(new GameStage.RoundInit(new GameStage.RoundNumber(1,3),
+        return Optional.of(new GameStage.RoundInit(new GameStage.RoundNumber(1, 3),
                 MainSet.Difficulty.Easy,
                 List.of(),
-                new GameStage.RoundSummary(new GameStage.RoundNumber(1,3))
+                new GameStage.RoundSummary(new GameStage.RoundNumber(1, 3))
         )).filter(event -> config.testData());
     }
 }

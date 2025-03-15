@@ -19,7 +19,8 @@ public class RealStageStore implements StageStore {
     private final JpaStageGenStore jpaStore;
     private final ObjectMapper mapper;
 
-    private record PieceAdditionsDto(GameStage.PieceStage stage, int bonus, String currentResponder, List<String> failedResponders, boolean artistAnswered, boolean titleAnswered) {
+    private record PieceAdditionsDto(GameStage.PieceStage stage, int bonus, String currentResponder,
+                                     List<String> failedResponders, boolean artistAnswered, boolean titleAnswered) {
     }
 
 

@@ -6,7 +6,7 @@ public class UserBadge extends Span {
 
     public UserBadge(String user, boolean small, boolean bigScreen) {
         super(user);
-        String fontSize = small ? "2em" : "2.5em" ;
+        String fontSize = small ? "2em" : "2.5em";
         if (bigScreen) {
             String margin = small ? "0.4em" : "0.5em";
             getStyle().setMarginRight(margin);

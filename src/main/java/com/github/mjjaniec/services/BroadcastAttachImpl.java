@@ -93,8 +93,8 @@ public class BroadcastAttachImpl implements BroadcastAttach, Navigator {
 
     @Override
     @SuppressWarnings("unchecked")
-    public  <T extends BigScreenRoute> void navigateBigScreen(Class<T> view) {
-        bigScreenUIs.forEach(ui -> ui.access(() -> ui.navigate((Class<? extends Component>)view)));
+    public <T extends BigScreenRoute> void navigateBigScreen(Class<T> view) {
+        bigScreenUIs.forEach(ui -> ui.access(() -> ui.navigate((Class<? extends Component>) view)));
     }
 
     @Override
@@ -105,7 +105,7 @@ public class BroadcastAttachImpl implements BroadcastAttach, Navigator {
     @Override
     @SuppressWarnings("unchecked")
     public <T extends PlayerRoute> void navigatePlayers(Class<T> view) {
-        playerUIs.forEach(ui -> ui.access(() -> ui.navigate((Class<? extends Component>)view)));
+        playerUIs.forEach(ui -> ui.access(() -> ui.navigate((Class<? extends Component>) view)));
     }
 
     @Override

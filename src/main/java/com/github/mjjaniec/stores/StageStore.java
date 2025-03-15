@@ -7,6 +7,8 @@ import java.util.Optional;
 
 public interface StageStore {
     Optional<GameStage> readStage(StageSet stageSet);
+
     void saveStage(GameStage stage);
+
     void clearStage();
 }

@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 @Component
-public interface JpaAnswerStore extends CrudRepository<AnswerDto, String>, AnswerStore  {
+public interface JpaAnswerStore extends CrudRepository<AnswerDto, String>, AnswerStore {
     @Override
     default void saveAnswer(Answer answer) {
         save(mapToDto(answer));
