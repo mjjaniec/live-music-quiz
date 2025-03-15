@@ -44,7 +44,7 @@ html {
   text-align: left;
 }
 
-vaadin-radio-button[checked]::part(radio) {
+.pseudo-radio > vaadin-radio-button[checked]::part(radio) {
     background-color: #ffffffaa;
 }
 

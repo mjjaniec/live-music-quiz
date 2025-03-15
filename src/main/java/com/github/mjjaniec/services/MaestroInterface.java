@@ -23,4 +23,6 @@ public interface MaestroInterface extends GameService {
     void clearCustomMessage();
 
     List<String> getFeedbacks();
+
+    GameStage.Display minimalDisplay();
 }

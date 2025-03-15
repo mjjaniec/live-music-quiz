@@ -128,9 +128,22 @@ public class GameServiceImpl implements GameService, MaestroInterface {
                 }
             }
         });
-
+        gameStage.asWrapUp().ifPresent(ignored -> navigator.refreshWrapUp());
     }
 
+    @Override
+    public GameStage.Display minimalDisplay() {
+        int playersCount = playerStore.getPlayers().size();
+        if (playersCount >= 7) {
+            return GameStage.Display.SIXTH;
+        } else if (playersCount >= 4) {
+            return GameStage.Display.FOURTH;
+        } else if (playersCount >= 3) {
+            return GameStage.Display.THIRD_PODIUM;
+        } else {
+            return GameStage.Display.FULL_TABLE;
+        }
+    }
 
     @Override
     public StageSet stageSet() {
@@ -149,13 +162,13 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     @Override
     public void setCustomMessage(String customMessage) {
         messageStore.setMessage(customMessage);
-        navigator.refreshBigScreen();
+        navigator.refreshCustomMessage();
     }
 
     @Override
     public void clearCustomMessage() {
         messageStore.clearMessage();
-        navigator.refreshBigScreen();
+        navigator.refreshCustomMessage();
     }
 
     @Override

@@ -48,7 +48,7 @@ public class RealStageStore implements StageStore {
         if (dto.getRound() == StageDto.init) {
             return Optional.of(stages.initStage());
         } else if (dto.getRound() == StageDto.summary) {
-            return Optional.of(stages.wrapUpStage());
+            return Optional.of(setUpAdditions(stages.wrapUpStage(), dto.getAdditions()));
         } else {
             Optional<GameStage.RoundInit> init = stages.roundInit(dto.getRound());
             if (dto.getPiece() == StageDto.init) {
@@ -67,12 +67,27 @@ public class RealStageStore implements StageStore {
             case GameStage.Invite ignored -> result.set(StageDto.init, 0);
             case GameStage.RoundInit roundInit -> result.set(roundInit.roundNumber().number(), StageDto.init);
             case GameStage.RoundPiece roundPiece ->
-                    result.set(roundPiece.roundNumber, roundPiece.pieceNumber.number(), toPieceAdditions(roundPiece));
+                    result.set(roundPiece.roundNumber, roundPiece.pieceNumber.number(), toAdditions(roundPiece));
             case GameStage.RoundSummary roundSummary ->
                     result.set(roundSummary.roundNumber().number(), StageDto.summary);
-            case GameStage.WrapUp ignored -> result.set(StageDto.summary, 0);
+            case GameStage.WrapUp wrapUp -> result.set(StageDto.summary, 0, toAdditions(wrapUp));
         }
         return result;
+    }
+
+    @SneakyThrows
+    private GameStage.WrapUp setUpAdditions(GameStage.WrapUp wrapUp, String additions) {
+        try {
+            wrapUp.setDisplay(GameStage.Display.valueOf(additions));
+        } catch (Exception e) {
+            wrapUp.setDisplay(null);
+        }
+        return wrapUp;
+    }
+
+    @SneakyThrows
+    private String toAdditions(GameStage.WrapUp wrapUp) {
+        return wrapUp.getDisplay() != null ? wrapUp.getDisplay().name() : null;
     }
 
     @SneakyThrows
@@ -88,7 +103,7 @@ public class RealStageStore implements StageStore {
     }
 
     @SneakyThrows
-    private String toPieceAdditions(GameStage.RoundPiece piece) {
+    private String toAdditions(GameStage.RoundPiece piece) {
         var dto = new PieceAdditionsDto(piece.getCurrentStage(), piece.getBonus(), piece.getCurrentResponder(), piece.getFailedResponders(), piece.isArtistAnswered(), piece.isTitleAnswered());
         return mapper.writeValueAsString(dto);
     }

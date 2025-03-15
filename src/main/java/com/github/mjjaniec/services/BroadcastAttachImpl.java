@@ -19,6 +19,7 @@ public class BroadcastAttachImpl implements BroadcastAttach, Navigator {
     private final Map<UI, Runnable> slackersList = new HashMap<>();
     private final Map<UI, Runnable> progressBars = new HashMap<>();
     private final Map<UI, Runnable> plays = new HashMap<>();
+    private final Map<UI, Runnable> wrapUps = new HashMap<>();
 
     @Override
     public void attachPlayerUI(UI ui) {
@@ -71,8 +72,8 @@ public class BroadcastAttachImpl implements BroadcastAttach, Navigator {
     }
 
     @Override
-    public void attachPlay(UI ui, Runnable refreshState) {
-        plays.put(ui, refreshState);
+    public void attachPlay(UI ui, Runnable refresh) {
+        plays.put(ui, refresh);
     }
 
     @Override
@@ -80,6 +81,15 @@ public class BroadcastAttachImpl implements BroadcastAttach, Navigator {
         plays.remove(ui);
     }
 
+    @Override
+    public void attachWrapUp(UI ui, Runnable refresh) {
+        wrapUps.put(ui, refresh);
+    }
+
+    @Override
+    public void detachWrapUp(UI ui) {
+        wrapUps.remove(ui);
+    }
 
     @Override
     @SuppressWarnings("unchecked")
@@ -104,7 +114,7 @@ public class BroadcastAttachImpl implements BroadcastAttach, Navigator {
     }
 
     @Override
-    public void refreshBigScreen() {
+    public void refreshCustomMessage() {
         bigScreenUIs.forEach(ui -> ui.access(() -> ui.refreshCurrentRoute(true)));
     }
 
@@ -121,5 +131,10 @@ public class BroadcastAttachImpl implements BroadcastAttach, Navigator {
     @Override
     public void refreshPlay() {
         plays.forEach((ui, runnable) -> ui.access(runnable::run));
+    }
+
+    @Override
+    public void refreshWrapUp() {
+        wrapUps.forEach((ui, runnable) -> ui.access(runnable::run));
     }
 }

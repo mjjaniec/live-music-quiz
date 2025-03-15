@@ -19,6 +19,9 @@ public interface BroadcastAttach {
     void attachProgressBar(UI ui, Runnable refresh);
     void detachProgressBar(UI ui);
 
-    void attachPlay(UI ui, Runnable refreshState);
+    void attachPlay(UI ui, Runnable refresh);
     void detachPlay(UI ui);
+
+    void attachWrapUp(UI ui, Runnable refresh);
+    void detachWrapUp(UI ui);
 }

@@ -23,6 +23,8 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -32,10 +34,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RouterLink;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Route(value = "dj", layout = MaestroView.class)
@@ -174,13 +173,49 @@ public class DjView extends VerticalLayout implements RouterLayout {
     }
 
     private AccordionPanel wrapUpComponent(GameStage.WrapUp wrapUp) {
-        HorizontalLayout content = new HorizontalLayout();
-        content.add(createActivateComponent(wrapUp));
+        VerticalLayout content = new VerticalLayout();
+        content.setWidthFull();
+        HorizontalLayout line = new HorizontalLayout();
+        line.add(createActivateComponent(wrapUp));
         Checkbox danger = new Checkbox("danger");
         reset.setEnabled(false);
         danger.addValueChangeListener(event -> reset.setEnabled(event.getValue()));
-        content.add(danger);
-        content.add(reset);
+        line.add(danger);
+        line.add(reset);
+        content.add(line);
+
+        GameStage.Display minimalDisplay = gameService.minimalDisplay();
+        if (wrapUp.getDisplay() == null) {
+            wrapUp.setDisplay(minimalDisplay);
+        }
+
+        Map<Boolean, List<GameStage.Display>> collect = Arrays.stream(GameStage.Display.values())
+                .collect(Collectors.partitioningBy(d -> d.ordinal() < minimalDisplay.ordinal()));
+        List<GameStage.Display> inactives = collect.getOrDefault(true, List.of());
+        List<GameStage.Display> actives = collect.getOrDefault(false, List.of());
+
+        if (!inactives.isEmpty()) {
+            RadioButtonGroup<String> inactive = new RadioButtonGroup<>();
+            inactive.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
+            inactive.setLabel("Niedostępne");
+            inactive.setItems(inactives.stream().map(GameStage.Display::name).toList());
+            inactive.setEnabled(false);
+            content.add(inactive);
+        }
+
+        RadioButtonGroup<String> active = new RadioButtonGroup<>();
+        active.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
+        active.setLabel("Co pokazać");
+        active.setItems(actives.stream().map(GameStage.Display::name).toList());
+        active.setValue(wrapUp.getDisplay().name());
+        active.addValueChangeListener(event -> {
+            if (event.getValue() != null) {
+                wrapUp.setDisplay(GameStage.Display.valueOf(event.getValue()));
+                gameService.setStage(wrapUp);
+            }
+        });
+        content.add(active);
+
         return new AccordionPanel(createPanelHeader(new Text("\uD83C\uDFC6 Podsumowanie"), wrapUp), content);
 
     }

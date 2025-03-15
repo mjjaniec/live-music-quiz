@@ -23,8 +23,8 @@ public class StageSet {
         return mainStages.getFirst();
     }
 
-    public GameStage wrapUpStage() {
-        return mainStages.getLast();
+    public GameStage.WrapUp wrapUpStage() {
+        return (GameStage.WrapUp) mainStages.getLast();
     }
 
     public Optional<GameStage.RoundInit> roundInit(int roundNumber) {

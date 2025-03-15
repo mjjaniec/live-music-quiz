@@ -3,6 +3,7 @@ package com.github.mjjaniec.model;
 import com.github.mjjaniec.views.bigscreen.*;
 import com.github.mjjaniec.views.player.*;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.lang.Nullable;
 
@@ -26,6 +27,13 @@ public sealed interface GameStage {
     default Optional<RoundPiece> asPiece() {
         return switch (this) {
             case RoundPiece it -> Optional.of(it);
+            default -> Optional.empty();
+        };
+    }
+
+    default Optional<WrapUp> asWrapUp() {
+        return switch (this) {
+            case WrapUp it -> Optional.of(it);
             default -> Optional.empty();
         };
     }
@@ -150,7 +158,25 @@ public sealed interface GameStage {
 
     }
 
-    record WrapUp() implements GameStage {
+    @RequiredArgsConstructor
+    enum Display {
+        SIXTH(true, 6),
+        FIFTIETH(true, 5),
+        FOURTH(true, 4),
+        THIRD_PODIUM(false, 3),
+        SECOND_PODIUM(false, 2 ),
+        FULL_PODIUM(false, 1),
+        FULL_TABLE(true, 1);
+        public final boolean table;
+        public final int showFrom;
+    }
+
+    @Setter
+    @Getter
+    final class WrapUp implements GameStage {
+        @Nullable
+         private Display display = Display.SIXTH;
+
         @Override
         public Class<FeedbackView> playerView() {
             return FeedbackView.class;
