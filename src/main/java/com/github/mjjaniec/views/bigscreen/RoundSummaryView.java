@@ -25,8 +25,8 @@ public class RoundSummaryView extends VerticalLayout implements BigScreenRoute {
                 entry -> entry.getValue().values().stream().mapToInt(x -> x).sum()
         ));
         List<Player> order = gameService.getPlayers().stream().sorted((a, b) -> {
-            int aPoints = altogether.get(a.name());
-            int bPoints = altogether.get(b.name());
+            int aPoints = altogether.getOrDefault(a.name(), 0);
+            int bPoints = altogether.getOrDefault(b.name(), 0);
             if (aPoints != bPoints) {
                 return bPoints - aPoints;
             } else {
@@ -34,6 +34,7 @@ public class RoundSummaryView extends VerticalLayout implements BigScreenRoute {
             }
         }).toList();
         int rounds = (int) gameService.stageSet().topLevelStages().stream().filter(stage -> stage.asRoundInit().isPresent()).count();
+        int currentRound = gameService.stage().asRoundSummary().map(s -> s.roundNumber().number()).orElse(0);
 
         playersGrid.addColumn(new ComponentRenderer<>((SerializableFunction<Player, Component>) player -> {
             if (!order.isEmpty() && order.get(0).name().equals(player.name())) {
@@ -54,17 +55,18 @@ public class RoundSummaryView extends VerticalLayout implements BigScreenRoute {
         for (int i = 1; i <= rounds; ++i) {
             int finalI = i;
             playersGrid.addColumn(new ComponentRenderer<>((SerializableFunction<Player, Component>) player -> {
-                        Integer points = byRounds.get(player.name()).get(finalI);
-                        if (points != null)
+                        if (finalI <= currentRound) {
+                            Integer points = byRounds.getOrDefault(player.name(), Map.of()).getOrDefault(finalI, 0);
                             return new H5(String.valueOf(points));
-                        else
+                        } else {
                             return new Span();
+                        }
                     }))
                     .setHeader("Runda " + finalI);
         }
 
         playersGrid.addColumn(new ComponentRenderer<>((SerializableFunction<Player, Component>) player ->
-                        new H5(String.valueOf(altogether.get(player.name())))))
+                        new H5(String.valueOf(altogether.getOrDefault(player.name(), 0)))))
                 .setHeader("Razem");
 
 

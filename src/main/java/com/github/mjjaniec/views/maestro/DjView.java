@@ -195,7 +195,12 @@ public class DjView extends VerticalLayout implements RouterLayout {
 
     private AccordionPanel roundSummaryComponent(GameStage.RoundSummary roundSummary) {
         StageHeader header = createPanelHeader(new Text("\uD83D\uDCC8 podsumowanie rundy"), roundSummary);
-        Component content = createActivateComponent(roundSummary);
+        Component content;
+        if (roundSummary.roundNumber().number() == roundSummary.roundNumber().of()) {
+            content = new Paragraph("Użyj globalnego podsumowania");
+        } else {
+            content = createActivateComponent(roundSummary);
+        }
         return new AccordionPanel(header, content);
     }
 
