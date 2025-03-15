@@ -33,20 +33,22 @@ public class BigScreenPlayView extends VerticalLayout implements BigScreenRoute 
         gameService.stage().asPiece().ifPresent(piece -> {
             removeAll();
 
-            if (piece.getCurrentResponder() == null) {
-                add(new Div());
-                add(new H1("Słuchaj słuchaj jaj jaj"));
-                add(new H1("No i zgłoś się!"));
-                add(new VerticalLayout());
+            if (!piece.isCompleted()) {
+                if (piece.getCurrentResponder() == null) {
+                    add(new Div());
+                    add(new H1("Słuchaj słuchaj jaj jaj"));
+                    add(new H1("No i zgłoś się!"));
+                    add(new VerticalLayout());
 
-                Component animation = new NotesAnimation();
-                animation.getStyle().setMaxWidth("8em");
-                add(animation);
-            } else {
-                add(new Div());
-                add(new H1("Odpowiada:"));
-                add(new VerticalLayout());
-                add(new UserBadge(piece.getCurrentResponder(), false, true));
+                    Component animation = new NotesAnimation();
+                    animation.getStyle().setMaxWidth("8em");
+                    add(animation);
+                } else {
+                    add(new Div());
+                    add(new H1("Odpowiada:"));
+                    add(new VerticalLayout());
+                    add(new UserBadge(piece.getCurrentResponder(), false, true));
+                }
             }
         });
     }

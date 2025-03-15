@@ -1,22 +1,31 @@
 package com.github.mjjaniec.stores;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mjjaniec.model.GameStage;
 import com.github.mjjaniec.model.StageSet;
-import org.springframework.data.repository.CrudRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component
-public interface JpaStageStore extends CrudRepository<StageDto, Long>, StageStore {
+@RequiredArgsConstructor
+public class RealStageStore implements StageStore {
+
+    private final JpaStageGenStore jpaStore;
+    private final ObjectMapper mapper;
+
+    private record PieceAdditionsDto(GameStage.PieceStage stage, int bonus, String currentResponder, List<String> failedResponders, boolean artistAnswered, boolean titleAnswered) {
+    }
+
+
     @Override
-    default Optional<GameStage> readStage(StageSet stageSet) {
-        Iterator<StageDto> result = findAll().iterator();
+    public Optional<GameStage> readStage(StageSet stageSet) {
+        Iterator<StageDto> result = jpaStore.findAll().iterator();
         if (result.hasNext()) {
             return Optional.of(fromDto(result.next(), stageSet)).flatMap(Function.identity());
         } else {
@@ -25,14 +34,14 @@ public interface JpaStageStore extends CrudRepository<StageDto, Long>, StageStor
     }
 
     @Override
-    default void saveStage(GameStage stage) {
-        deleteAll();
-        save(toDto(stage));
+    public void saveStage(GameStage stage) {
+        jpaStore.deleteAll();
+        jpaStore.save(toDto(stage));
     }
 
     @Override
-    default void clearStage() {
-        deleteAll();
+    public void clearStage() {
+        jpaStore.deleteAll();
     }
 
     private Optional<? extends GameStage> fromDto(StageDto dto, StageSet stages) {
@@ -66,25 +75,21 @@ public interface JpaStageStore extends CrudRepository<StageDto, Long>, StageStor
         return result;
     }
 
+    @SneakyThrows
     private GameStage.RoundPiece setUpAdditions(GameStage.RoundPiece piece, String additions) {
-        String[] a = additions.split(":");
-        piece.setBonus(Integer.parseInt(a[0]));
-        piece.setCurrentStage(GameStage.PieceStage.valueOf(a[1]));
-        if (a.length >= 3) {
-            piece.setCurrentResponder(a[2]);
-        }
-        if (a.length >= 4) {
-           Arrays.stream(a, 3, a.length).forEach(piece::addFailedResponder);
-        }
+        var dto = mapper.readValue(additions, PieceAdditionsDto.class);
+        piece.setCurrentStage(dto.stage);
+        piece.setBonus(dto.bonus);
+        piece.setCurrentResponder(dto.currentResponder);
+        dto.failedResponders.forEach(responder -> piece.getFailedResponders().add(responder));
+        piece.setArtistAnswered(dto.artistAnswered);
+        piece.setTitleAnswered(dto.titleAnswered);
         return piece;
     }
 
+    @SneakyThrows
     private String toPieceAdditions(GameStage.RoundPiece piece) {
-        return Stream.of(
-                        Stream.of(String.valueOf(piece.getBonus()), piece.getCurrentStage().name()),
-                        Optional.ofNullable(piece.getCurrentResponder()).stream(),
-                        piece.getFailedResponders().stream()
-                ).flatMap(Function.identity())
-                .collect(Collectors.joining(":"));
+        var dto = new PieceAdditionsDto(piece.getCurrentStage(), piece.getBonus(), piece.getCurrentResponder(), piece.getFailedResponders(), piece.isArtistAnswered(), piece.isTitleAnswered());
+        return mapper.writeValueAsString(dto);
     }
 }

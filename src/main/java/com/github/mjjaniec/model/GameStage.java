@@ -92,6 +92,14 @@ public sealed interface GameStage {
         @Setter @Getter
         @Nullable
         private String currentResponder;
+        @Getter @Setter
+        private boolean artistAnswered;
+        @Getter @Setter
+        private boolean titleAnswered;
+
+        public boolean isCompleted() {
+            return artistAnswered && titleAnswered;
+        }
 
         public RoundPiece(int roundNumber, PieceNumber pieceNumber, MainSet.Piece piece, List<PieceStage> innerStages) {
             this.roundNumber = roundNumber;
@@ -100,6 +108,8 @@ public sealed interface GameStage {
             this.currentStage = innerStages.getFirst();
             this.innerStages = innerStages;
             this.bonus = 1;
+            this.artistAnswered = false;
+            this.titleAnswered = false;
             failedResponders = new ArrayList<>();
         }
 

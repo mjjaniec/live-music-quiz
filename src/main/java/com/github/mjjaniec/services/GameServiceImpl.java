@@ -2,6 +2,8 @@ package com.github.mjjaniec.services;
 
 import com.github.mjjaniec.model.*;
 import com.github.mjjaniec.stores.*;
+import com.github.mjjaniec.views.bigscreen.RevealView;
+import com.github.mjjaniec.views.player.PieceResultView;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -111,10 +113,17 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         navigator.navigateBigScreen(gameStage.bigScreenView());
         navigator.refreshProgressBar();
 
-        gameStage.asPiece().map(GameStage.RoundPiece::getCurrentStage).ifPresent(pieceStage -> {
-            switch (pieceStage) {
+        gameStage.asPiece().ifPresent(piece -> {
+            switch (piece.getCurrentStage()) {
                 case ANSWER -> initAnswers();
-                case PLAY -> navigator.refreshPlay();
+                case PLAY -> {
+                    if (piece.isCompleted()) {
+                        navigator.navigatePlayers(PieceResultView.class);
+                        navigator.navigateBigScreen(RevealView.class);
+                    } else {
+                        navigator.refreshPlay();
+                    }
+                }
                 default -> {
                 }
             }

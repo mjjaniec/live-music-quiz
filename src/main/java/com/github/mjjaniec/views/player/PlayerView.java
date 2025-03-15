@@ -45,10 +45,6 @@ public class PlayerView extends VerticalLayout implements RouterLayoutWithOutlet
         add(new BannerBand(Palette.BLUE));
         add(outlet);
         add(new FooterBand(Palette.BLUE));
-
-        // temporary:
-//        setWidth("360px");
-//        setHeight("700px");
     }
 
     @Override

@@ -52,15 +52,10 @@ public class PlayView extends VerticalLayout implements PlayerRoute {
                 .ifPresent(piece -> {
                     theButton.setEnabled(piece.getCurrentResponder() == null);
                     theButton.getStyle().remove("background-color");
-                    theButton.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+                    theButton.setVisible(!piece.isCompleted());
+                    theButton.setEnabled(false);
 
-                    if (piece.getCurrentResponder() == null) {
-                        caption.setText("Odpowiadam");
-                        theButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-                    } else if (piece.getCurrentResponder().equals(player.name())) {
-                        caption.setText("Odpowiadasz");
-                        theButton.getStyle().setBackgroundColor(Palette.GREEN);
-                    } else if (piece.getFailedResponders().contains(player.name())) {
+                    if (piece.getFailedResponders().contains(player.name())) {
                         if (gameService.getCurrentPlayerPoints(player) > 0) {
                             caption.setText("coś tam wiesz");
                             theButton.getStyle().setBackground(Palette.AMBER);
@@ -68,8 +63,16 @@ public class PlayView extends VerticalLayout implements PlayerRoute {
                             caption.setText("psipau");
                             theButton.getStyle().setBackground(Palette.RED);
                         }
+                    } else if (piece.getCurrentResponder() == null) {
+                        caption.setText("Odpowiadam");
+                        theButton.setEnabled(true);
+                        theButton.getStyle().setBackgroundColor(Palette.BLUE);
+                    } else if (piece.getCurrentResponder().equals(player.name())) {
+                        caption.setText("Odpowiadasz");
+                        theButton.getStyle().setBackgroundColor(Palette.GREEN);
                     } else {
-                        caption.setText("aj");
+                        caption.setText("aj\ncza było szybciej");
+                        theButton.getStyle().setBackground(Palette.GRAY);
                     }
                 });
     }

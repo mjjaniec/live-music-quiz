@@ -10,4 +10,5 @@ public class Palette {
     public static String HIGHLIGHT = "rgb(254, 253, 210)";
     public static String RED = "rgb(230, 74, 71)";
     public static String AMBER = "rgb(230, 196, 71)";
+    public static String GRAY = "rgb(133, 133, 133)";
 }

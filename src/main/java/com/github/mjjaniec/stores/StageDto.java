@@ -17,6 +17,7 @@ public class StageDto {
 
     private int round;
     private int piece;
+    @Column(length = 4096)
     private String additions;
 
     void set(int round, int piece) {

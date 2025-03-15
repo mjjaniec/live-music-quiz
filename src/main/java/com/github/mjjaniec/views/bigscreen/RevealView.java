@@ -1,6 +1,7 @@
 package com.github.mjjaniec.views.bigscreen;
 
 import com.github.mjjaniec.components.UserBadge;
+import com.github.mjjaniec.model.GameStage;
 import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.GameService;
 import com.github.mjjaniec.services.TestDataProvider;
@@ -27,14 +28,15 @@ public class RevealView extends VerticalLayout implements BigScreenRoute {
         setPadding(true);
 
         gameService.stage().asPiece().or(testDataProvider::piece)
-                        .ifPresent(piece -> {
-                            add(new VerticalLayout());
-                            add(new H4("wykonawca"));
-                            add(new H1(piece.piece.artist()));
-                            add(new VerticalLayout());
-                            add(new H4("tytuł"));
-                            add(new H1(piece.piece.title()));
-                        });
+                .ifPresent(piece -> {
+                    add(new VerticalLayout());
+                    add(new H4("wykonawca"));
+                    add(new H1(piece.piece.artist()));
+                    add(new VerticalLayout());
+                    add(new H4("tytuł"));
+                    add(new H1(piece.piece.title()));
+                    slackersContainer.setVisible(piece.getCurrentStage() != GameStage.PieceStage.PLAY);
+                });
 
         setSizeFull();
         slackersContainer.setWidthFull();
