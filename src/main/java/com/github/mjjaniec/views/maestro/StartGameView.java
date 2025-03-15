@@ -28,7 +28,7 @@ public class StartGameView extends VerticalLayout implements RouterLayout {
 
         start.addClickListener(event -> {
             MainSet set = ALL.equals(games.getValue()) ? MainSet.TheSet : MainSet.TheSet.asSet(games.getValue());
-            gameService.initGame(set);
+            gameService.initGame(set.shuffle());
             UI.getCurrent().navigate(DjView.class);
         });
         add(games, start);

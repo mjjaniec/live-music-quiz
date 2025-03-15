@@ -7,8 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.lang.Nullable;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public record MainSet(List<LevelPieces> levels) {
@@ -32,6 +31,18 @@ public record MainSet(List<LevelPieces> levels) {
     }
 
     public record LevelPieces(Difficulty level, List<Piece> pieces) {
+        public LevelPieces shuffle() {
+            List<Instrument> instruments = new ArrayList<>();
+            pieces.stream().map(p -> p.instrument).distinct().forEach(instruments::add);
+            Collections.shuffle(instruments);
+            Map<Instrument, List<Piece>> byInstrument = pieces.stream().collect(Collectors.groupingBy(p -> p.instrument));
+            List<Piece> shuffled = instruments.stream().flatMap(instrument -> {
+                List<Piece> shufflable = new ArrayList<>(byInstrument.getOrDefault(instrument, new ArrayList<>()));
+                Collections.shuffle(shufflable);
+                return shufflable.stream();
+            }).toList();
+            return new LevelPieces(level, shuffled);
+        }
     }
 
     public record Piece(
@@ -76,6 +87,10 @@ public record MainSet(List<LevelPieces> levels) {
     }
 
     public record RoundPoints(int artist, int title) {
+    }
+
+    public MainSet shuffle() {
+        return new MainSet(levels.stream().map(LevelPieces::shuffle).toList());
     }
 }
 
