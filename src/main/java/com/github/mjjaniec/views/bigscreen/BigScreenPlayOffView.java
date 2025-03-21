@@ -2,21 +2,15 @@ package com.github.mjjaniec.views.bigscreen;
 
 import com.github.mjjaniec.components.NotesAnimation;
 import com.github.mjjaniec.components.UserBadge;
-import com.github.mjjaniec.model.GameStage;
-import com.github.mjjaniec.model.MainSet;
 import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.GameService;
-import com.github.mjjaniec.services.TestDataProvider;
-import com.github.mjjaniec.util.Palette;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
 
 

@@ -2,7 +2,6 @@ package com.github.mjjaniec.model;
 
 import com.github.mjjaniec.views.bigscreen.*;
 import com.github.mjjaniec.views.player.*;
-import jakarta.validation.constraints.Null;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;

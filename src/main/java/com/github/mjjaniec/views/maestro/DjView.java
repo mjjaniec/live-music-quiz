@@ -385,9 +385,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
                 bonus.addValueChangeListener(event -> piece.setBonus(event.getValue() ? 2 : 1));
                 pieceContent.add(bonus);
             }
-            case ANSWER -> {
-                pieceContent.add(new LittleSlackerList(gameService.getSlackers()));
-            }
+            case ANSWER -> pieceContent.add(new LittleSlackerList(gameService.getSlackers()));
             case PLAY -> pieceContent.add(new PlayTimeComponent(piece, gameService));
         }
 

@@ -51,8 +51,7 @@ public class PlayOffView extends VerticalLayout implements PlayerRoute {
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
-        LocalStorage.readPlayer(attachEvent.getUI()).thenAccept(playerOpt -> playerOpt.ifPresent(player -> {
-            this.player = player;
-        }));
+        LocalStorage.readPlayer(attachEvent.getUI())
+                .thenAccept(playerOpt -> playerOpt.ifPresent(player -> this.player = player));
     }
 }
