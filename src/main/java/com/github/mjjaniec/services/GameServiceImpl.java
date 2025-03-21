@@ -19,6 +19,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     private final StageStore stageStore;
     private final AnswerStore answerStore;
     private final FeedbackStore feedbackStore;
+    private final PlayOffStore playOffStore;
     private MainSet quiz;
     private GameStage stage;
     private StageSet stageSet;
@@ -31,7 +32,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
                            CustomMessageStore messageStore,
                            StageStore stageStore,
                            AnswerStore answerStore,
-                           FeedbackStore feedbackStore) {
+                           FeedbackStore feedbackStore, PlayOffStore playOffStore) {
         this.navigator = navigator;
         this.playerStore = playerStore;
         this.quizStore = quizStore;
@@ -39,6 +40,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         this.stageStore = stageStore;
         this.answerStore = answerStore;
         this.feedbackStore = feedbackStore;
+        this.playOffStore = playOffStore;
 
         quizStore.getQuiz().ifPresent(this::initGame);
         stageStore.readStage(stageSet).ifPresentOrElse(this::setStage, () -> {
@@ -157,6 +159,13 @@ public class GameServiceImpl implements GameService, MaestroInterface {
             slackers.remove(player);
             navigator.refreshSlackersList();
         }, () -> log.error("Report result called in wrong state (expected Piece but it is: {}", stage));
+    }
+
+    @Override
+    public void savePlayOff(Player player, int value) {
+        playOffStore.savePlayOff(player, value);
+        slackers.remove(player);
+        navigator.refreshSlackersList();
     }
 
     @Override

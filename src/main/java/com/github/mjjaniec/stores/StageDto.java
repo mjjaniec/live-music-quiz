@@ -9,6 +9,7 @@ import lombok.Data;
 @Table(name = "stage")
 public class StageDto {
     static final int summary = 999;
+    static final int playOff = 998;
     static final int init = -1;
 
     @Id

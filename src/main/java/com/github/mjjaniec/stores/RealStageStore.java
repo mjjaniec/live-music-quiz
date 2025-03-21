@@ -50,6 +50,8 @@ public class RealStageStore implements StageStore {
             return Optional.of(stages.initStage());
         } else if (dto.getRound() == StageDto.summary) {
             return Optional.of(setUpAdditions(stages.wrapUpStage(), dto.getAdditions()));
+        } else if (dto.getRound() == StageDto.playOff) {
+            return Optional.of(stages.playOff());
         } else {
             Optional<GameStage.RoundInit> init = stages.roundInit(dto.getRound());
             if (dto.getPiece() == StageDto.init) {
@@ -71,6 +73,7 @@ public class RealStageStore implements StageStore {
                     result.set(roundPiece.roundNumber, roundPiece.pieceNumber.number(), toAdditions(roundPiece));
             case GameStage.RoundSummary roundSummary ->
                     result.set(roundSummary.roundNumber().number(), StageDto.summary);
+            case GameStage.PlayOff playOff -> result.set(StageDto.playOff, 0);
             case GameStage.WrapUp wrapUp -> result.set(StageDto.summary, 0, toAdditions(wrapUp));
         }
         return result;

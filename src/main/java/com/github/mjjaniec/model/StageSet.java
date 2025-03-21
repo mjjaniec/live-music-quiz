@@ -15,12 +15,17 @@ public class StageSet {
         mainStages = Stream.<Stream<GameStage>>of(
                 Stream.of(new GameStage.Invite()),
                 Streams.mapWithIndex(quiz.levels().stream(), (level, index) -> roundStages(level, index, quiz)),
+                Stream.of(new GameStage.PlayOff()),
                 Stream.of(new GameStage.WrapUp())
         ).flatMap(Function.identity()).toList();
     }
 
     public GameStage initStage() {
         return mainStages.getFirst();
+    }
+
+    public GameStage.PlayOff playOff() {
+        return (GameStage.PlayOff) mainStages.get(mainStages.size() - 2);
     }
 
     public GameStage.WrapUp wrapUpStage() {

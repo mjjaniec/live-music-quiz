@@ -5,6 +5,7 @@ import com.github.mjjaniec.components.PieceStageButton;
 import com.github.mjjaniec.components.StageHeader;
 import com.github.mjjaniec.model.GameStage;
 import com.github.mjjaniec.model.MainSet;
+import com.github.mjjaniec.model.PlayOffs;
 import com.github.mjjaniec.model.Player;
 import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.MaestroInterface;
@@ -17,6 +18,7 @@ import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Paragraph;
@@ -50,6 +52,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
 
     private final Div pieceContent = new Div();
     private final Div wrapUpContent = new Div();
+    private final Div playOffContent = new Div();
 
 
     DjView(MaestroInterface gameService, BroadcastAttach broadcastAttach) {
@@ -108,6 +111,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
             case GameStage.RoundInit roundInit -> roundComponent(roundInit);
             case GameStage.WrapUp wrapUp -> wrapUpComponent(wrapUp);
             case GameStage.RoundPiece roundPiece -> pieceComponent(roundPiece);
+            case GameStage.PlayOff playOff -> playOffComponent(playOff);
             case GameStage.RoundSummary roundSummary -> roundSummaryComponent(roundSummary);
         };
     }
@@ -142,6 +146,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
         Optional.ofNullable(activateComponents.get(newStage)).ifPresent(ac -> ac.setActive(true));
         Optional.ofNullable(headers.get(newStage)).ifPresent(h -> h.setActive(true));
         refreshWrapUpContent();
+        refreshPlayOffContent();
     }
 
 
@@ -235,6 +240,32 @@ public class DjView extends VerticalLayout implements RouterLayout {
         content.add(new Span("typ: " + difficulty.mode + ", za-artystę: " + difficulty.points.artist() + ", za-tytuł: " + difficulty.points.title()));
         return new AccordionPanel(createPanelHeader(new Text("▶️ Rozpoczęcie rundy"), roundInit), content);
     }
+
+    private void refreshPlayOffContent() {
+        playOffContent.removeAll();
+        if (gameService.stage() instanceof GameStage.PlayOff playOff) {
+            ComboBox<PlayOffs.PlayOff> comboBox = new ComboBox<>("Wybierz dogrywkę", PlayOffs.ThePlayOffs.playOffs());
+            comboBox.setWidthFull();
+            Button collectAnswers = new Button("≙ Niech odpowiadajo!");
+            collectAnswers.addClickListener(event -> {
+                playOff.setNotesPlayed(comboBox.getValue().value());
+                gameService.setStage(playOff);
+            });
+            playOffContent.add(comboBox);
+            playOffContent.add(collectAnswers);
+        }
+    }
+
+    private AccordionPanel playOffComponent(GameStage.PlayOff playOff) {
+        StageHeader header = createPanelHeader(new Text("\uD83C\uDFB2 Dogrywka"), playOff);
+
+        playOffContent.setWidthFull();
+        VerticalLayout content = new VerticalLayout();
+        content.add(createActivateComponent(playOff));
+        content.add(playOffContent);
+        return new AccordionPanel(header, content);
+    }
+
 
     private AccordionPanel roundSummaryComponent(GameStage.RoundSummary roundSummary) {
         StageHeader header = createPanelHeader(new Text("\uD83D\uDCC8 podsumowanie rundy"), roundSummary);

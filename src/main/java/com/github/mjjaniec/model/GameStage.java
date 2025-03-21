@@ -177,6 +177,24 @@ public sealed interface GameStage {
         public final int showFrom;
     }
 
+    @Getter
+    @Setter
+    final class PlayOff implements GameStage {
+
+        @Nullable
+        Integer notesPlayed;
+
+        @Override
+        public Class<PlayOffView> playerView() {
+            return PlayOffView.class;
+        }
+
+        @Override
+        public Class<BigScreenPlayOffView> bigScreenView() {
+            return BigScreenPlayOffView.class;
+        }
+    }
+
     @Setter
     @Getter
     final class WrapUp implements GameStage {

@@ -29,6 +29,8 @@ public interface GameService {
 
     void reportResult(Player player, boolean artist, boolean title, int bonus);
 
+    void savePlayOff(Player player, int value);
+
     StageSet stageSet();
 
     Map<String, Map<Integer, Integer>> totalPoints();
