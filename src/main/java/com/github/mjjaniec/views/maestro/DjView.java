@@ -49,6 +49,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
     private Optional<StageHeader> currentParentHeader = Optional.empty();
 
     private final Div pieceContent = new Div();
+    private final Div wrapUpContent = new Div();
 
 
     DjView(MaestroInterface gameService, BroadcastAttach broadcastAttach) {
@@ -140,6 +141,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
         gameService.setStage(newStage);
         Optional.ofNullable(activateComponents.get(newStage)).ifPresent(ac -> ac.setActive(true));
         Optional.ofNullable(headers.get(newStage)).ifPresent(h -> h.setActive(true));
+        refreshWrapUpContent();
     }
 
 
@@ -172,6 +174,44 @@ public class DjView extends VerticalLayout implements RouterLayout {
         playersGrid.setItems(gameService.getPlayers());
     }
 
+    private void refreshWrapUpContent() {
+        wrapUpContent.removeAll();
+        if (gameService.stage() instanceof GameStage.WrapUp wrapUp) {
+
+            GameStage.Display minimalDisplay = gameService.minimalDisplay();
+            if (wrapUp.getDisplay() == null) {
+                wrapUp.setDisplay(minimalDisplay);
+            }
+
+            Map<Boolean, List<GameStage.Display>> collect = Arrays.stream(GameStage.Display.values())
+                    .collect(Collectors.partitioningBy(d -> d.ordinal() < minimalDisplay.ordinal()));
+            List<GameStage.Display> inactives = collect.getOrDefault(true, List.of());
+            List<GameStage.Display> actives = collect.getOrDefault(false, List.of());
+
+            if (!inactives.isEmpty()) {
+                RadioButtonGroup<String> inactive = new RadioButtonGroup<>();
+                inactive.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
+                inactive.setLabel("Niedostępne");
+                inactive.setItems(inactives.stream().map(GameStage.Display::name).toList());
+                inactive.setEnabled(false);
+                wrapUpContent.add(inactive);
+            }
+
+            RadioButtonGroup<String> active = new RadioButtonGroup<>();
+            active.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
+            active.setLabel("Co pokazać");
+            active.setItems(actives.stream().map(GameStage.Display::name).toList());
+            active.setValue(wrapUp.getDisplay().name());
+            active.addValueChangeListener(event -> {
+                if (event.getValue() != null) {
+                    wrapUp.setDisplay(GameStage.Display.valueOf(event.getValue()));
+                    gameService.setStage(wrapUp);
+                }
+            });
+            wrapUpContent.add(active);
+        }
+    }
+
     private AccordionPanel wrapUpComponent(GameStage.WrapUp wrapUp) {
         VerticalLayout content = new VerticalLayout();
         content.setWidthFull();
@@ -183,41 +223,9 @@ public class DjView extends VerticalLayout implements RouterLayout {
         line.add(danger);
         line.add(reset);
         content.add(line);
-
-        GameStage.Display minimalDisplay = gameService.minimalDisplay();
-        if (wrapUp.getDisplay() == null) {
-            wrapUp.setDisplay(minimalDisplay);
-        }
-
-        Map<Boolean, List<GameStage.Display>> collect = Arrays.stream(GameStage.Display.values())
-                .collect(Collectors.partitioningBy(d -> d.ordinal() < minimalDisplay.ordinal()));
-        List<GameStage.Display> inactives = collect.getOrDefault(true, List.of());
-        List<GameStage.Display> actives = collect.getOrDefault(false, List.of());
-
-        if (!inactives.isEmpty()) {
-            RadioButtonGroup<String> inactive = new RadioButtonGroup<>();
-            inactive.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
-            inactive.setLabel("Niedostępne");
-            inactive.setItems(inactives.stream().map(GameStage.Display::name).toList());
-            inactive.setEnabled(false);
-            content.add(inactive);
-        }
-
-        RadioButtonGroup<String> active = new RadioButtonGroup<>();
-        active.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
-        active.setLabel("Co pokazać");
-        active.setItems(actives.stream().map(GameStage.Display::name).toList());
-        active.setValue(wrapUp.getDisplay().name());
-        active.addValueChangeListener(event -> {
-            if (event.getValue() != null) {
-                wrapUp.setDisplay(GameStage.Display.valueOf(event.getValue()));
-                gameService.setStage(wrapUp);
-            }
-        });
-        content.add(active);
+        content.add(wrapUpContent);
 
         return new AccordionPanel(createPanelHeader(new Text("\uD83C\uDFC6 Podsumowanie"), wrapUp), content);
-
     }
 
     private AccordionPanel roundInitComponent(GameStage.RoundInit roundInit) {

@@ -18,7 +18,11 @@ import java.util.stream.Collectors;
 public class RoundSummaryView extends VerticalLayout implements BigScreenRoute {
 
     public RoundSummaryView(GameService gameService) {
+        setSizeFull();
+        setPadding(false);
+        setSpacing(false);
         Grid<Player> playersGrid = new Grid<>(Player.class, false);
+        playersGrid.setHeightFull();
         Map<String, Map<Integer, Integer>> byRounds = gameService.totalPoints();
         Map<String, Integer> altogether = byRounds.entrySet().stream().collect(Collectors.toMap(
                 Map.Entry::getKey,
@@ -47,10 +51,8 @@ public class RoundSummaryView extends VerticalLayout implements BigScreenRoute {
             return new Span();
         })).setHeader("Nagroda");
 
-        playersGrid.addColumn(new ComponentRenderer<>((SerializableFunction<Player, Component>) player ->
-                        new H4(player.name())))
+        playersGrid.addColumn(new ComponentRenderer<>((SerializableFunction<Player, Component>) player -> new H4(player.name())))
                 .setHeader("Ksywka");
-
 
         for (int i = 1; i <= rounds; ++i) {
             int finalI = i;
@@ -71,7 +73,6 @@ public class RoundSummaryView extends VerticalLayout implements BigScreenRoute {
 
 
         playersGrid.setItems(order);
-        playersGrid.getStyle().setMarginRight("1em");
         add(playersGrid);
     }
 }
