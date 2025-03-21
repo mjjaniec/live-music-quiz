@@ -1,12 +1,19 @@
 package com.github.mjjaniec.views.bigscreen;
 
+import com.github.mjjaniec.components.NotesAnimation;
+import com.github.mjjaniec.components.UserBadge;
 import com.github.mjjaniec.model.GameStage;
 import com.github.mjjaniec.model.MainSet;
+import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.GameService;
 import com.github.mjjaniec.services.TestDataProvider;
 import com.github.mjjaniec.util.Palette;
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
@@ -16,44 +23,58 @@ import com.vaadin.flow.router.Route;
 @Route(value = "play-off", layout = BigScreenView.class)
 public class BigScreenPlayOffView extends VerticalLayout implements BigScreenRoute {
 
-    public BigScreenPlayOffView(GameService gameService, TestDataProvider testDataProvider) {
-        setSpacing(false);
-        setPadding(false);
+    private final GameService gameService;
+    private final BroadcastAttach broadcastAttach;
+    private final Div slackersContainer = new Div();
+
+    public BigScreenPlayOffView(GameService gameService, BroadcastAttach broadcastAttach) {
+        this.gameService = gameService;
+        this.broadcastAttach = broadcastAttach;
+        setSpacing(true);
+        setPadding(true);
+        getThemeList().add("spacing-l");
+
         setSizeFull();
-        getStyle().setBackgroundColor(Palette.GREEN);
-        setJustifyContentMode(JustifyContentMode.BETWEEN);
+        setAlignItems(Alignment.CENTER);
 
-        gameService.stage().asRoundInit()
-                .or(testDataProvider::init)   //temporary
-                .ifPresent(this::setupUI);
+
     }
 
-    private void setupUI(GameStage.RoundInit roundInit) {
-        add(new Div());
-        add(keyValue("Witajcie w rundzie", String.valueOf(roundInit.roundNumber().number())));
-        add(keyValue("Kto odpowiada", roundInit.difficulty().mode == MainSet.RoundMode.EVERYBODY ? "Wszyscy" : "Pierwsza/y"));
-        add(keyValue("Punkty za wykonawcę", String.valueOf(roundInit.difficulty().points.artist())));
-        add(keyValue("Punkty za tytuł", String.valueOf(roundInit.difficulty().points.title())));
-        add(keyValue("Przed nami utworów", String.valueOf(roundInit.pieces().size())));
-        add(new Div());
-        add(new Div());
+    void refreshPlayOff() {
+        removeAll();
+        gameService.stage().asPlayOff().ifPresent(playOff -> {
+            if (playOff.getPlayOff() == null) {
+                add(new Div());
+                add(new H1("Słuchaj i licz!"));
+                add(new VerticalLayout());
+
+                Component animation = new NotesAnimation();
+                animation.getStyle().setMaxWidth("8em");
+                add(animation);
+            } else {
+                add(slackersContainer);
+                refreshSlackers();
+            }
+        });
     }
 
-    private HorizontalLayout keyValue(String caption, String value) {
-        HorizontalLayout result = new HorizontalLayout();
-        result.getThemeList().add("spacing-ls");
-        result.setWidthFull();
-        H1 left = new H1(caption + ": ");
-        H1 right = new H1(value);
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        broadcastAttach.attachSlackersList(attachEvent.getUI(), this::refreshSlackers);
+        broadcastAttach.attachPlayOff(attachEvent.getUI(), this::refreshPlayOff);
+    }
 
-        left.getStyle().setTextAlign(Style.TextAlign.RIGHT);
-        left.getStyle().setColor(Palette.LIGHTER);
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        broadcastAttach.detachSlackersList(detachEvent.getUI());
+        broadcastAttach.detachPlayOff(detachEvent.getUI());
+        super.onDetach(detachEvent);
+    }
 
-        right.getStyle().setColor(Palette.WHITE).setFontWeight(Style.FontWeight.BOLD);
-
-        result.add(left, new Div(), right);
-        result.setFlexGrow(5, left);
-        result.setFlexGrow(5, right);
-        return result;
+    private void refreshSlackers() {
+        slackersContainer.removeAll();
+        slackersContainer.add(new H4("czekamy na"));
+        gameService.getSlackers().forEach(player -> slackersContainer.add(new UserBadge(player.name(), true, true)));
     }
 }

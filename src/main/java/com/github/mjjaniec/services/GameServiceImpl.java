@@ -100,6 +100,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         stage = null;
         stageStore.clearStage();
         answerStore.clearAnswers();
+        playOffStore.clearPlayOffs();
     }
 
     private void initAnswers() {
@@ -115,6 +116,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         navigator.navigateBigScreen(gameStage.bigScreenView());
         navigator.refreshProgressBar();
 
+
         gameStage.asPiece().ifPresent(piece -> {
             switch (piece.getCurrentStage()) {
                 case ANSWER -> initAnswers();
@@ -129,6 +131,14 @@ public class GameServiceImpl implements GameService, MaestroInterface {
                 default -> {
                 }
             }
+        });
+        gameStage.asPlayOff().ifPresent(playOff -> {
+            if (playOff.getPlayOff() == null) {
+                playOffStore.clearPlayOffs();
+                slackers.clear();
+                slackers.addAll(playerStore.getPlayers());
+            }
+            navigator.refreshPlayOff();
         });
         gameStage.asWrapUp().ifPresent(ignored -> navigator.refreshWrapUp());
     }

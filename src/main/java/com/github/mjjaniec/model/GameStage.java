@@ -2,6 +2,7 @@ package com.github.mjjaniec.model;
 
 import com.github.mjjaniec.views.bigscreen.*;
 import com.github.mjjaniec.views.player.*;
+import jakarta.validation.constraints.Null;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -35,6 +36,13 @@ public sealed interface GameStage {
     default Optional<WrapUp> asWrapUp() {
         return switch (this) {
             case WrapUp it -> Optional.of(it);
+            default -> Optional.empty();
+        };
+    }
+
+    default Optional<PlayOff> asPlayOff() {
+        return switch (this) {
+            case PlayOff it -> Optional.of(it);
             default -> Optional.empty();
         };
     }
@@ -182,7 +190,7 @@ public sealed interface GameStage {
     final class PlayOff implements GameStage {
 
         @Nullable
-        Integer notesPlayed;
+        PlayOffs.PlayOff playOff;
 
         @Override
         public Class<PlayOffView> playerView() {

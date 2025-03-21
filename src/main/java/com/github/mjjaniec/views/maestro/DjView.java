@@ -1,6 +1,7 @@
 package com.github.mjjaniec.views.maestro;
 
 import com.github.mjjaniec.components.ActivateComponent;
+import com.github.mjjaniec.components.LittleSlackerList;
 import com.github.mjjaniec.components.PieceStageButton;
 import com.github.mjjaniec.components.StageHeader;
 import com.github.mjjaniec.model.GameStage;
@@ -245,14 +246,28 @@ public class DjView extends VerticalLayout implements RouterLayout {
         playOffContent.removeAll();
         if (gameService.stage() instanceof GameStage.PlayOff playOff) {
             ComboBox<PlayOffs.PlayOff> comboBox = new ComboBox<>("Wybierz dogrywkę", PlayOffs.ThePlayOffs.playOffs());
+            comboBox.setValue(playOff.getPlayOff());
             comboBox.setWidthFull();
-            Button collectAnswers = new Button("≙ Niech odpowiadajo!");
-            collectAnswers.addClickListener(event -> {
-                playOff.setNotesPlayed(comboBox.getValue().value());
+            Button play = new Button("▶️ grej");
+            play.addClickListener(event -> {
+                playOff.setPlayOff(null);
                 gameService.setStage(playOff);
+                refreshPlayOffContent();
             });
+            Button collectAnswers = new Button("≙ Niech odpowiadajo!");
+            collectAnswers.setEnabled(playOff.getPlayOff() == null);
+            collectAnswers.addClickListener(event -> {
+                playOff.setPlayOff(comboBox.getValue());
+                gameService.setStage(playOff);
+                refreshPlayOffContent();
+            });
+            HorizontalLayout buttons = new HorizontalLayout(play, collectAnswers);
+            buttons.setPadding(false);
             playOffContent.add(comboBox);
-            playOffContent.add(collectAnswers);
+            playOffContent.add(buttons);
+            if (playOff.getPlayOff() != null) {
+                playOffContent.add(new LittleSlackerList(gameService.getSlackers()));
+            }
         }
     }
 
@@ -263,6 +278,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
         VerticalLayout content = new VerticalLayout();
         content.add(createActivateComponent(playOff));
         content.add(playOffContent);
+        refreshPlayOffContent();
         return new AccordionPanel(header, content);
     }
 
@@ -347,6 +363,8 @@ public class DjView extends VerticalLayout implements RouterLayout {
             if (piece.getCurrentStage() == GameStage.PieceStage.ANSWER) {
                 refreshPieceContent(piece);
             }
+        } else if (gameService.stage() instanceof GameStage.PlayOff) {
+            refreshPlayOffContent();
         }
     }
 
@@ -368,14 +386,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
                 pieceContent.add(bonus);
             }
             case ANSWER -> {
-                List<Player> slackers = gameService.getSlackers();
-                if (slackers.isEmpty()) {
-                    Paragraph h = new Paragraph("Wszyscy odpowiedzieli!");
-                    h.getStyle().setColor(Palette.GREEN);
-                    pieceContent.add(h);
-                } else {
-                    pieceContent.add(new Paragraph("Czekamy na: " + slackers.stream().map(Player::name).collect(Collectors.joining(","))));
-                }
+                pieceContent.add(new LittleSlackerList(gameService.getSlackers()));
             }
             case PLAY -> pieceContent.add(new PlayTimeComponent(piece, gameService));
         }

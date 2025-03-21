@@ -31,4 +31,8 @@ public interface BroadcastAttach {
     void attachWrapUp(UI ui, Runnable refresh);
 
     void detachWrapUp(UI ui);
+
+    void attachPlayOff(UI ui, Runnable refresh);
+
+    void detachPlayOff(UI ui);
 }

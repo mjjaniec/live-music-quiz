@@ -2,6 +2,7 @@ package com.github.mjjaniec.stores;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mjjaniec.model.GameStage;
+import com.github.mjjaniec.model.PlayOffs;
 import com.github.mjjaniec.model.StageSet;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -51,7 +52,7 @@ public class RealStageStore implements StageStore {
         } else if (dto.getRound() == StageDto.summary) {
             return Optional.of(setUpAdditions(stages.wrapUpStage(), dto.getAdditions()));
         } else if (dto.getRound() == StageDto.playOff) {
-            return Optional.of(stages.playOff());
+            return Optional.of(setUpAdditions(stages.playOff(), dto.getAdditions()));
         } else {
             Optional<GameStage.RoundInit> init = stages.roundInit(dto.getRound());
             if (dto.getPiece() == StageDto.init) {
@@ -64,6 +65,7 @@ public class RealStageStore implements StageStore {
         }
     }
 
+
     private StageDto toDto(GameStage stage) {
         StageDto result = new StageDto();
         switch (stage) {
@@ -73,7 +75,7 @@ public class RealStageStore implements StageStore {
                     result.set(roundPiece.roundNumber, roundPiece.pieceNumber.number(), toAdditions(roundPiece));
             case GameStage.RoundSummary roundSummary ->
                     result.set(roundSummary.roundNumber().number(), StageDto.summary);
-            case GameStage.PlayOff playOff -> result.set(StageDto.playOff, 0);
+            case GameStage.PlayOff playOff -> result.set(StageDto.playOff, 0, toAdditions(playOff));
             case GameStage.WrapUp wrapUp -> result.set(StageDto.summary, 0, toAdditions(wrapUp));
         }
         return result;
@@ -92,6 +94,19 @@ public class RealStageStore implements StageStore {
     @SneakyThrows
     private String toAdditions(GameStage.WrapUp wrapUp) {
         return wrapUp.getDisplay() != null ? wrapUp.getDisplay().name() : null;
+    }
+
+    private GameStage.PlayOff setUpAdditions(GameStage.PlayOff playOff, String additions) {
+        if (additions != null) {
+            int id = Integer.parseInt(additions);
+            playOff.setPlayOff(PlayOffs.ThePlayOffs.playOffs().stream().filter(po -> po.id() == id).findFirst().orElse(null));
+        }
+        return playOff;
+    }
+
+    @SneakyThrows
+    private String toAdditions(GameStage.PlayOff playOff) {
+        return Optional.ofNullable(playOff.getPlayOff()).map(PlayOffs.PlayOff::id).map(String::valueOf).orElse(null);
     }
 
     @SneakyThrows

@@ -21,4 +21,6 @@ public interface Navigator {
     <T extends PlayerRoute> void navigatePlayers(Class<T> view);
 
     void refreshAllPlayers();
+
+    void refreshPlayOff();
 }

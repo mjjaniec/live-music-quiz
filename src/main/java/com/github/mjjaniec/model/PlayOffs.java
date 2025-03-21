@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.List;
 
 public record PlayOffs(List<PlayOff> playOffs) {
-    public record PlayOff(String name, int value) {
+    public record PlayOff(String name, int id, int value) {
     }
 
     public static final PlayOffs ThePlayOffs;

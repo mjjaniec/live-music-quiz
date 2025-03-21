@@ -1,12 +1,9 @@
 package com.github.mjjaniec.stores;
 
 import com.github.mjjaniec.model.Player;
-import com.google.common.collect.Streams;
-import jakarta.transaction.Transactional;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Optional;
 
 @Component
