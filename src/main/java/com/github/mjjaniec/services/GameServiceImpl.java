@@ -116,7 +116,6 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         navigator.navigateBigScreen(gameStage.bigScreenView());
         navigator.refreshProgressBar();
 
-
         gameStage.asPiece().ifPresent(piece -> {
             switch (piece.getCurrentStage()) {
                 case ANSWER -> initAnswers();
@@ -169,6 +168,11 @@ public class GameServiceImpl implements GameService, MaestroInterface {
             slackers.remove(player);
             navigator.refreshSlackersList();
         }, () -> log.error("Report result called in wrong state (expected Piece but it is: {}", stage));
+    }
+
+    @Override
+    public int getPlayOff(Player player) {
+        return playOffStore.getPlayOff(player).orElse(0);
     }
 
     @Override

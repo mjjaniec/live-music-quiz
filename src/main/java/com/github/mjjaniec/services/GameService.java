@@ -31,6 +31,8 @@ public interface GameService {
 
     void savePlayOff(Player player, int value);
 
+    int getPlayOff(Player player);
+
     StageSet stageSet();
 
     Map<String, Map<Integer, Integer>> totalPoints();

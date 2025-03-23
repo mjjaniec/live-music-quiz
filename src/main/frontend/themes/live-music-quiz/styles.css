@@ -6,6 +6,35 @@ html {
  --lumo-font-size-xl: 2.2em;
 }
 
+vaadin-grid::part(gold) {
+   background-color: #FFD700
+}
+
+vaadin-grid::part(silver) {
+   background-color: #D3D3D3
+}
+
+vaadin-grid::part(bronze) {
+   background-color: #d1bb9e
+}
+
+vaadin-grid::part(hidden) {
+   display: none;
+}
+
+vaadin-grid::part(rust) {
+  color: white;
+  background-color: #993809
+}
+
+.rust h4 {
+  color: white;
+}
+
+.rust > h5 {
+  color: white;
+}
+
 .pulse {
   animation: pulse 1s infinite;
 }

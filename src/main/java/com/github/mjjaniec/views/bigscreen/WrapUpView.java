@@ -1,5 +1,6 @@
 package com.github.mjjaniec.views.bigscreen;
 
+import com.github.mjjaniec.components.ResultsTable;
 import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.GameService;
 import com.vaadin.flow.component.AttachEvent;
@@ -12,18 +13,29 @@ import lombok.RequiredArgsConstructor;
 import java.util.Optional;
 
 @Route(value = "wrap-up", layout = BigScreenView.class)
-@RequiredArgsConstructor
 public class WrapUpView extends VerticalLayout implements BigScreenRoute {
 
     private final BroadcastAttach broadcastAttach;
     private final GameService gameService;
+
+    public WrapUpView(BroadcastAttach broadcastAttach, GameService gameService) {
+        this.broadcastAttach = broadcastAttach;
+        this.gameService = gameService;
+        setSizeFull();
+        setPadding(false);
+        setSpacing(false);
+    }
 
     void refresh() {
         gameService.stage().asWrapUp()
                 .flatMap(w -> Optional.ofNullable(w.getDisplay()))
                 .ifPresent(display -> {
                     removeAll();
-                    add(new Paragraph(display.name()));
+                    if (display.table) {
+                        add(new ResultsTable(gameService, display.showFrom));
+                    } else {
+                        add(new Paragraph(display.toString()));
+                    }
                 });
     }
 
