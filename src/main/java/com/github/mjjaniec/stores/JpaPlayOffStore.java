@@ -1,13 +1,15 @@
 package com.github.mjjaniec.stores;
 
 import com.github.mjjaniec.model.Player;
+import com.google.common.collect.ImmutableMap;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
-public interface JpaPlayeOffStore extends CrudRepository<PlayOffDto, String>, PlayOffStore {
+public interface JpaPlayOffStore extends CrudRepository<PlayOffDto, String>, PlayOffStore {
 
     @Override
     default void clearPlayOffs() {
@@ -15,8 +17,10 @@ public interface JpaPlayeOffStore extends CrudRepository<PlayOffDto, String>, Pl
     }
 
     @Override
-    default Optional<Integer> getPlayOff(Player player) {
-        return findById(player.name()).map(PlayOffDto::getValue);
+    default Map<String, Integer> getPlayOffs() {
+        Map<String, Integer> result = new HashMap<>();
+        findAll().iterator().forEachRemaining(dto -> result.put(dto.getPlayer(), dto.getValue()));
+        return ImmutableMap.copyOf(result);
     }
 
     @Override

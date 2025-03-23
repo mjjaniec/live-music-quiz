@@ -3,10 +3,10 @@ package com.github.mjjaniec.services;
 
 import com.github.mjjaniec.model.GameStage;
 import com.github.mjjaniec.model.Player;
+import com.github.mjjaniec.model.Results;
 import com.github.mjjaniec.model.StageSet;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public interface GameService {
@@ -31,11 +31,9 @@ public interface GameService {
 
     void savePlayOff(Player player, int value);
 
-    int getPlayOff(Player player);
-
     StageSet stageSet();
 
-    Map<String, Map<Integer, Integer>> totalPoints();
+    Results results();
 
     void saveFeedback(String value);
 

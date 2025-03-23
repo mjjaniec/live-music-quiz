@@ -4,10 +4,12 @@ import com.github.mjjaniec.model.*;
 import com.github.mjjaniec.stores.*;
 import com.github.mjjaniec.views.bigscreen.RevealView;
 import com.github.mjjaniec.views.player.PieceResultView;
+import com.google.common.collect.Streams;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -171,11 +173,6 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     }
 
     @Override
-    public int getPlayOff(Player player) {
-        return playOffStore.getPlayOff(player).orElse(0);
-    }
-
-    @Override
     public void savePlayOff(Player player, int value) {
         playOffStore.savePlayOff(player, value);
         slackers.remove(player);
@@ -211,17 +208,76 @@ public class GameServiceImpl implements GameService, MaestroInterface {
                 .orElse(0);
     }
 
+
     @Override
-    public Map<String, Map<Integer, Integer>> totalPoints() {
-        Map<String, Map<Integer, Integer>> result = new HashMap<>();
-        answerStore.allAnswers().forEach(answer ->
-                stageSet.roundInit(answer.piece()).map(GameStage.RoundInit::difficulty).map(d -> d.points).ifPresent(points -> {
-                            var players = result.computeIfAbsent(answer.player(), k -> new HashMap<>());
-                            players.put(answer.round(), players.getOrDefault(answer.round(), 0) + forAnswer(points, answer));
-                        }
-                )
-        );
-        return result;
+    public Results results() {
+        Map<String, Map<Integer, Integer>> byRounds = totalPoints();
+        Map<String, Integer> altogether = byRounds.entrySet().stream().collect(Collectors.toMap(
+                Map.Entry::getKey,
+                entry -> entry.getValue().values().stream().mapToInt(x -> x).sum()
+        ));
+        Map<String, Integer> playOffsDiffs = new HashMap<>();
+        Map<String, Integer> playOffsValues = new HashMap<>();
+        Optional.ofNullable(stageSet.playOff().getPlayOff()).ifPresent(playOff -> {
+            int playOffTarget = playOff.value();
+            playOffsValues.putAll(playOffStore.getPlayOffs());
+            playOffsValues.forEach((key, value) -> playOffsDiffs.put(key, Math.abs(value - playOffTarget)));
+        });
+
+        List<String> order = getPlayers().stream().map(Player::name).sorted((a, b) -> {
+            int aPoints = altogether.getOrDefault(a, 0);
+            int bPoints = altogether.getOrDefault(b, 0);
+            int aDiff = playOffsDiffs.getOrDefault(a, 0);
+            int bDiff = playOffsDiffs.getOrDefault(b, 0);
+            if (aPoints != bPoints) {
+                return bPoints - aPoints;
+            }
+            if (aDiff != bDiff) {
+                return aDiff - bDiff;
+            } else {
+                return a.compareTo(b);
+            }
+        }).toList();
+
+        int position = 1;
+        int count = 1;
+        Map<String, Integer> positions = new HashMap<>();
+        String previous = order.getFirst();
+        positions.put(previous, position);
+        int bestDiff = Integer.MAX_VALUE;
+        for (String p : order) {
+            if (p.equals(previous)) continue;
+            if (Objects.equals(altogether.getOrDefault(p, 0), altogether.getOrDefault(previous, 0))
+                    && Objects.equals(playOffsDiffs.getOrDefault(p, 0), playOffsDiffs.getOrDefault(previous, 0))) {
+                positions.put(p, positions.get(previous));
+                count += 1;
+            } else {
+                position += count;
+                positions.put(p, position);
+                count = 1;
+            }
+            if (position > 3) {
+                bestDiff = Math.min(bestDiff, playOffsDiffs.getOrDefault(p, Integer.MAX_VALUE));
+            }
+            previous = p;
+        }
+
+        int finalBestDiff = bestDiff;
+        int rounds = (int) stageSet().topLevelStages().stream().filter(stage -> stage.asRoundInit().isPresent()).count();
+        int currentRound = stage().asRoundSummary().map(s -> s.roundNumber().number()).orElse(rounds);
+
+        return new Results(rounds, currentRound, Streams.mapWithIndex(order.stream(), (name, index) -> {
+            int pos = positions.get(name);
+            int ordinal = (int) index + 1;
+            Optional<Results.Award> award = switch (pos) {
+                case 1 -> Optional.of(Results.Award.FIRST);
+                case 2 -> Optional.of(Results.Award.SECOND);
+                case 3 -> Optional.of(Results.Award.THIRD);
+                default ->
+                        Optional.of(Results.Award.PLAY_OFF).filter(ignored -> playOffsDiffs.getOrDefault(name, -1) == finalBestDiff);
+            };
+            return new Results.Row(name, ordinal, pos, award, byRounds.getOrDefault(name, Map.of()), playOffsValues.getOrDefault(name, -1), altogether.getOrDefault(name, 0));
+        }).toList());
     }
 
     @Override
@@ -243,6 +299,18 @@ public class GameServiceImpl implements GameService, MaestroInterface {
                 navigator.refreshPlay();
             }
         });
+    }
+
+    private Map<String, Map<Integer, Integer>> totalPoints() {
+        Map<String, Map<Integer, Integer>> result = new HashMap<>();
+        answerStore.allAnswers().forEach(answer ->
+                stageSet.roundInit(answer.piece()).map(GameStage.RoundInit::difficulty).map(d -> d.points).ifPresent(points -> {
+                            var players = result.computeIfAbsent(answer.player(), k -> new HashMap<>());
+                            players.put(answer.round(), players.getOrDefault(answer.round(), 0) + forAnswer(points, answer));
+                        }
+                )
+        );
+        return result;
     }
 
     private int roundPoints(Player player, GameStage.RoundSummary summary) {
