@@ -40,7 +40,7 @@ public class ResultsTable extends Grid<Results.Row> {
 
         setPartNameGenerator(row ->
             Stream.concat(
-                    row.award().map(a -> a.style).stream(),
+                    row.award().filter(a -> a != Results.Award.PLAY_OFF || showFrom <= 4).map(a -> a.style).stream(),
                     Stream.of("hidden").filter(ignored -> row.position() < showFrom)
             ).collect(Collectors.joining(" "))
         );

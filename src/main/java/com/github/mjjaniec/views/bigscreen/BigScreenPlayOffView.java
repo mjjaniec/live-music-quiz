@@ -30,14 +30,13 @@ public class BigScreenPlayOffView extends VerticalLayout implements BigScreenRou
 
         setSizeFull();
         setAlignItems(Alignment.CENTER);
-
-
+        refreshPlayOff();
     }
 
     void refreshPlayOff() {
         removeAll();
         gameService.stage().asPlayOff().ifPresent(playOff -> {
-            if (playOff.getPlayOff() == null) {
+            if (!playOff.isPerformed()) {
                 add(new Div());
                 add(new H1("Słuchaj i licz!"));
                 add(new VerticalLayout());
@@ -45,7 +44,11 @@ public class BigScreenPlayOffView extends VerticalLayout implements BigScreenRou
                 Component animation = new NotesAnimation();
                 animation.getStyle().setMaxWidth("8em");
                 add(animation);
+                add(new VerticalLayout());
+                add(new H1("∬(∇×B-µ(J+ε∙∂E/∂t))dS"));
             } else {
+                add(new H1("No i ile?"));
+                add(new H1("\uD83E\uDD28\uD83E\uDD14\uD83E\uDD2F"));
                 add(slackersContainer);
                 refreshSlackers();
             }

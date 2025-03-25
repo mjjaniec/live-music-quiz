@@ -4,18 +4,39 @@ html {
  --lumo-font-size-xxxl: 4em;
  --lumo-font-size-xxl: 3em;
  --lumo-font-size-xl: 2.2em;
+ --color-gold: #FFD700;
+ --color-silver: #D3D3D3;
+ --color-bronze: #d1bb9e;
+ --color-rust:  #993809;
+}
+
+.gold {
+   background-color: var(--color-gold)
+}
+
+.silver {
+   background-color: var(--color-silver)
+}
+
+.bronze {
+   background-color: var(--color-bronze)
+}
+
+.rust {
+  color: white;
+  background-color: var(--color-rust)
 }
 
 vaadin-grid::part(gold) {
-   background-color: #FFD700
+   background-color: var(--color-gold)
 }
 
 vaadin-grid::part(silver) {
-   background-color: #D3D3D3
+   background-color: var(--color-silver)
 }
 
 vaadin-grid::part(bronze) {
-   background-color: #d1bb9e
+   background-color: var(--color-bronze)
 }
 
 vaadin-grid::part(hidden) {
@@ -24,7 +45,7 @@ vaadin-grid::part(hidden) {
 
 vaadin-grid::part(rust) {
   color: white;
-  background-color: #993809
+  background-color: var(--color-rust)
 }
 
 .rust h4 {

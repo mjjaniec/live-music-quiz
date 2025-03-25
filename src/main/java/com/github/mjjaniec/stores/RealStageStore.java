@@ -24,6 +24,10 @@ public class RealStageStore implements StageStore {
                                      List<String> failedResponders, boolean artistAnswered, boolean titleAnswered) {
     }
 
+    private record PlayOffDto(Integer playOffId, boolean performed) {
+
+    }
+
 
     @Override
     public Optional<GameStage> readStage(StageSet stageSet) {
@@ -96,17 +100,19 @@ public class RealStageStore implements StageStore {
         return wrapUp.getDisplay() != null ? wrapUp.getDisplay().name() : null;
     }
 
+    @SneakyThrows
     private GameStage.PlayOff setUpAdditions(GameStage.PlayOff playOff, String additions) {
-        if (additions != null) {
-            int id = Integer.parseInt(additions);
-            playOff.setPlayOff(PlayOffs.ThePlayOffs.playOffs().stream().filter(po -> po.id() == id).findFirst().orElse(null));
-        }
+        var dto = mapper.readValue(additions, PlayOffDto.class);
+        playOff.setPerformed(dto.performed);
+        playOff.setPlayOff(PlayOffs.ThePlayOffs.playOffs().stream().filter(po -> po.id() == dto.playOffId).findFirst().orElse(null));
         return playOff;
     }
 
     @SneakyThrows
     private String toAdditions(GameStage.PlayOff playOff) {
-        return Optional.ofNullable(playOff.getPlayOff()).map(PlayOffs.PlayOff::id).map(String::valueOf).orElse(null);
+        Integer playOffId = Optional.ofNullable(playOff.getPlayOff()).map(PlayOffs.PlayOff::id).orElse(null);
+        PlayOffDto dto = new PlayOffDto(playOffId, playOff.isPerformed());
+        return mapper.writeValueAsString(dto);
     }
 
     @SneakyThrows

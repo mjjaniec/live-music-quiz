@@ -230,6 +230,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
         line.add(reset);
         content.add(line);
         content.add(wrapUpContent);
+        refreshWrapUpContent();
 
         return new AccordionPanel(createPanelHeader(new Text("\uD83C\uDFC6 Podsumowanie"), wrapUp), content);
     }
@@ -244,24 +245,45 @@ public class DjView extends VerticalLayout implements RouterLayout {
 
     private void refreshPlayOffContent() {
         playOffContent.removeAll();
-        if (gameService.stage() instanceof GameStage.PlayOff playOff) {
-            ComboBox<PlayOffs.PlayOff> comboBox = new ComboBox<>("Wybierz dogrywkę", PlayOffs.ThePlayOffs.playOffs());
-            comboBox.setValue(playOff.getPlayOff());
-            comboBox.setWidthFull();
-            Button play = new Button("▶️ grej");
-            play.addClickListener(event -> {
+
+        GameStage.PlayOff playOff = gameService.stageSet().playOff();
+        HorizontalLayout row = new HorizontalLayout();
+        ComboBox<PlayOffs.PlayOff> comboBox = new ComboBox<>("Wybierz dogrywkę", PlayOffs.ThePlayOffs.playOffs());
+        comboBox.setValue(playOff.getPlayOff());
+        comboBox.setWidthFull();
+        comboBox.setEnabled(playOff.getPlayOff() == null);
+
+        ActivateComponent activateComponent = new ActivateComponent(playOff, gameService.stage() == playOff, gameStage -> {
+            playOff.setPlayOff(comboBox.getValue());
+            onActivate(playOff);
+        });
+        activateComponents.put(playOff, activateComponent);
+        activateComponent.setEnabled(playOff.getPlayOff() != null);
+        comboBox.addValueChangeListener(event -> activateComponent.setEnabled(true));
+        row.add(comboBox, activateComponent);
+        row.setWidthFull();
+        playOffContent.add(row);
+
+        if (gameService.stage() == playOff) {
+
+            Checkbox danger = new Checkbox("danger");
+            Button reset = new Button("resetuj dogrywkę");
+            reset.addClickListener(event -> {
                 playOff.setPlayOff(null);
+                playOff.setPerformed(false);
                 gameService.setStage(playOff);
                 refreshPlayOffContent();
             });
+            reset.setEnabled(false);
+            danger.addValueChangeListener(event -> reset.setEnabled(event.getValue()));
             Button collectAnswers = new Button("≙ Niech odpowiadajo!");
-            collectAnswers.setEnabled(playOff.getPlayOff() == null);
+            collectAnswers.setEnabled(!playOff.isPerformed());
             collectAnswers.addClickListener(event -> {
-                playOff.setPlayOff(comboBox.getValue());
+                playOff.setPerformed(true);
                 gameService.setStage(playOff);
                 refreshPlayOffContent();
             });
-            HorizontalLayout buttons = new HorizontalLayout(play, collectAnswers);
+            HorizontalLayout buttons = new HorizontalLayout(danger, reset, collectAnswers);
             buttons.setPadding(false);
             playOffContent.add(comboBox);
             playOffContent.add(buttons);
@@ -276,7 +298,6 @@ public class DjView extends VerticalLayout implements RouterLayout {
 
         playOffContent.setWidthFull();
         VerticalLayout content = new VerticalLayout();
-        content.add(createActivateComponent(playOff));
         content.add(playOffContent);
         refreshPlayOffContent();
         return new AccordionPanel(header, content);

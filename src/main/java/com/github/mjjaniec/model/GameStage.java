@@ -176,6 +176,7 @@ public sealed interface GameStage {
         SIXTH(true, 6),
         FIFTIETH(true, 5),
         FOURTH(true, 4),
+        EMPTY_PODIUM(false, 4),
         THIRD_PODIUM(false, 3),
         SECOND_PODIUM(false, 2),
         FULL_PODIUM(false, 1),
@@ -190,6 +191,7 @@ public sealed interface GameStage {
 
         @Nullable
         PlayOffs.PlayOff playOff;
+        boolean performed;
 
         @Override
         public Class<PlayOffView> playerView() {

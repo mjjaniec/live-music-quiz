@@ -2,3 +2,6 @@ playOffs:
   - name: "Metallica: (Anesthesia) Pulling Teeth"
     id: 1
     value: 503
+  - name: "Metallica: Orion - zasadniczo randomowa wartość"
+    id: 2
+    value: 278
