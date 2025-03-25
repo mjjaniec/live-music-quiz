@@ -5,9 +5,8 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "play_off")
-public class PlayOffDto {
+@Table(name = "play_off_task")
+public class PlayOffTaskDto {
     @Id
-    private String player;
-    private int value;
+    private Integer id;
 }

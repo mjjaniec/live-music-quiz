@@ -24,8 +24,7 @@ public class RealStageStore implements StageStore {
                                      List<String> failedResponders, boolean artistAnswered, boolean titleAnswered) {
     }
 
-    private record PlayOffDto(Integer playOffId, boolean performed) {
-
+    private record PlayOffDto(boolean performed) {
     }
 
 
@@ -104,14 +103,12 @@ public class RealStageStore implements StageStore {
     private GameStage.PlayOff setUpAdditions(GameStage.PlayOff playOff, String additions) {
         var dto = mapper.readValue(additions, PlayOffDto.class);
         playOff.setPerformed(dto.performed);
-        playOff.setPlayOff(PlayOffs.ThePlayOffs.playOffs().stream().filter(po -> po.id() == dto.playOffId).findFirst().orElse(null));
         return playOff;
     }
 
     @SneakyThrows
     private String toAdditions(GameStage.PlayOff playOff) {
-        Integer playOffId = Optional.ofNullable(playOff.getPlayOff()).map(PlayOffs.PlayOff::id).orElse(null);
-        PlayOffDto dto = new PlayOffDto(playOffId, playOff.isPerformed());
+        PlayOffDto dto = new PlayOffDto(playOff.isPerformed());
         return mapper.writeValueAsString(dto);
     }
 

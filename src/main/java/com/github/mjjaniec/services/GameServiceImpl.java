@@ -22,6 +22,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     private final AnswerStore answerStore;
     private final FeedbackStore feedbackStore;
     private final PlayOffStore playOffStore;
+    private final PlayOffTaskStore playOffTaskStore;
     private MainSet quiz;
     private GameStage stage;
     private StageSet stageSet;
@@ -34,7 +35,9 @@ public class GameServiceImpl implements GameService, MaestroInterface {
                            CustomMessageStore messageStore,
                            StageStore stageStore,
                            AnswerStore answerStore,
-                           FeedbackStore feedbackStore, PlayOffStore playOffStore) {
+                           FeedbackStore feedbackStore,
+                           PlayOffStore playOffStore,
+                           PlayOffTaskStore playOffTaskStore) {
         this.navigator = navigator;
         this.playerStore = playerStore;
         this.quizStore = quizStore;
@@ -43,6 +46,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         this.answerStore = answerStore;
         this.feedbackStore = feedbackStore;
         this.playOffStore = playOffStore;
+        this.playOffTaskStore = playOffTaskStore;
 
         quizStore.getQuiz().ifPresent(this::initGame);
         stageStore.readStage(stageSet).ifPresentOrElse(this::setStage, () -> {
@@ -103,6 +107,9 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         stageStore.clearStage();
         answerStore.clearAnswers();
         playOffStore.clearPlayOffs();
+        playOffTaskStore.clearPlayOffTask();
+        playerStore.clearPlayers();
+        messageStore.clearMessage();
     }
 
     private void initAnswers() {
@@ -134,8 +141,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
             }
         });
         gameStage.asPlayOff().ifPresent(playOff -> {
-            if (playOff.getPlayOff() == null) {
-                playOffStore.clearPlayOffs();
+            if (!playOff.isPerformed()) {
                 slackers.clear();
                 slackers.addAll(playerStore.getPlayers());
             }
@@ -208,6 +214,21 @@ public class GameServiceImpl implements GameService, MaestroInterface {
                 .orElse(0);
     }
 
+    @Override
+    public void setPlayOffTask(PlayOffs.PlayOff playOff) {
+        playOffTaskStore.savePlayOffTask(playOff);
+        playOffStore.clearPlayOffs();
+    }
+
+    @Override
+    public void clearPlayOffTask() {
+        playOffTaskStore.clearPlayOffTask();
+    }
+
+    @Override
+    public Optional<PlayOffs.PlayOff> playOffTask() {
+        return playOffTaskStore.getPlayOffTask();
+    }
 
     @Override
     public Results results() {
@@ -218,7 +239,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         ));
         Map<String, Integer> playOffsDiffs = new HashMap<>();
         Map<String, Integer> playOffsValues = new HashMap<>();
-        Optional.ofNullable(stageSet.playOff().getPlayOff()).ifPresent(playOff -> {
+        playOffTaskStore.getPlayOffTask().ifPresent(playOff -> {
             int playOffTarget = playOff.value();
             playOffsValues.putAll(playOffStore.getPlayOffs());
             playOffsValues.forEach((key, value) -> playOffsDiffs.put(key, Math.abs(value - playOffTarget)));

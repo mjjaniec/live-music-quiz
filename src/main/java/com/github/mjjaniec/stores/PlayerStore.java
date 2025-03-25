@@ -12,4 +12,6 @@ public interface PlayerStore {
     List<Player> getPlayers();
 
     void removePlayer(Player player);
+
+    void clearPlayers();
 }

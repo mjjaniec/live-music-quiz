@@ -249,17 +249,17 @@ public class DjView extends VerticalLayout implements RouterLayout {
         GameStage.PlayOff playOff = gameService.stageSet().playOff();
         HorizontalLayout row = new HorizontalLayout();
         ComboBox<PlayOffs.PlayOff> comboBox = new ComboBox<>("Wybierz dogrywkę", PlayOffs.ThePlayOffs.playOffs());
-        comboBox.setValue(playOff.getPlayOff());
+        gameService.playOffTask().ifPresent(comboBox::setValue);
         comboBox.setWidthFull();
-        comboBox.setEnabled(playOff.getPlayOff() == null);
+        comboBox.setEnabled(!playOff.isPerformed());
 
         ActivateComponent activateComponent = new ActivateComponent(playOff, gameService.stage() == playOff, gameStage -> {
-            playOff.setPlayOff(comboBox.getValue());
+            gameService.setPlayOffTask(comboBox.getValue());
             onActivate(playOff);
         });
         activateComponents.put(playOff, activateComponent);
-        activateComponent.setEnabled(playOff.getPlayOff() != null);
-        comboBox.addValueChangeListener(event -> activateComponent.setEnabled(true));
+        activateComponent.setEnabled(comboBox.getValue() != null);
+        comboBox.addValueChangeListener(event -> activateComponent.setEnabled(event.getValue() != null));
         row.add(comboBox, activateComponent);
         row.setWidthFull();
         playOffContent.add(row);
@@ -269,7 +269,8 @@ public class DjView extends VerticalLayout implements RouterLayout {
             Checkbox danger = new Checkbox("danger");
             Button reset = new Button("resetuj dogrywkę");
             reset.addClickListener(event -> {
-                playOff.setPlayOff(null);
+                gameService.clearPlayOffTask();
+                comboBox.setValue(null);
                 playOff.setPerformed(false);
                 gameService.setStage(playOff);
                 refreshPlayOffContent();
@@ -287,7 +288,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
             buttons.setPadding(false);
             playOffContent.add(comboBox);
             playOffContent.add(buttons);
-            if (playOff.getPlayOff() != null) {
+            if (playOff.isPerformed()) {
                 playOffContent.add(new LittleSlackerList(gameService.getSlackers()));
             }
         }

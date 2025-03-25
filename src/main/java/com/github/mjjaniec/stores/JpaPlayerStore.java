@@ -36,6 +36,11 @@ public interface JpaPlayerStore extends CrudRepository<PlayerDto, String>, Playe
         delete(mapToDto(player));
     }
 
+    @Override
+    default void clearPlayers() {
+        deleteAll();
+    }
+
     private PlayerDto mapToDto(Player player) {
         PlayerDto result = new PlayerDto();
         result.setName(player.name());

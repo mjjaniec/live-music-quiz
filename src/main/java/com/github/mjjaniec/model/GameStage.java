@@ -189,8 +189,6 @@ public sealed interface GameStage {
     @Setter
     final class PlayOff implements GameStage {
 
-        @Nullable
-        PlayOffs.PlayOff playOff;
         boolean performed;
 
         @Override
