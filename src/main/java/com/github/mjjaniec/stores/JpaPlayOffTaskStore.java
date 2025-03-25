@@ -2,10 +2,12 @@ package com.github.mjjaniec.stores;
 
 import com.github.mjjaniec.model.PlayOffs;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
 import java.util.Optional;
 
+@Component
 public interface JpaPlayOffTaskStore extends CrudRepository<PlayOffTaskDto, Integer>, PlayOffTaskStore {
     @Override
     default void clearPlayOffTask() {

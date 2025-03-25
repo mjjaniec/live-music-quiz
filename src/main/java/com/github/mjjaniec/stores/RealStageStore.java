@@ -2,7 +2,6 @@ package com.github.mjjaniec.stores;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mjjaniec.model.GameStage;
-import com.github.mjjaniec.model.PlayOffs;
 import com.github.mjjaniec.model.StageSet;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
