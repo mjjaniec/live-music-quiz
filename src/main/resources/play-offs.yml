@@ -5,3 +5,6 @@ playOffs:
   - name: "Metallica: Orion - zasadniczo randomowa wartość"
     id: 2
     value: 278
+  - name: "Black Sabbath: Iron Man"
+    id: 3
+    value: 162

@@ -19,7 +19,7 @@ public class BigScreenPlayOffView extends VerticalLayout implements BigScreenRou
 
     private final GameService gameService;
     private final BroadcastAttach broadcastAttach;
-    private final Div slackersContainer = new Div();
+    private final SlackersContainer slackersContainer = new SlackersContainer();
 
     public BigScreenPlayOffView(GameService gameService, BroadcastAttach broadcastAttach) {
         this.gameService = gameService;
@@ -44,11 +44,11 @@ public class BigScreenPlayOffView extends VerticalLayout implements BigScreenRou
                 Component animation = new NotesAnimation();
                 animation.getStyle().setMaxWidth("8em");
                 add(animation);
-                add(new VerticalLayout());
-                add(new H1("∬(∇×B-µ(J+ε∙∂E/∂t))dS"));
             } else {
-                add(new H1("No i ile?"));
+                add(new H1("∬(∇×B-µ(J+ε∙∂E/∂t))dS"));
                 add(new H1("\uD83E\uDD28\uD83E\uDD14\uD83E\uDD2F"));
+                add(new H1("No i ile?"));
+                add(new VerticalLayout());
                 add(slackersContainer);
                 refreshSlackers();
             }
@@ -70,8 +70,6 @@ public class BigScreenPlayOffView extends VerticalLayout implements BigScreenRou
     }
 
     private void refreshSlackers() {
-        slackersContainer.removeAll();
-        slackersContainer.add(new H4("czekamy na"));
-        gameService.getSlackers().forEach(player -> slackersContainer.add(new UserBadge(player.name(), true, true)));
+        slackersContainer.refresh(gameService.getSlackers());
     }
 }

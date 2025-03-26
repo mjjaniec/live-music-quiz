@@ -19,7 +19,7 @@ public class RevealView extends VerticalLayout implements BigScreenRoute {
 
     private final GameService gameService;
     private final BroadcastAttach broadcastAttach;
-    private final Div slackersContainer = new Div();
+    private final SlackersContainer slackersContainer = new SlackersContainer();
 
     public RevealView(GameService gameService, TestDataProvider testDataProvider, BroadcastAttach broadcastAttach) {
         this.gameService = gameService;
@@ -61,8 +61,6 @@ public class RevealView extends VerticalLayout implements BigScreenRoute {
     }
 
     private void refreshSlackers() {
-        slackersContainer.removeAll();
-        slackersContainer.add(new H4("czekamy na"));
-        gameService.getSlackers().forEach(player -> slackersContainer.add(new UserBadge(player.name(), true, true)));
+        slackersContainer.refresh(gameService.getSlackers());
     }
 }

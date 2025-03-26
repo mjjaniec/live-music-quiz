@@ -158,7 +158,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         } else if (playersCount >= 4) {
             return GameStage.Display.FOURTH;
         } else if (playersCount >= 3) {
-            return GameStage.Display.THIRD_PODIUM;
+            return GameStage.Display.EMPTY_PODIUM;
         } else {
             return GameStage.Display.FULL_TABLE;
         }
@@ -325,7 +325,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     private Map<String, Map<Integer, Integer>> totalPoints() {
         Map<String, Map<Integer, Integer>> result = new HashMap<>();
         answerStore.allAnswers().forEach(answer ->
-                stageSet.roundInit(answer.piece()).map(GameStage.RoundInit::difficulty).map(d -> d.points).ifPresent(points -> {
+                stageSet.roundInit(answer.round()).map(GameStage.RoundInit::difficulty).map(d -> d.points).ifPresent(points -> {
                             var players = result.computeIfAbsent(answer.player(), k -> new HashMap<>());
                             players.put(answer.round(), players.getOrDefault(answer.round(), 0) + forAnswer(points, answer));
                         }

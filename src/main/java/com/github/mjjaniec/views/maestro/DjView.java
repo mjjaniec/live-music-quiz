@@ -251,7 +251,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
         ComboBox<PlayOffs.PlayOff> comboBox = new ComboBox<>("Wybierz dogrywkę", PlayOffs.ThePlayOffs.playOffs());
         gameService.playOffTask().ifPresent(comboBox::setValue);
         comboBox.setWidthFull();
-        comboBox.setEnabled(!playOff.isPerformed());
+        comboBox.setEnabled(gameService.playOffTask().isEmpty());
 
         ActivateComponent activateComponent = new ActivateComponent(playOff, gameService.stage() == playOff, gameStage -> {
             gameService.setPlayOffTask(comboBox.getValue());
@@ -261,6 +261,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
         activateComponent.setEnabled(comboBox.getValue() != null);
         comboBox.addValueChangeListener(event -> activateComponent.setEnabled(event.getValue() != null));
         row.add(comboBox, activateComponent);
+        row.setAlignItems(Alignment.END);
         row.setWidthFull();
         playOffContent.add(row);
 
