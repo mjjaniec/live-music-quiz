@@ -1,7 +1,6 @@
 package com.github.mjjaniec.views.bigscreen;
 
 import com.github.mjjaniec.components.NotesAnimation;
-import com.github.mjjaniec.components.UserBadge;
 import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.GameService;
 import com.vaadin.flow.component.AttachEvent;
@@ -9,7 +8,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 

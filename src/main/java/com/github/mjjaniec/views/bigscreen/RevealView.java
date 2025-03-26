@@ -1,6 +1,5 @@
 package com.github.mjjaniec.views.bigscreen;
 
-import com.github.mjjaniec.components.UserBadge;
 import com.github.mjjaniec.model.GameStage;
 import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.GameService;
