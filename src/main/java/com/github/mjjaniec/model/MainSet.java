@@ -1,12 +1,8 @@
 package com.github.mjjaniec.model;
 
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import com.helger.commons.io.resource.ClassPathResource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.Nullable;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -67,18 +63,6 @@ public record MainSet(List<LevelPieces> levels) {
                         .filter(level -> !level.pieces.isEmpty())
                         .toList()
         );
-    }
-
-    public static final MainSet TheSet;
-
-    static {
-        ClassPathResource resource = new ClassPathResource("pieces.yml");
-        YAMLMapper yamlMapper = YAMLMapper.builder().enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS).build();
-        try {
-            TheSet = yamlMapper.reader().readValue(resource.getInputStream(), MainSet.class);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public enum RoundMode {

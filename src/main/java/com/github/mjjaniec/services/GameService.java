@@ -3,7 +3,6 @@ package com.github.mjjaniec.services;
 
 import com.github.mjjaniec.model.GameStage;
 import com.github.mjjaniec.model.Player;
-import com.github.mjjaniec.model.Results;
 import com.github.mjjaniec.model.StageSet;
 
 import java.util.List;

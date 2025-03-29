@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 @Component
 public class GameServiceImpl implements GameService, MaestroInterface {
     private final Navigator navigator;
+    private final SpreadsheetLoader spreadsheetLoader;
     private final PlayerStore playerStore;
     private final QuizStore quizStore;
     private final CustomMessageStore messageStore;
@@ -26,10 +27,12 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     private MainSet quiz;
     private GameStage stage;
     private StageSet stageSet;
+    private PlayOffs playOffs;
 
     private final List<Player> slackers = new ArrayList<>();
 
     public GameServiceImpl(Navigator navigator,
+                           SpreadsheetLoader spreadsheetLoader,
                            PlayerStore playerStore,
                            QuizStore quizStore,
                            CustomMessageStore messageStore,
@@ -39,6 +42,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
                            PlayOffStore playOffStore,
                            PlayOffTaskStore playOffTaskStore) {
         this.navigator = navigator;
+        this.spreadsheetLoader = spreadsheetLoader;
         this.playerStore = playerStore;
         this.quizStore = quizStore;
         this.messageStore = messageStore;
@@ -71,6 +75,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         this.quiz = set;
         this.stageSet = new StageSet(set);
         this.stage = stageSet.initStage();
+        playOffs = spreadsheetLoader.loadPlayOffs();
     }
 
     @Override
@@ -227,7 +232,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
 
     @Override
     public Optional<PlayOffs.PlayOff> playOffTask() {
-        return playOffTaskStore.getPlayOffTask();
+        return playOffTaskStore.getPlayOffTask(playOffs);
     }
 
     @Override
@@ -239,7 +244,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         ));
         Map<String, Integer> playOffsDiffs = new HashMap<>();
         Map<String, Integer> playOffsValues = new HashMap<>();
-        playOffTaskStore.getPlayOffTask().ifPresent(playOff -> {
+        playOffTaskStore.getPlayOffTask(playOffs).ifPresent(playOff -> {
             int playOffTarget = playOff.value();
             playOffsValues.putAll(playOffStore.getPlayOffs());
             playOffsValues.forEach((key, value) -> playOffsDiffs.put(key, Math.abs(value - playOffTarget)));
@@ -259,6 +264,13 @@ public class GameServiceImpl implements GameService, MaestroInterface {
                 return a.compareTo(b);
             }
         }).toList();
+
+        int rounds = (int) stageSet().topLevelStages().stream().filter(stage -> stage.asRoundInit().isPresent()).count();
+        int currentRound = stage().asRoundSummary().map(s -> s.roundNumber().number()).orElse(rounds);
+
+        if (order.isEmpty()) {
+            return new Results(rounds, currentRound, List.of());
+        }
 
         int position = 1;
         int count = 1;
@@ -284,8 +296,6 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         }
 
         int finalBestDiff = bestDiff;
-        int rounds = (int) stageSet().topLevelStages().stream().filter(stage -> stage.asRoundInit().isPresent()).count();
-        int currentRound = stage().asRoundSummary().map(s -> s.roundNumber().number()).orElse(rounds);
 
         return new Results(rounds, currentRound, Streams.mapWithIndex(order.stream(), (name, index) -> {
             int pos = positions.get(name);

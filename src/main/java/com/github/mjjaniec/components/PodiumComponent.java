@@ -1,6 +1,6 @@
 package com.github.mjjaniec.components;
 
-import com.github.mjjaniec.model.Results;
+import com.github.mjjaniec.services.Results;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;

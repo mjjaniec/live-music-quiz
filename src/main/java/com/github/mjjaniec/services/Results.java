@@ -1,4 +1,4 @@
-package com.github.mjjaniec.model;
+package com.github.mjjaniec.services;
 
 import lombok.RequiredArgsConstructor;
 

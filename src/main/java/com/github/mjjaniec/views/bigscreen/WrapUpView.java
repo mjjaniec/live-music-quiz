@@ -2,7 +2,7 @@ package com.github.mjjaniec.views.bigscreen;
 
 import com.github.mjjaniec.components.PodiumComponent;
 import com.github.mjjaniec.components.ResultsTable;
-import com.github.mjjaniec.model.Results;
+import com.github.mjjaniec.services.Results;
 import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.GameService;
 import com.vaadin.flow.component.AttachEvent;

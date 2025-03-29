@@ -4,10 +4,7 @@ import com.github.mjjaniec.components.ActivateComponent;
 import com.github.mjjaniec.components.LittleSlackerList;
 import com.github.mjjaniec.components.PieceStageButton;
 import com.github.mjjaniec.components.StageHeader;
-import com.github.mjjaniec.model.GameStage;
-import com.github.mjjaniec.model.MainSet;
-import com.github.mjjaniec.model.PlayOffs;
-import com.github.mjjaniec.model.Player;
+import com.github.mjjaniec.model.*;
 import com.github.mjjaniec.services.BroadcastAttach;
 import com.github.mjjaniec.services.MaestroInterface;
 import com.github.mjjaniec.util.Palette;
@@ -45,6 +42,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
 
     private final MaestroInterface gameService;
     private final BroadcastAttach broadcastAttach;
+    private final SpreadsheetLoader spreadsheetLoader;
     private final Grid<Player> playersGrid = new Grid<>(Player.class, false);
     private final Map<GameStage, ActivateComponent> activateComponents = new HashMap<>();
     private final Map<GameStage, StageHeader> headers = new HashMap<>();
@@ -56,9 +54,10 @@ public class DjView extends VerticalLayout implements RouterLayout {
     private final Div playOffContent = new Div();
 
 
-    DjView(MaestroInterface gameService, BroadcastAttach broadcastAttach) {
+    DjView(MaestroInterface gameService, BroadcastAttach broadcastAttach, SpreadsheetLoader spreadsheetLoader) {
         this.gameService = gameService;
         this.broadcastAttach = broadcastAttach;
+        this.spreadsheetLoader = spreadsheetLoader;
 
         setSizeFull();
         setPadding(false);
@@ -245,10 +244,11 @@ public class DjView extends VerticalLayout implements RouterLayout {
 
     private void refreshPlayOffContent() {
         playOffContent.removeAll();
+        PlayOffs playOffs = spreadsheetLoader.loadPlayOffs();
 
         GameStage.PlayOff playOff = gameService.stageSet().playOff();
         HorizontalLayout row = new HorizontalLayout();
-        ComboBox<PlayOffs.PlayOff> comboBox = new ComboBox<>("Wybierz dogrywkę", PlayOffs.ThePlayOffs.playOffs());
+        ComboBox<PlayOffs.PlayOff> comboBox = new ComboBox<>("Wybierz dogrywkę", playOffs.playOffs());
         gameService.playOffTask().ifPresent(comboBox::setValue);
         comboBox.setWidthFull();
         comboBox.setEnabled(gameService.playOffTask().isEmpty());

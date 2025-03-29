@@ -9,17 +9,19 @@ import java.util.Optional;
 
 @Component
 public interface JpaPlayOffTaskStore extends CrudRepository<PlayOffTaskDto, Integer>, PlayOffTaskStore {
+
+
     @Override
     default void clearPlayOffTask() {
         deleteAll();
     }
 
     @Override
-    default Optional<PlayOffs.PlayOff> getPlayOffTask() {
+    default Optional<PlayOffs.PlayOff> getPlayOffTask(PlayOffs playOffs) {
         Iterator<PlayOffTaskDto> result = findAll().iterator();
         if (result.hasNext()) {
             return Optional.of(result.next())
-                    .flatMap(dto -> PlayOffs.ThePlayOffs.playOffs().stream().filter(p -> p.id() == dto.getId())
+                    .flatMap(dto -> playOffs.playOffs().stream().filter(p -> p.id() == dto.getId())
                             .findFirst());
         } else {
             return Optional.empty();
