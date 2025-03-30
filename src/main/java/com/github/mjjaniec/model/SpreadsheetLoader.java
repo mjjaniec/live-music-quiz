@@ -70,6 +70,8 @@ public class SpreadsheetLoader {
                 }
             }
         }
+        List<MainSet.Piece> fPieces = pieces;
+        diff.ifPresent(d -> result.add(new MainSet.LevelPieces(d, fPieces)));
         return new MainSet(result);
     }
 
