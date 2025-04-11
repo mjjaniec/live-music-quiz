@@ -2,8 +2,6 @@ package com.github.mjjaniec.lmq.services;
 
 import com.github.mjjaniec.lmq.model.*;
 import com.github.mjjaniec.lmq.stores.*;
-import com.github.mjjaniec.model.*;
-import com.github.mjjaniec.stores.*;
 import com.github.mjjaniec.lmq.views.bigscreen.RevealView;
 import com.github.mjjaniec.lmq.views.player.PieceResultView;
 import com.google.common.collect.Streams;

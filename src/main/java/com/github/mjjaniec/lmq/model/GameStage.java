@@ -2,8 +2,8 @@ package com.github.mjjaniec.lmq.model;
 
 import com.github.mjjaniec.lmq.views.bigscreen.*;
 import com.github.mjjaniec.lmq.views.player.*;
-import com.github.mjjaniec.views.bigscreen.*;
-import com.github.mjjaniec.views.player.*;
+import com.github.mjjaniec.lmq.views.bigscreen.*;
+import com.github.mjjaniec.lmq.views.player.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;

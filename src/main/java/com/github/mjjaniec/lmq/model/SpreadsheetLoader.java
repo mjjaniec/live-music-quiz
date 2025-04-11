@@ -13,45 +13,48 @@ import org.springframework.stereotype.Component;
 
 import java.net.URI;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class SpreadsheetLoader {
     private static final String SetList = "set-list";
+    private static final String Artists = "artists";
+    private static final String Titles = "titles";
     private static final String PlayOff = "play-offs";
     private static final String DocumentId = "1PFvN5U5W9eYuTpGlPgk8bBKe-ErZUfNYG61Aw1DNUMk";
     private static final String BaseUrl = "https://docs.google.com/spreadsheets/d/" + DocumentId + "/gviz/tq?tqx=out:csv&sheet=";
 
     private final ObjectMapper jsonMapper = JsonMapper.builder().enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS).build();
+    private final CsvSchema csvSchema = CsvSchema.emptySchema().withSkipFirstDataRow(true);
+    private final CsvMapper mapper = CsvMapper.builder().enable(CsvParser.Feature.WRAP_AS_ARRAY).build();
 
     @SneakyThrows
     public PlayOffs loadPlayOffs() {
-        CsvMapper mapper = new CsvMapper();
-        CsvSchema bootstrapSchema = CsvSchema.emptySchema().withSkipFirstDataRow(true);
-        mapper.enable(CsvParser.Feature.WRAP_AS_ARRAY);
-
-
-        System.out.println(new URI(BaseUrl + PlayOff).toURL());
-
         try (MappingIterator<String[]> readValues =
-                     mapper.readerFor(String[].class).with(bootstrapSchema).readValues(new URI(BaseUrl + PlayOff).toURL())) {
+                     mapper.readerFor(String[].class).with(csvSchema).readValues(new URI(BaseUrl + PlayOff).toURL())) {
             return new PlayOffs(readValues.readAll().stream()
                     .map(array -> new PlayOffs.PlayOff(array[1], Integer.parseInt(array[0]), Integer.parseInt(array[2])))
                     .toList());
         }
     }
 
+    public List<String> loadTitles() {
+        return loadStrings(Titles);
+    }
+
+    public List<String> loadArtists() {
+        return loadStrings(Artists);
+    }
+
     @SneakyThrows
     public MainSet loadMainSet() {
-        CsvMapper mapper = new CsvMapper();
-        CsvSchema bootstrapSchema = CsvSchema.emptySchema().withSkipFirstDataRow(true);
-        mapper.enable(CsvParser.Feature.WRAP_AS_ARRAY);
-
         List<MainSet.LevelPieces> result = new ArrayList<>();
         List<MainSet.Piece> pieces = new ArrayList<>();
         Optional<MainSet.Difficulty> diff = Optional.empty();
         try (MappingIterator<String[]> readValues =
-                     mapper.readerFor(String[].class).with(bootstrapSchema).readValues(new URI(BaseUrl + SetList).toURL())) {
+                     mapper.readerFor(String[].class).with(csvSchema).readValues(new URI(BaseUrl + SetList).toURL())) {
             List<String[]> rows = readValues.readAll();
             for (String[] row : rows) {
                 if (row[1].isBlank()) {
@@ -73,6 +76,14 @@ public class SpreadsheetLoader {
         List<MainSet.Piece> fPieces = pieces;
         diff.ifPresent(d -> result.add(new MainSet.LevelPieces(d, fPieces)));
         return new MainSet(result);
+    }
+
+    @SneakyThrows
+    private List<String> loadStrings(String tab) {
+        try (MappingIterator<String[]> readValues =
+                     mapper.readerFor(String[].class).with(csvSchema).readValues(new URI(BaseUrl + tab).toURL())) {
+            return readValues.readAll().stream().map(array -> array[0]).toList();
+        }
     }
 
     private Set<String> readSets(String value) {

@@ -1,63 +1,36 @@
 package com.github.mjjaniec.lmq.views.player;
 
-import com.github.mjjaniec.lmq.services.GameService;
 import com.github.mjjaniec.lmq.util.LocalStorage;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H5;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.Input;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.router.Route;
-
-import java.util.function.Consumer;
 
 
 @Route(value = "answer", layout = PlayerView.class)
 public class AnswerView extends VerticalLayout implements PlayerRoute {
+    private final Input artist = new Input();
+    private final Input title = new Input();
 
-    private Boolean artist = null;
-    private Boolean title = null;
-    private boolean bonus = false;
+    public AnswerView() {
+        artist.setId("artist-input");
+        title.setId("title-input");
 
-    public AnswerView(GameService gameService) {
-        setSpacing(true);
-        setPadding(true);
+        add(new Span("artysta:"));
+        add(artist);
+        add(new Span("tytuł:"));
+        add(title);
 
-        setSizeFull();
-        setAlignItems(Alignment.CENTER);
         Button confirm = new Button("Potwierdzam");
 
-        add(new H5("Pokaż na co Cię stać!"));
-        add(new Div());
-        add(new H5("Wykonawca"));
+        title.addValueChangeListener(event -> {
+            System.out.println("simple value change listener: " + event.getValue());
+        });
 
-        add(createRadio(x -> {
-            artist = x;
-            if (title != null) {
-                confirm.setEnabled(true);
-            }
-        }));
-        add(new Div());
-        add(new H5("Tytył"));
-        add(createRadio(x -> {
-            title = x;
-            if (artist != null) {
-                confirm.setEnabled(true);
-            }
-        }));
-
-        Checkbox bonusCheckbox = new Checkbox("bonus!", event -> bonus = event.getValue());
-        gameService.stage().asPiece().ifPresent(piece -> bonusCheckbox.setVisible(piece.getBonus() > 1));
-
-        add(new Div());
-        add(bonusCheckbox);
-        add(new Div());
         confirm.setEnabled(false);
         confirm.setWidthFull();
         confirm.addThemeVariants(ButtonVariant.LUMO_LARGE, ButtonVariant.LUMO_PRIMARY);
@@ -66,68 +39,65 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
         confirm.addClickListener(event -> {
             UI ui = UI.getCurrent();
             LocalStorage.readPlayer(ui).thenAccept(playerOpt -> playerOpt.ifPresent(player -> {
-                gameService.reportResult(player, artist, title, bonus ? 2 : 1);
+//                gameService.reportResult(player, artist, title, bonus ? 2 : 1);
                 ui.access(() -> ui.navigate(PieceResultView.class));
             }));
         });
+
+        add(confirm);
+    }
+
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        setupAutocomplete(artist, "Podaj artystę...", "api/v1/hint/artist");
+        setupAutocomplete(title, "Podaj tytuł...", "api/v1/hint/title");
     }
 
 
-    private Component createRadio(Consumer<Boolean> onSelect) {
-        HorizontalLayout result = new HorizontalLayout();
-        result.addClassName("pseudo-radio");
-        result.setWidthFull();
-
-        FancyCaption missCaption = new FancyCaption("pudło");
-        Button miss = new Button(missCaption);
-        miss.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_LARGE);
-
-        FancyCaption hitCaption = new FancyCaption("trafione");
-        Button hit = new Button(hitCaption);
-        hit.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_LARGE);
-
-        miss.addClickListener(event -> {
-            miss.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            hit.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            missCaption.setActive(true);
-            hitCaption.setActive(false);
-            onSelect.accept(false);
-        });
-
-        hit.addClickListener(event -> {
-            hit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            miss.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            hitCaption.setActive(true);
-            missCaption.setActive(false);
-            onSelect.accept(true);
-        });
-
-        result.add(miss, hit);
-        result.setFlexGrow(1, miss);
-        result.setFlexGrow(1, hit);
-        return result;
+    private void setupAutocompleteOld(Input input, String json) {
+        input.getElement().executeJs("const element = new autoComplete(" + json + " ); element.input.setAttribute('autocomplete', 'off');");
+        input.setWidthFull();
     }
 
-
-    private static class FancyCaption extends Div {
-        private static final String theValue = "\u00a0";
-        private final RadioButtonGroup<String> rg = new RadioButtonGroup<>(null, theValue);
-
-        public FancyCaption(String text) {
-            rg.setReadOnly(true);
-            add(rg);
-            add(new Text(text));
-            setWidth("1em");
-        }
-
-        public void setActive(boolean active) {
-            if (active) {
-                rg.setValue(theValue);
-            } else {
-                rg.setValue(null);
-            }
-        }
+    private void setupAutocomplete(Input input, String placeholder, String sourcePath) {
+        String js = """
+                const config = {
+                    selector: "#<element-id>",
+                    placeHolder: "<place-holder>",
+                    data: {
+                         cache: true,
+                         src: async (query) => {
+                              try {
+                                const source = await fetch("<api-path>");
+                                return await source.json();
+                              } catch (error) {
+                                return error;
+                              }
+                         }
+                    },
+                    resultItem: {
+                        highlight: true
+                    },
+                    diacritics: true,
+                    events: {
+                        input: {
+                            selection: (event) => {
+                                const selection = event.detail.selection.value;
+                                element.input.value = selection;
+                                element.input.blur();
+                            }
+                        }
+                    }
+                };
+                const element = new autoComplete(config);
+                element.input.setAttribute("autocomplete", "off");
+                """;
+        input.getElement().executeJs(js
+                .replace("<element-id>", input.getId().orElse(""))
+                .replace("<place-holder>", placeholder)
+                .replace("<api-path>", sourcePath));
+        input.setWidthFull();
     }
-
 
 }
