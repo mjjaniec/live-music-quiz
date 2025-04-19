@@ -5,30 +5,41 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.html.Input;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
 
+@JsModule(value = "./setupAutocomplete.ts")
 @Route(value = "answer", layout = PlayerView.class)
 public class AnswerView extends VerticalLayout implements PlayerRoute {
     private final Input artist = new Input();
     private final Input title = new Input();
 
+    private boolean artistSet = false, titleSet = false;
+
     public AnswerView() {
         artist.setId("artist-input");
         title.setId("title-input");
 
-        add(new Span("artysta:"));
+        add(new H5("artysta:"));
         add(artist);
-        add(new Span("tytuł:"));
+        add(new H5("tytuł:"));
         add(title);
 
         Button confirm = new Button("Potwierdzam");
 
+        artist.addValueChangeListener(event -> {
+            artistSet = true;
+            if (titleSet) confirm.setEnabled(true);
+        });
+
         title.addValueChangeListener(event -> {
-            System.out.println("simple value change listener: " + event.getValue());
+            titleSet = true;
+            if (artistSet) confirm.setEnabled(true);
         });
 
         confirm.setEnabled(false);
@@ -39,7 +50,6 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
         confirm.addClickListener(event -> {
             UI ui = UI.getCurrent();
             LocalStorage.readPlayer(ui).thenAccept(playerOpt -> playerOpt.ifPresent(player -> {
-//                gameService.reportResult(player, artist, title, bonus ? 2 : 1);
                 ui.access(() -> ui.navigate(PieceResultView.class));
             }));
         });
@@ -54,50 +64,13 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
         setupAutocomplete(title, "Podaj tytuł...", "api/v1/hint/title");
     }
 
-
-    private void setupAutocompleteOld(Input input, String json) {
-        input.getElement().executeJs("const element = new autoComplete(" + json + " ); element.input.setAttribute('autocomplete', 'off');");
-        input.setWidthFull();
-    }
-
     private void setupAutocomplete(Input input, String placeholder, String sourcePath) {
-        String js = """
-                const config = {
-                    selector: "#<element-id>",
-                    placeHolder: "<place-holder>",
-                    data: {
-                         cache: true,
-                         src: async (query) => {
-                              try {
-                                const source = await fetch("<api-path>");
-                                return await source.json();
-                              } catch (error) {
-                                return error;
-                              }
-                         }
-                    },
-                    resultItem: {
-                        highlight: true
-                    },
-                    diacritics: true,
-                    events: {
-                        input: {
-                            selection: (event) => {
-                                const selection = event.detail.selection.value;
-                                element.input.value = selection;
-                                element.input.blur();
-                            }
-                        }
-                    }
-                };
-                const element = new autoComplete(config);
-                element.input.setAttribute("autocomplete", "off");
-                """;
-        input.getElement().executeJs(js
-                .replace("<element-id>", input.getId().orElse(""))
-                .replace("<place-holder>", placeholder)
-                .replace("<api-path>", sourcePath));
+        input.getElement().executeJs("window.setupAutocomplete($0, $1, $2, $3)",
+                input.getId().orElse(""),
+                placeholder,
+                sourcePath,
+                "🤷 Nie wiem 🤷");
+        input.setValueChangeMode(ValueChangeMode.ON_BLUR);
         input.setWidthFull();
     }
-
 }
