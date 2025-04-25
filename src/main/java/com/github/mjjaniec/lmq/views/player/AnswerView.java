@@ -1,6 +1,5 @@
 package com.github.mjjaniec.lmq.views.player;
 
-import com.github.mjjaniec.lmq.model.GameStage;
 import com.github.mjjaniec.lmq.services.GameService;
 import com.github.mjjaniec.lmq.util.LocalStorage;
 import com.vaadin.flow.component.AttachEvent;

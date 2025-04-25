@@ -2,11 +2,13 @@ package com.github.mjjaniec.lmq.stores;
 
 import com.github.mjjaniec.lmq.model.MainSet;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
 
+@Component
 public interface JpaQuizStore extends CrudRepository<QuizDto, Long>, QuizStore {
     @Override
     default void clearQuiz() {

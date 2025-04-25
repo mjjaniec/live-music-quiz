@@ -1,5 +1,5 @@
 declare var autoComplete: any;
-const EXPECTED_HINTS = 5;
+const EXPECTED_HINTS = 6;
 
 interface Hint {
     match: string;
@@ -7,8 +7,6 @@ interface Hint {
 }
 
 function occurrences(string: string, subString: string): number {
-    string += "";
-    subString += "";
     if (subString.length <= 0) return (string.length + 1);
 
     var n = 0, pos = 0, step = subString.length;
@@ -23,19 +21,39 @@ function occurrences(string: string, subString: string): number {
     return n;
 }
 
-function hintPoints(hint: Hint): number {
+function hintPoints(hint: Hint, queryLength: number): number {
     const start = hint.match.startsWith("<mark>") ? 2 : 1;
     const parts = occurrences(hint.match, "<mark>");
-    const byParts = (parts === 1) ? 10 : Math.max(6 - parts, 1);
-    return byParts * start;
-};
+    const byParts = (parts === 1) ? 8 : Math.max(6 - parts, 1);
+    const cover = queryLength / hint.value.length;
+    const byCover = cover >= 0.75 ? 2 : (cover >= 0.5 ? 1 : 0);
+    return byParts * start + byCover;
+}
+
+function computeQueryLength(hint?: Hint): number {
+    const string = hint?.match || "";
+    var startMarker = "<mark>";
+    var endMarker = "</mark>";
+    var res = 0, pos = 0, end = 0;
+
+    while (true) {
+        pos = string.indexOf(startMarker, pos);
+        if (pos >= 0) {
+            end = string.indexOf(endMarker, pos + startMarker.length);
+            res += end - pos - startMarker.length;
+            pos = end + endMarker.length;
+        } else break;
+    }
+    return res;
+}
 
 
 function processHints(hints: Hint[]): Hint[] {
     const byPoints = new Map<number, Hint[]>();
     const simplified = hints.map(hint => ({ ...hint, match: hint.match.replaceAll(/<[/]mark><mark>/g, "") }));
+    const queryLength = computeQueryLength(simplified[0])
     simplified.forEach(hint => {
-        const points = hintPoints(hint);
+        const points = hintPoints(hint, queryLength);
         if (!byPoints.has(points)) {
             byPoints.set(points, []);
         }
@@ -103,6 +121,7 @@ function setupAutocomplete(elementId: string, placeHolder: string, fetchApiPath:
                     list.prepend(message);
                 }
             },
+            maxResults: EXPECTED_HINTS,
             noResults: true,
         }
     };
