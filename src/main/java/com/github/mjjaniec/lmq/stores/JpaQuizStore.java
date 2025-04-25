@@ -44,6 +44,7 @@ public interface JpaQuizStore extends CrudRepository<QuizDto, Long>, QuizStore {
     private QuizDto.Piece mapToDto(MainSet.Piece piece) {
         QuizDto.Piece res = new QuizDto.Piece();
         res.setArtist(piece.artist());
+        res.setArtistAlternative(piece.artistAlternative());
         res.setTitle(piece.title());
         res.setInstrument(piece.instrument().name());
         res.setTempo(piece.tempo());
@@ -65,6 +66,7 @@ public interface JpaQuizStore extends CrudRepository<QuizDto, Long>, QuizStore {
     private MainSet.Piece mapFromDto(QuizDto.Piece piece) {
         return new MainSet.Piece(
                 piece.getArtist(),
+                piece.getArtistAlternative(),
                 piece.getTitle(),
                 MainSet.Instrument.valueOf(piece.getInstrument()),
                 piece.getTempo(),

@@ -9,10 +9,10 @@ import java.util.Optional;
 public record Results(int rounds, int currentRound, List<Row> rows) {
     @RequiredArgsConstructor
     public enum Award {
-        FIRST("\uD83E\uDDC5", "gold"),
-        SECOND("\uD83E\uDDC4", "silver"),
-        THIRD("\uD83E\uDD54", "bronze"),
-        PLAY_OFF("\uD83C\uDF36", "rust");
+        FIRST("\uD83E\uDD47", "gold"),
+        SECOND("\uD83E\uDD48", "silver"),
+        THIRD("\uD83E\uDD49", "bronze"),
+        PLAY_OFF("\uD83C\uDF52", "rust");
         public final String symbol;
         public final String style;
     }

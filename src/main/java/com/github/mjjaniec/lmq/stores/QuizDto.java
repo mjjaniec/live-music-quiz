@@ -37,6 +37,8 @@ public class QuizDto {
         @GeneratedValue(strategy = GenerationType.AUTO)
         private Long id;
         private String artist;
+        @Nullable
+        private String artistAlternative;
         private String title;
         private String instrument;
         @Nullable

@@ -2,8 +2,6 @@ package com.github.mjjaniec.lmq.model;
 
 import com.github.mjjaniec.lmq.views.bigscreen.*;
 import com.github.mjjaniec.lmq.views.player.*;
-import com.github.mjjaniec.lmq.views.bigscreen.*;
-import com.github.mjjaniec.lmq.views.player.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -62,7 +60,7 @@ public sealed interface GameStage {
 
 
     enum PieceStage {
-        LISTEN, ANSWER, PLAY
+        LISTEN, REVEAL, PLAY
     }
 
     record Invite() implements GameStage {
@@ -143,8 +141,8 @@ public sealed interface GameStage {
         @Override
         public Class<? extends PlayerRoute> playerView() {
             return switch (currentStage) {
-                case LISTEN -> ListenView.class;
-                case ANSWER -> AnswerView.class;
+                case LISTEN -> AnswerView.class;
+                case REVEAL -> PieceResultView.class;
                 case PLAY -> PlayView.class;
             };
         }
@@ -153,7 +151,7 @@ public sealed interface GameStage {
         public Class<? extends BigScreenRoute> bigScreenView() {
             return switch (currentStage) {
                 case LISTEN -> BigScreenListenView.class;
-                case ANSWER -> RevealView.class;
+                case REVEAL -> RevealView.class;
                 case PLAY -> BigScreenPlayView.class;
             };
         }

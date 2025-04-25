@@ -1,5 +1,7 @@
 package com.github.mjjaniec.lmq.views.player;
 
+import com.github.mjjaniec.lmq.model.GameStage;
+import com.github.mjjaniec.lmq.services.GameService;
 import com.github.mjjaniec.lmq.util.LocalStorage;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
@@ -21,7 +23,7 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
 
     private boolean artistSet = false, titleSet = false;
 
-    public AnswerView() {
+    public AnswerView(GameService gameService) {
         artist.setId("artist-input");
         title.setId("title-input");
 
@@ -50,7 +52,13 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
         confirm.addClickListener(event -> {
             UI ui = UI.getCurrent();
             LocalStorage.readPlayer(ui).thenAccept(playerOpt -> playerOpt.ifPresent(player -> {
-                ui.access(() -> ui.navigate(PieceResultView.class));
+                gameService.stage().asPiece().ifPresent(piece -> gameService.reportResult(
+                        player,
+                        artist.getValue().equals(piece.piece.artist()) ||
+                            piece.piece.artistAlternative() != null && artist.getValue().equals(piece.piece.artistAlternative()),
+                        title.getValue().equals(piece.piece.title()),
+                        piece.getBonus()));
+                ui.access(() -> ui.navigate(WaitForOthersView.class));
             }));
         });
 

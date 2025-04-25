@@ -3,9 +3,7 @@ package com.github.mjjaniec.lmq.components;
 import com.github.mjjaniec.lmq.services.Results;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.html.H5;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableFunction;
 
@@ -19,7 +17,11 @@ public class ResultsTable extends Grid<Results.Row> {
         setSizeFull();
 
         addColumn("Pozycja", row -> text(String.valueOf(row.position())));
-        addColumn("Nagroda", row -> text(row.award().map(a -> a.symbol).orElse("")));
+        addColumn("Nagroda", row -> {
+            H3 res = new H3(row.award().map(a -> a.symbol).orElse(""));
+            res.getStyle().setLineHeight("2.2rem");
+            return res;
+        });
         addColumn("Ksywka", row -> boldText(row.player()));
 
         for (int i = 1; i <= results.rounds(); ++i) {
@@ -53,7 +55,7 @@ public class ResultsTable extends Grid<Results.Row> {
     }
 
     private Component text(String text) {
-        H5 result = new H5(text);
+        H4 result = new H4(text);
         result.getStyle().setColor("inherit");
         return result;
     }

@@ -132,7 +132,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
 
         gameStage.asPiece().ifPresent(piece -> {
             switch (piece.getCurrentStage()) {
-                case ANSWER -> initAnswers();
+                case REVEAL -> initAnswers();
                 case PLAY -> {
                     if (piece.isCompleted()) {
                         navigator.navigatePlayers(PieceResultView.class);

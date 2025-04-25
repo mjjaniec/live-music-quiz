@@ -57,19 +57,22 @@ public class SpreadsheetLoader {
                      mapper.readerFor(String[].class).with(csvSchema).readValues(new URI(BaseUrl + SetList).toURL())) {
             List<String[]> rows = readValues.readAll();
             for (String[] row : rows) {
-                if (row[1].isBlank()) {
-                    List<MainSet.Piece> fPieces = pieces;
-                    diff.ifPresent(d -> result.add(new MainSet.LevelPieces(d, fPieces)));
-                    pieces = new ArrayList<>();
-                    diff = Optional.of(read(row[5], MainSet.Difficulty.class));
+                if (row[2].isBlank()) {
+                    if (!row[6].isBlank()) {
+                        List<MainSet.Piece> fPieces = pieces;
+                        diff.ifPresent(d -> result.add(new MainSet.LevelPieces(d, fPieces)));
+                        pieces = new ArrayList<>();
+                        diff = Optional.of(read(row[6], MainSet.Difficulty.class));
+                    }
                 } else {
                     String artist = row[0];
-                    String title = row[1];
-                    Integer tempo = row[2].isBlank() ? null : Integer.parseInt(row[2]);
-                    String hint = row[4];
-                    Set<String> sets = readSets(row[5]);
-                    MainSet.Instrument instrument = read(row[6], MainSet.Instrument.class);
-                    pieces.add(new MainSet.Piece(artist, title, instrument, tempo, hint, sets));
+                    String artistAlternative = row[1].isBlank() ? null : row[1];
+                    String title = row[2];
+                    Integer tempo = row[3].isBlank() ? null : Integer.parseInt(row[3]);
+                    String hint = row[5];
+                    Set<String> sets = readSets(row[6]);
+                    MainSet.Instrument instrument = read(row[7], MainSet.Instrument.class);
+                    pieces.add(new MainSet.Piece(artist, artistAlternative, title, instrument, tempo, hint, sets));
                 }
             }
         }

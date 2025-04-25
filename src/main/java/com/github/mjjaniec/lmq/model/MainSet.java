@@ -43,6 +43,7 @@ public record MainSet(List<LevelPieces> levels) {
 
     public record Piece(
             String artist,
+            @Nullable String artistAlternative,
             String title,
             Instrument instrument,
             @Nullable Integer tempo,
