@@ -7,8 +7,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.html.H5;
-import com.vaadin.flow.component.html.Input;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
@@ -48,6 +47,12 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
         confirm.addThemeVariants(ButtonVariant.LUMO_LARGE, ButtonVariant.LUMO_PRIMARY);
         add(confirm);
 
+        H4 waitMessage1 = new H4("poczekaj na pozostałych graczy");
+        H3 waitMessage2 = new H3("\uD83E\uDD71 \uD83D\uDCA4 \uD83D\uDCA4");
+        VerticalLayout waitLayout = new VerticalLayout(waitMessage1, waitMessage2);
+        waitLayout.setAlignItems(Alignment.CENTER);
+        waitLayout.setVisible(false);
+
         confirm.addClickListener(event -> {
             UI ui = UI.getCurrent();
             LocalStorage.readPlayer(ui).thenAccept(playerOpt -> playerOpt.ifPresent(player -> {
@@ -57,11 +62,15 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
                             piece.piece.artistAlternative() != null && artist.getValue().equals(piece.piece.artistAlternative()),
                         title.getValue().equals(piece.piece.title()),
                         piece.getBonus()));
-                ui.access(() -> ui.navigate(WaitForOthersView.class));
+                artist.setEnabled(false);
+                title.setEnabled(false);
+                confirm.setVisible(false);
+                waitLayout.setVisible(true);
             }));
         });
 
         add(confirm);
+        add(waitLayout);
     }
 
     @Override

@@ -16,7 +16,7 @@
   color: rgba(24, 39, 57, 0.9);
   outline: none;
   border-radius: 4.5px;
-  border: 2px solid rgba(103, 161, 215, 0.8);
+  border: 2px solid rgb(68,68,68,0.6);
   background-image: url(./search.svg);
   background-color: #f3f3f3;
   background-size: 1.4rem;
@@ -26,15 +26,44 @@
   transition: all 0.4s ease;
 }
 
+.autoComplete_wrapper > input:focus {
+  border: 2px solid rgb(68,68,68,1);
+  transition: all 0.4s ease;
+}
+
+.autoComplete_wrapper > input.search {
+  background-image: url(./auto-complete-svg/search.svg);
+}
+
+.autoComplete_wrapper > input.wait {
+  border: 2px solid rgba(45, 110, 171, 0.8);
+  background-image: url(./auto-complete-svg/wait.svg);
+  background-color: rgb(212, 227, 250);
+  transition: all 0.4s ease;
+}
+
+.autoComplete_wrapper > input.success {
+  background-image: url(./auto-complete-svg/success.svg);
+  background-color:rgb(222, 250, 212);
+  transition: all 0.4s ease;
+}
+
+.autoComplete_wrapper > input.failure {
+  background-image: url(./auto-complete-svg/failure.svg);
+  background-color: rgb(250, 212, 212);
+  transition: all 0.4s ease;
+}
+
+.autoComplete_wrapper > input[disabled] {
+  border: none;
+  transition: all 0.4s ease;
+}
+
 .autoComplete_wrapper > input::placeholder {
   color: rgba(24, 39, 57, 0.33);
   font-weight: 200;
   transition: all 0.3s ease;
   -webkit-transition: all -webkit-transform 0.3s ease;
-}
-
-.autoComplete_wrapper > input:focus {
-  border: 2px solid rgba(80, 120, 200, 1);
 }
 
 .autoComplete_wrapper > ul {

@@ -100,10 +100,14 @@ function setupAutocomplete(elementId: string, placeHolder: string, fetchApiPath:
                     const selection = index === 0 ? dunnoOption : event.detail.matches[index - 1].value;
                     element.input.value = selection;
                     element.input.blur();
+                    element.input.classList.remove("search");
+                    element.input.classList.add("wait");
                 },
                 focus() {
                     if (element.input.value === dunnoOption) {
                         element.input.value = "";
+                        element.input.classList.remove("wait");
+                        element.input.classList.add("search");
                     }
                     element.start();
                 }
@@ -127,6 +131,7 @@ function setupAutocomplete(elementId: string, placeHolder: string, fetchApiPath:
     };
     const element = new autoComplete(config);
     element.input.setAttribute("autocomplete", "off");
+    element.input.classList.add("search");
 }
 
 
