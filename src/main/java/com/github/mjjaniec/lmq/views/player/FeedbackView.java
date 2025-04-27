@@ -17,7 +17,7 @@ public class FeedbackView extends VerticalLayout implements PlayerRoute {
         setSpacing(false);
         setSizeFull();
 
-        var input = new TextArea("Jak się podobało, jakieś karmienie zwrotne?", "Będzie mi miło jeśli napiszesz że było fajnie. Ale docenię jescze bardziej jeśli wskarzesz coś co można ulepszyć :)");
+        var input = new TextArea("Jak się podobało, jakieś karmienie zwrotne?", "Będzie mi miło jeśli napiszesz że było fajnie. Ale docenię jescze bardziej jeśli wskażesz coś co można ulepszyć :)");
         input.setSizeFull();
         Button button = new Button("Wyślij");
         button.setWidthFull();
@@ -32,7 +32,7 @@ public class FeedbackView extends VerticalLayout implements PlayerRoute {
         button.addClickListener(event -> {
             gameService.saveFeedback(input.getValue());
             removeAll();
-            add(new H3("Diękówa!"));
+            add(new H3("Dzięki!"));
             H1 heart = new H1("❤️");
             heart.addClassName("pulse");
             add(heart);
