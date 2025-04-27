@@ -81,10 +81,10 @@ public class PlayView extends VerticalLayout implements PlayerRoute {
         super.onAttach(attachEvent);
         UI ui = attachEvent.getUI();
         broadcastAttach.attachPlay(attachEvent.getUI(), this::refresh);
-        LocalStorage.readPlayer(ui).thenAccept(playerOpt -> playerOpt.ifPresent(player -> {
+        forPlayer(ui, player -> {
             this.player = player;
             refresh();
-        }));
+        });
     }
 
     @Override

@@ -30,10 +30,9 @@ public class WaitForOthersView extends VerticalLayout implements PlayerRoute {
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
-        UI ui = attachEvent.getUI();
-        LocalStorage.readPlayer(ui).thenAccept(opt -> opt.ifPresent(player -> ui.access(() -> {
+        forPlayer(attachEvent.getUI(), player -> {
             badgeHolder.removeAll();
             badgeHolder.add(new UserBadge(player.name(), false, false));
-        })));
+        });
     }
 }

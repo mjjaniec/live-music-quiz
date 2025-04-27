@@ -1,8 +1,6 @@
 package com.github.mjjaniec.lmq.views.player;
 
-import com.github.mjjaniec.lmq.model.Player;
 import com.github.mjjaniec.lmq.services.GameService;
-import com.github.mjjaniec.lmq.util.LocalStorage;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -15,8 +13,6 @@ import com.vaadin.flow.component.html.Input;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
-
-import java.util.function.Consumer;
 
 
 @JsModule(value = "./setupAutocomplete.ts")
@@ -61,8 +57,7 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
         waitLayout.setVisible(false);
 
         confirm.addClickListener(event -> {
-            UI ui = UI.getCurrent();
-            LocalStorage.readPlayer(ui).thenAccept(playerOpt -> playerOpt.ifPresent(player -> {
+            forPlayer(UI.getCurrent(), player -> {
                 gameService.stage().asPiece().ifPresent(piece -> gameService.reportResult(
                         player,
                         artist.getValue().equals(piece.piece.artist()) ||
@@ -76,7 +71,7 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
                 title.setEnabled(false);
                 confirm.setVisible(false);
                 waitLayout.setVisible(true);
-            }));
+            });
         });
 
         add(confirm);
@@ -96,10 +91,6 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
             title.addClassName("wait");
             confirm.click();
         }));
-    }
-
-    private void forPlayer(UI ui, Consumer<Player> action) {
-        LocalStorage.readPlayer(ui).thenAccept(playerOpt -> playerOpt.ifPresent(action));
     }
 
     private void setupAutocomplete(Input input, String placeholder, String sourcePath) {
