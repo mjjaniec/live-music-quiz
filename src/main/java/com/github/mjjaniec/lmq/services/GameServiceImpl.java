@@ -172,7 +172,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
             return GameStage.Display.SIXTH;
         } else if (playersCount >= 4) {
             return GameStage.Display.FOURTH;
-        } else if (playersCount >= 3) {
+        } else if (playersCount == 3) {
             return GameStage.Display.EMPTY_PODIUM;
         } else {
             return GameStage.Display.FULL_TABLE;

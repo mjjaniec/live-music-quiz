@@ -2,6 +2,7 @@ package com.github.mjjaniec.lmq.views.bigscreen;
 
 import com.github.mjjaniec.lmq.services.GameService;
 import com.github.mjjaniec.lmq.services.TestDataProvider;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -18,6 +19,7 @@ public class RevealView extends VerticalLayout implements BigScreenRoute {
         setPadding(true);
 
         setAlignItems(Alignment.CENTER);
+        setJustifyContentMode(JustifyContentMode.EVENLY);
         setSizeFull();
 
         gameService.stage().asPiece().or(testDataProvider::piece)
@@ -29,6 +31,8 @@ public class RevealView extends VerticalLayout implements BigScreenRoute {
                     add(new VerticalLayout());
                     add(new H4("tytuł:"));
                     add(new H1(piece.piece.title()));
+                    add(new VerticalLayout());
+                    add(new VerticalLayout());
                 });
     }
 }

@@ -383,7 +383,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
 
     private void refreshSlackers() {
         if (gameService.stage() instanceof GameStage.RoundPiece piece) {
-            if (piece.getCurrentStage() == GameStage.PieceStage.REVEAL) {
+            if (piece.getCurrentStage() == GameStage.PieceStage.LISTEN) {
                 refreshPieceContent(piece);
             }
         } else if (gameService.stage() instanceof GameStage.PlayOff) {
@@ -410,6 +410,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
                     gameService.setStage(piece);
                 });
                 pieceContent.add(bonus);
+                pieceContent.add(new LittleSlackerList(gameService.getSlackers()));
             }
             case REVEAL -> pieceContent.add(new LittleSlackerList(gameService.getSlackers()));
             case PLAY -> pieceContent.add(new PlayTimeComponent(piece, gameService));
