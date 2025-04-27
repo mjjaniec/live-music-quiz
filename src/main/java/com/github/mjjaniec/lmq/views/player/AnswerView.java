@@ -1,5 +1,6 @@
 package com.github.mjjaniec.lmq.views.player;
 
+import com.github.mjjaniec.lmq.model.Constants;
 import com.github.mjjaniec.lmq.services.GameService;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
@@ -55,6 +56,13 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
         VerticalLayout waitLayout = new VerticalLayout(waitMessage1, waitMessage2);
         waitLayout.setAlignItems(Alignment.CENTER);
         waitLayout.setVisible(false);
+
+        gameService.stage().asPiece()
+                .filter(piece -> Constants.UNKNOWN.equals(piece.piece.artist()))
+                .ifPresent(ignored -> {
+                    artist.setValue(Constants.UNKNOWN);
+                    artist.setEnabled(false);
+                });
 
         confirm.addClickListener(event -> forPlayer(UI.getCurrent(), player -> {
             gameService.stage().asPiece().ifPresent(piece -> gameService.reportResult(

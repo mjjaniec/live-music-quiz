@@ -45,6 +45,9 @@ public class PlayTimeComponent extends VerticalLayout {
                 if (title.getValue()) {
                     piece.setTitleAnswered(true);
                 }
+                if (piece.isCompleted()) {
+                    piece.setCurrentStage(GameStage.PieceStage.REVEAL);
+                }
                 gameService.setStage(piece);
             });
             add(artist, title, confirm);

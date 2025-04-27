@@ -50,16 +50,15 @@ public class PlayView extends VerticalLayout implements PlayerRoute {
                 .ifPresent(piece -> {
                     theButton.setEnabled(piece.getCurrentResponder() == null);
                     theButton.getStyle().remove("background-color");
-                    theButton.setVisible(!piece.isCompleted());
                     theButton.setEnabled(false);
 
                     if (piece.getFailedResponders().contains(player.name())) {
                         if (gameService.getCurrentPlayerPoints(player) > 0) {
-                            caption.setText("coś tam wiesz");
-                            theButton.getStyle().setBackground(Palette.AMBER);
+                            caption.setText("Fifty fifty!");
+                            theButton.getStyle().setBackgroundColor(Palette.AMBER);
                         } else {
-                            caption.setText("psipau");
-                            theButton.getStyle().setBackground(Palette.RED);
+                            caption.setText("Pudło!");
+                            theButton.getStyle().setBackgroundColor(Palette.RED);
                         }
                     } else if (piece.getCurrentResponder() == null) {
                         caption.setText("Odpowiadam");
@@ -69,8 +68,8 @@ public class PlayView extends VerticalLayout implements PlayerRoute {
                         caption.setText("Odpowiadasz");
                         theButton.getStyle().setBackgroundColor(Palette.GREEN);
                     } else {
-                        caption.setText("aj\ncza było szybciej");
-                        theButton.getStyle().setBackground(Palette.GRAY);
+                        caption.setText("Nie akwtywne");
+                        theButton.getStyle().setBackgroundColor(Palette.GRAY);
                     }
                 });
     }
