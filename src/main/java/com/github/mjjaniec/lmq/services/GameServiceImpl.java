@@ -141,8 +141,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
                 case PLAY -> {
                     if (previousStage!= gameStage) {
                         clearCurrentPoints(piece);
-                        piece.setArtistAnswered(false);
-                        piece.setTitleAnswered(false);
+                        piece.clear();
                         stageStore.saveStage(stage);
                     } else {
                         navigator.refreshPlay();

@@ -155,6 +155,14 @@ public sealed interface GameStage {
                 case PLAY -> BigScreenPlayView.class;
             };
         }
+
+        public void clear() {
+            bonus = 1;
+            artistAnswered = false;
+            titleAnswered = false;
+            failedResponders.clear();
+            currentResponder = null;
+        }
     }
 
     record RoundSummary(RoundNumber roundNumber) implements GameStage {
