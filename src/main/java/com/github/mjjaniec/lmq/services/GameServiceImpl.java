@@ -6,6 +6,7 @@ import com.github.mjjaniec.lmq.views.bigscreen.RevealView;
 import com.github.mjjaniec.lmq.views.player.PieceResultView;
 import com.google.common.collect.Streams;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -126,17 +127,18 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     public void setStage(GameStage gameStage) {
         this.stage = gameStage;
         stageStore.saveStage(gameStage);
-        navigator.navigatePlayers(gameStage.playerView());
-        navigator.navigateBigScreen(gameStage.bigScreenView());
-        navigator.refreshProgressBar();
 
         gameStage.asPiece().ifPresent(piece -> {
             switch (piece.getCurrentStage()) {
-                case REVEAL -> initAnswers();
+                case LISTEN -> {
+                    initAnswers();
+                    clearCurrentPoints(piece);
+                }
                 case PLAY -> {
+                    clearCurrentPoints(piece);
                     if (piece.isCompleted()) {
-                        navigator.navigatePlayers(PieceResultView.class);
-                        navigator.navigateBigScreen(RevealView.class);
+//                        navigator.navigatePlayers(PieceResultView.class);
+//                        navigator.navigateBigScreen(RevealView.class);
                     } else {
                         navigator.refreshPlay();
                     }
@@ -153,6 +155,10 @@ public class GameServiceImpl implements GameService, MaestroInterface {
             navigator.refreshPlayOff();
         });
         gameStage.asWrapUp().ifPresent(ignored -> navigator.refreshWrapUp());
+
+        navigator.navigatePlayers(gameStage.playerView());
+        navigator.navigateBigScreen(gameStage.bigScreenView());
+        navigator.refreshProgressBar();
     }
 
     @Override
@@ -175,9 +181,15 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     }
 
     @Override
-    public void reportResult(Player player, boolean artist, boolean title, int bonus) {
+    public Optional<Answer> getCurrentAnswer(Player player) {
+        return stage.asPiece().flatMap(piece -> answerStore.playerAnswer(player.name(), piece.roundNumber, piece.pieceNumber.number()));
+    }
+
+
+    @Override
+    public void reportResult(Player player, boolean artist, boolean title, int bonus, @Nullable String actualArtist, @Nullable String actualTitle) {
         stage.asPiece().ifPresentOrElse(piece -> {
-            answerStore.saveAnswer(new Answer(artist, title, bonus, player.name(), piece.roundNumber, piece.pieceNumber.number()));
+            answerStore.saveAnswer(new Answer(artist, title, bonus, player.name(), piece.roundNumber, piece.pieceNumber.number(), actualArtist, actualTitle));
             slackers.remove(player);
             navigator.refreshSlackersList();
         }, () -> log.error("Report result called in wrong state (expected Piece but it is: {}", stage));
@@ -364,6 +376,10 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     private int forAnswer(MainSet.RoundPoints roundPoints, Answer answer) {
         return answer.bonus() * b2i(answer.title()) * roundPoints.title()
                 + answer.bonus() * b2i(answer.artist()) * roundPoints.artist();
+    }
+
+    private void clearCurrentPoints(GameStage.RoundPiece piece) {
+        getPlayers().forEach(player -> answerStore.deleteAnswer(player.name(), piece.roundNumber, piece.pieceNumber.number()));
     }
 
     private int b2i(boolean b) {

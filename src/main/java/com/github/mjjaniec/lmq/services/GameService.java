@@ -1,10 +1,12 @@
 package com.github.mjjaniec.lmq.services;
 
 
+import com.github.mjjaniec.lmq.model.Answer;
 import com.github.mjjaniec.lmq.model.GameStage;
 import com.github.mjjaniec.lmq.model.Player;
 import com.github.mjjaniec.lmq.model.StageSet;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,7 +28,9 @@ public interface GameService {
 
     Optional<String> customMessage();
 
-    void reportResult(Player player, boolean artist, boolean title, int bonus);
+    Optional<Answer> getCurrentAnswer(Player player);
+
+    void reportResult(Player player, boolean artist, boolean title, int bonus, @Nullable String actualArtist, @Nullable String actualTitle);
 
     void savePlayOff(Player player, int value);
 

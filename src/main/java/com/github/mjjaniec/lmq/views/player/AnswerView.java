@@ -1,5 +1,6 @@
 package com.github.mjjaniec.lmq.views.player;
 
+import com.github.mjjaniec.lmq.model.Player;
 import com.github.mjjaniec.lmq.services.GameService;
 import com.github.mjjaniec.lmq.util.LocalStorage;
 import com.vaadin.flow.component.AttachEvent;
@@ -7,10 +8,15 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.H5;
+import com.vaadin.flow.component.html.Input;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
+
+import java.util.function.Consumer;
 
 
 @JsModule(value = "./setupAutocomplete.ts")
@@ -18,10 +24,13 @@ import com.vaadin.flow.router.Route;
 public class AnswerView extends VerticalLayout implements PlayerRoute {
     private final Input artist = new Input();
     private final Input title = new Input();
+    private final GameService gameService;
+    private final Button confirm = new Button("Potwierdzam");
 
     private boolean artistSet = false, titleSet = false;
 
     public AnswerView(GameService gameService) {
+        this.gameService = gameService;
         artist.setId("artist-input");
         title.setId("title-input");
 
@@ -29,8 +38,6 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
         add(artist);
         add(new H5("tytuł:"));
         add(title);
-
-        Button confirm = new Button("Potwierdzam");
 
         artist.addValueChangeListener(event -> {
             artistSet = true;
@@ -56,12 +63,17 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
         confirm.addClickListener(event -> {
             UI ui = UI.getCurrent();
             LocalStorage.readPlayer(ui).thenAccept(playerOpt -> playerOpt.ifPresent(player -> {
-                gameService.stage().asPiece().ifPresent(piece -> gameService.reportResult(
-                        player,
-                        artist.getValue().equals(piece.piece.artist()) ||
-                            piece.piece.artistAlternative() != null && artist.getValue().equals(piece.piece.artistAlternative()),
-                        title.getValue().equals(piece.piece.title()),
-                        piece.getBonus()));
+                gameService.stage().asPiece().ifPresent(piece -> {
+                            gameService.reportResult(
+                                    player,
+                                    artist.getValue().equals(piece.piece.artist()) ||
+                                    piece.piece.artistAlternative() != null && artist.getValue().equals(piece.piece.artistAlternative()),
+                                    title.getValue().equals(piece.piece.title()),
+                                    piece.getBonus(),
+                                    artist.getValue(),
+                                    title.getValue());
+                        }
+                );
                 artist.setEnabled(false);
                 title.setEnabled(false);
                 confirm.setVisible(false);
@@ -71,6 +83,7 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
 
         add(confirm);
         add(waitLayout);
+
     }
 
     @Override
@@ -78,6 +91,17 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
         super.onAttach(attachEvent);
         setupAutocomplete(artist, "Podaj artystę...", "api/v1/hint/artist");
         setupAutocomplete(title, "Podaj tytuł...", "api/v1/hint/title");
+        forPlayer(attachEvent.getUI(), player -> gameService.getCurrentAnswer(player).ifPresent(answer -> {
+            artist.setValue(answer.actualArtist());
+            title.setValue(answer.actualTitle());
+            artist.addClassName("wait");
+            title.addClassName("wait");
+            confirm.click();
+        }));
+    }
+
+    private void forPlayer(UI ui, Consumer<Player> action) {
+        LocalStorage.readPlayer(ui).thenAccept(playerOpt -> playerOpt.ifPresent(action));
     }
 
     private void setupAutocomplete(Input input, String placeholder, String sourcePath) {

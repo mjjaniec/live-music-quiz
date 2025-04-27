@@ -5,6 +5,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 
+import javax.annotation.Nullable;
+
 @Data
 @Entity
 @Table(name = "answer")
@@ -19,4 +21,8 @@ public class AnswerDto {
     private String player;
     private int round;
     private int piece;
+    @Nullable
+    private String actualArtist;
+    @Nullable
+    private String actualTitle;
 }

@@ -10,6 +10,8 @@ public interface AnswerStore {
 
     void clearAnswers();
 
+    void deleteAnswer(String player, int round, int piece);
+
     Optional<Answer> playerAnswer(String player, int round, int piece);
 
     Stream<Answer> playerAnswers(String player, int round);

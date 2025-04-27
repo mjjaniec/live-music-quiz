@@ -27,7 +27,13 @@ public class PlayTimeComponent extends VerticalLayout {
             title.setEnabled(!piece.isTitleAnswered());
             Button confirm = new Button("zatwierdź");
             confirm.addClickListener(event -> {
-                gameService.reportResult(new Player(responder), artist.getValue(), title.getValue(), piece.getFailedResponders().size() + 1);
+                gameService.reportResult(
+                        new Player(responder),
+                        artist.getValue(),
+                        title.getValue(),
+                        piece.getFailedResponders().size() + 1,
+                        null,
+                        null);
                 if (!artist.getValue() || !title.getValue()) {
                     piece.addFailedResponder(responder);
                 } else {
