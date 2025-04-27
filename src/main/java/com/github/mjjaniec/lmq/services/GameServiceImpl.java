@@ -116,21 +116,27 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         messageStore.clearMessage();
     }
 
-    private void initAnswers() {
+    private void initSlackers(GameStage.RoundPiece piece) {
         slackers.clear();
-        slackers.addAll(playerStore.getPlayers());
+        playerStore.getPlayers().stream()
+                .filter(player -> answerStore.playerAnswer(player.name(), piece.roundNumber, piece.pieceNumber.number()).isEmpty())
+                .forEach(slackers::add);
     }
 
     @Override
     public void setStage(GameStage gameStage) {
+        GameStage previousStage = this.stage;
         this.stage = gameStage;
         stageStore.saveStage(gameStage);
 
         gameStage.asPiece().ifPresent(piece -> {
             switch (piece.getCurrentStage()) {
                 case LISTEN -> {
-                    initAnswers();
-                    clearCurrentPoints(piece);
+                    initSlackers(piece);
+                    navigator.refreshBonus();
+                    if (previousStage!= gameStage) {
+                        clearCurrentPoints(piece);
+                    }
                 }
                 case PLAY -> {
                     clearCurrentPoints(piece);
@@ -291,7 +297,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         for (String p : order) {
             if (p.equals(previous)) continue;
             if (Objects.equals(altogether.getOrDefault(p, 0), altogether.getOrDefault(previous, 0))
-                    && Objects.equals(playOffsDiffs.getOrDefault(p, 0), playOffsDiffs.getOrDefault(previous, 0))) {
+                && Objects.equals(playOffsDiffs.getOrDefault(p, 0), playOffsDiffs.getOrDefault(previous, 0))) {
                 positions.put(p, positions.get(previous));
                 count += 1;
             } else {
@@ -373,7 +379,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
 
     private int forAnswer(MainSet.RoundPoints roundPoints, Answer answer) {
         return answer.bonus() * b2i(answer.title()) * roundPoints.title()
-                + answer.bonus() * b2i(answer.artist()) * roundPoints.artist();
+               + answer.bonus() * b2i(answer.artist()) * roundPoints.artist();
     }
 
     private void clearCurrentPoints(GameStage.RoundPiece piece) {

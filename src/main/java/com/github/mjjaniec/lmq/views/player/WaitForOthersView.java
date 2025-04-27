@@ -1,9 +1,7 @@
 package com.github.mjjaniec.lmq.views.player;
 
 import com.github.mjjaniec.lmq.components.UserBadge;
-import com.github.mjjaniec.lmq.util.LocalStorage;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H4;

@@ -23,4 +23,6 @@ public interface Navigator {
     void refreshAllPlayers();
 
     void refreshPlayOff();
+
+    void refreshBonus();
 }

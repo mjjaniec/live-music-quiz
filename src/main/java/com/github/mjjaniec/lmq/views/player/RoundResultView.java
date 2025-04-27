@@ -2,12 +2,11 @@ package com.github.mjjaniec.lmq.views.player;
 
 import com.github.mjjaniec.lmq.components.UserBadge;
 import com.github.mjjaniec.lmq.services.GameService;
-import com.github.mjjaniec.lmq.util.LocalStorage;
 import com.github.mjjaniec.lmq.util.Plural;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 

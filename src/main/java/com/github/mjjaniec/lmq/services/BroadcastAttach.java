@@ -35,4 +35,8 @@ public interface BroadcastAttach {
     void attachPlayOff(UI ui, Runnable refresh);
 
     void detachPlayOff(UI ui);
+
+    void attachBonusListener(UI ui, Runnable refresh);
+
+    void detachBonusListener(UI ui);
 }

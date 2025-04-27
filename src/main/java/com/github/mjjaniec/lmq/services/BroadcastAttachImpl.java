@@ -21,6 +21,7 @@ public class BroadcastAttachImpl implements BroadcastAttach, Navigator {
     private final Map<UI, Runnable> plays = new HashMap<>();
     private final Map<UI, Runnable> wrapUps = new HashMap<>();
     private final Map<UI, Runnable> playOffs = new HashMap<>();
+    private final Map<UI, Runnable> bonusListeners = new HashMap<>();
 
     @Override
     public void attachPlayerUI(UI ui) {
@@ -152,5 +153,20 @@ public class BroadcastAttachImpl implements BroadcastAttach, Navigator {
     @Override
     public void refreshPlayOff() {
         playOffs.forEach((ui, runnable) -> ui.access(runnable::run));
+    }
+
+    @Override
+    public void refreshBonus() {
+        bonusListeners.forEach((ui, runnable) -> ui.access(runnable::run));
+    }
+
+    @Override
+    public void attachBonusListener(UI ui, Runnable refresh) {
+        bonusListeners.put(ui, refresh);
+    }
+
+    @Override
+    public void detachBonusListener(UI ui) {
+        bonusListeners.remove(ui);
     }
 }
