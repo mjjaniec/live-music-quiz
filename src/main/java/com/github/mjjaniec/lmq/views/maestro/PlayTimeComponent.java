@@ -1,5 +1,6 @@
 package com.github.mjjaniec.lmq.views.maestro;
 
+import com.github.mjjaniec.lmq.components.Audio;
 import com.github.mjjaniec.lmq.model.GameStage;
 import com.github.mjjaniec.lmq.model.Player;
 import com.github.mjjaniec.lmq.services.MaestroInterface;
@@ -10,7 +11,7 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 public class PlayTimeComponent extends VerticalLayout {
-    public PlayTimeComponent(GameStage.RoundPiece piece, MaestroInterface gameService) {
+    public PlayTimeComponent(GameStage.RoundPiece piece, MaestroInterface gameService, Audio notification) {
         add(new Paragraph("play time!"));
         String responder = piece.getCurrentResponder();
         if (piece.isTitleAnswered() && piece.isArtistAnswered()) {
@@ -20,6 +21,7 @@ public class PlayTimeComponent extends VerticalLayout {
         } else if (responder == null) {
             add(new Paragraph("czekamy na zgłoszenia"));
         } else {
+            notification.play();
             add(new Paragraph("Odpowiada: " + responder));
             Checkbox artist = new Checkbox("artysta");
             artist.setEnabled(!piece.isArtistAnswered());

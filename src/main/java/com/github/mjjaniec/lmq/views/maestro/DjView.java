@@ -1,9 +1,6 @@
 package com.github.mjjaniec.lmq.views.maestro;
 
-import com.github.mjjaniec.lmq.components.ActivateComponent;
-import com.github.mjjaniec.lmq.components.LittleSlackerList;
-import com.github.mjjaniec.lmq.components.PieceStageButton;
-import com.github.mjjaniec.lmq.components.StageHeader;
+import com.github.mjjaniec.lmq.components.*;
 import com.github.mjjaniec.lmq.model.*;
 import com.github.mjjaniec.lmq.services.BroadcastAttach;
 import com.github.mjjaniec.lmq.services.MaestroInterface;
@@ -53,6 +50,8 @@ public class DjView extends VerticalLayout implements RouterLayout {
     private final Div wrapUpContent = new Div();
     private final Div playOffContent = new Div();
 
+    private final Audio notification = new Audio("themes/live-music-quiz/notification.mp3");
+
 
     DjView(MaestroInterface gameService, BroadcastAttach broadcastAttach, SpreadsheetLoader spreadsheetLoader) {
         this.gameService = gameService;
@@ -73,6 +72,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
             gameService.stageSet().topLevelStages().stream().map(this::createStagePanel).forEach(main::add);
             add(customMessageComponent());
             add(main);
+            add(notification);
         } else {
             reset.click();
         }
@@ -115,7 +115,6 @@ public class DjView extends VerticalLayout implements RouterLayout {
             case GameStage.RoundSummary roundSummary -> roundSummaryComponent(roundSummary);
         };
     }
-
 
     private AccordionPanel inviteComponent(GameStage.Invite invite) {
         Component header = createPanelHeader(new Text("\uD83D\uDCF2 Zaproszenie"), invite);
@@ -305,7 +304,6 @@ public class DjView extends VerticalLayout implements RouterLayout {
         return new AccordionPanel(header, content);
     }
 
-
     private AccordionPanel roundSummaryComponent(GameStage.RoundSummary roundSummary) {
         StageHeader header = createPanelHeader(new Text("\uD83D\uDCC8 podsumowanie rundy"), roundSummary);
         Component content;
@@ -410,10 +408,14 @@ public class DjView extends VerticalLayout implements RouterLayout {
                     gameService.setStage(piece);
                 });
                 pieceContent.add(bonus);
-                pieceContent.add(new LittleSlackerList(gameService.getSlackers()));
+                List<Player> slackers = gameService.getSlackers();
+                pieceContent.add(new LittleSlackerList(slackers));
+                if (slackers.isEmpty()) {
+                    notification.play();
+                }
             }
             case REVEAL -> pieceContent.add(new LittleSlackerList(gameService.getSlackers()));
-            case PLAY -> pieceContent.add(new PlayTimeComponent(piece, gameService));
+            case PLAY -> pieceContent.add(new PlayTimeComponent(piece, gameService, notification));
         }
 
     }
