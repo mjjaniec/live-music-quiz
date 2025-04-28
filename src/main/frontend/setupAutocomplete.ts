@@ -52,6 +52,9 @@ function processHints(hints: Hint[]): Hint[] {
     const byPoints = new Map<number, Hint[]>();
     const simplified = hints.map(hint => ({ ...hint, match: hint.match.replaceAll(/<[/]mark><mark>/g, "") }));
     const queryLength = computeQueryLength(simplified[0])
+    if (queryLength < 2) {
+        return [];
+    }
     simplified.forEach(hint => {
         const points = hintPoints(hint, queryLength);
         if (!byPoints.has(points)) {
