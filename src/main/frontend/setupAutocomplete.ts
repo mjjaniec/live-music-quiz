@@ -113,6 +113,10 @@ function setupAutocomplete(elementId: string, placeHolder: string, fetchApiPath:
                         element.input.classList.add("search");
                     }
                     element.start();
+                },
+                keydown () {
+                    element.input.classList.remove("wait");
+                    element.input.classList.add("search");
                 }
             }
         },
