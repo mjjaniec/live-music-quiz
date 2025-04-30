@@ -258,10 +258,10 @@ public class GameServiceImpl implements GameService, MaestroInterface {
                 Map.Entry::getKey,
                 entry -> entry.getValue().values().stream().mapToInt(x -> x).sum()
         ));
+        int playOffTarget = playOffTaskStore.getPlayOffTask(playOffs).map(PlayOffs.PlayOff::value).orElse(0);
         Map<String, Integer> playOffsDiffs = new HashMap<>();
         Map<String, Integer> playOffsValues = new HashMap<>();
         playOffTaskStore.getPlayOffTask(playOffs).ifPresent(playOff -> {
-            int playOffTarget = playOff.value();
             playOffsValues.putAll(playOffStore.getPlayOffs());
             playOffsValues.forEach((key, value) -> playOffsDiffs.put(key, Math.abs(value - playOffTarget)));
         });
@@ -285,7 +285,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         int currentRound = stage().asRoundSummary().map(s -> s.roundNumber().number()).orElse(rounds);
 
         if (order.isEmpty()) {
-            return new Results(rounds, currentRound, List.of());
+            return new Results(rounds, currentRound, playOffTarget, List.of());
         }
 
         int position = 1;
@@ -313,7 +313,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
 
         int finalBestDiff = bestDiff;
 
-        return new Results(rounds, currentRound, Streams.mapWithIndex(order.stream(), (name, index) -> {
+        return new Results(rounds, currentRound, playOffTarget, Streams.mapWithIndex(order.stream(), (name, index) -> {
             int pos = positions.get(name);
             int ordinal = (int) index + 1;
             Optional<Results.Award> award = switch (pos) {

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public record Results(int rounds, int currentRound, List<Row> rows) {
+public record Results(int rounds, int currentRound, int targetPlayOff, List<Row> rows) {
     @RequiredArgsConstructor
     public enum Award {
         FIRST("\uD83E\uDD47", "gold"),

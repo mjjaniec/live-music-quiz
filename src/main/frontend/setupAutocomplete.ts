@@ -83,11 +83,17 @@ function setupAutocomplete(elementId: string, placeHolder: string, fetchApiPath:
             cache: true,
             filter: processHints,
             src: async (query: string) => {
-                try {
-                    const source = await fetch(fetchApiPath);
-                    return await source.json();
-                } catch (error) {
-                    return error;
+                if(!(window as any)["cache-"+fetchApiPath]){
+                    try {
+                        const source = await fetch(fetchApiPath);
+                        const result = await source.json();
+                        (window as any)["cache-"+fetchApiPath] = result;
+                        return result;
+                    } catch (error) {
+                        return error;
+                    }
+                } else {
+                    return (window as any)["cache-"+fetchApiPath];
                 }
             }
         },

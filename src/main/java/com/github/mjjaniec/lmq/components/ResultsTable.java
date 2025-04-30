@@ -16,13 +16,13 @@ public class ResultsTable extends Grid<Results.Row> {
     public ResultsTable(Results results, int showFrom) {
         setSizeFull();
 
-        addColumn("Pozycja", row -> text(String.valueOf(row.position())));
-        addColumn("Nagroda", row -> {
+        addColumn("Pozycja", 0, row -> text(String.valueOf(row.position())));
+        addColumn("Nagroda", 0, row -> {
             H3 res = new H3(row.award().map(a -> a.symbol).orElse(""));
             res.getStyle().setLineHeight("2.2rem");
             return res;
         });
-        addColumn("Ksywka", row -> boldText(row.player()));
+        addColumn("Ksywka", 5, row -> boldText(row.player()));
 
         for (int i = 1; i <= results.rounds(); ++i) {
             Function<Results.Row, Component> generator;
@@ -32,12 +32,12 @@ public class ResultsTable extends Grid<Results.Row> {
             } else {
                 generator = ignored -> new Span();
             }
-            addColumn("Runda " + i, generator);
+            addColumn("Runda " + i, 0, generator);
         }
 
 
-        addColumn("Dogrywka", row -> text(results.rounds() == results.currentRound() ? String.valueOf(row.playOff()) : ""));
-        addColumn("Razem", row -> boldText(String.valueOf(row.total())));
+        addColumn("Dogrywka", 1, row -> text(results.rounds() == results.currentRound() ? row.playOff() + " / " + results.targetPlayOff() : ""));
+        addColumn("Razem", 1,row -> boldText(String.valueOf(row.total())));
 
 
         setPartNameGenerator(row ->
@@ -50,8 +50,8 @@ public class ResultsTable extends Grid<Results.Row> {
         setItems(results.rows());
     }
 
-    private void addColumn(String caption, Function<Results.Row, Component> renderer) {
-        addColumn(new ComponentRenderer<>((SerializableFunction<Results.Row, Component>) renderer::apply)).setHeader(caption);
+    private void addColumn(String caption, int flexGrow, Function<Results.Row, Component> renderer) {
+        addColumn(new ComponentRenderer<>((SerializableFunction<Results.Row, Component>) renderer::apply)).setHeader(caption).setFlexGrow(flexGrow);
     }
 
     private Component text(String text) {
