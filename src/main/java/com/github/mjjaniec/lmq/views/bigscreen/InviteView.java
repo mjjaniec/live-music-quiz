@@ -32,7 +32,7 @@ public class InviteView extends HorizontalLayout implements BigScreenRoute {
 
         boolean isProduction = VaadinService.getCurrent().getDeploymentConfiguration().isProductionMode();
         String dataMatrix = isProduction ? "link-data-matrix.svg" : "local-link-data-matrix.svg";
-        String url = isProduction ? "https://tinyurl.com/4jfd87x9" : "http://192.168.31.27:8080";
+        String url = isProduction ? "bit.ly/4jQxa1h" : "http://192.168.31.27:8080";
 
         VerticalLayout invitation = new VerticalLayout();
         invitation.setAlignItems(Alignment.CENTER);
