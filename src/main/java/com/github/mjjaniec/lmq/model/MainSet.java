@@ -18,6 +18,7 @@ public record MainSet(List<LevelPieces> levels) {
         Easiest(RoundMode.EVERYBODY, new RoundPoints(2, 3)),
         Easy(RoundMode.EVERYBODY, new RoundPoints(3, 4)),
         Moderate(RoundMode.FIRST, new RoundPoints(5, 8)),
+        Moderate_All(RoundMode.EVERYBODY, new RoundPoints(4, 6)),
         Hard(RoundMode.FIRST, new RoundPoints(10, 15)),
         Harder(RoundMode.FIRST, new RoundPoints(15, 20)),
         Impossible(RoundMode.FIRST, new RoundPoints(20, 30));
