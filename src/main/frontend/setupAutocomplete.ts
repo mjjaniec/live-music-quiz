@@ -15,6 +15,9 @@ function occurrences(string: string, subString: string): number {
         pos = string.indexOf(subString, pos);
         if (pos >= 0) {
             ++n;
+            if (pos > 0 && string.at(pos - 1) !== ' ') {
+                n += 0.5;
+            }
             pos += step;
         } else break;
     }
