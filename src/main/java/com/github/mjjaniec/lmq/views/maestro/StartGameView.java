@@ -5,6 +5,7 @@ import com.github.mjjaniec.lmq.model.SpreadsheetLoader;
 import com.github.mjjaniec.lmq.services.MaestroInterface;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -34,13 +35,15 @@ public class StartGameView extends VerticalLayout implements RouterLayout {
             start.setEnabled(false);
             games.addValueChangeListener(event -> start.setEnabled(true));
 
+            Checkbox shuffle = new Checkbox("Shuffle");
 
             start.addClickListener(event -> {
                 MainSet set = ALL.equals(games.getValue()) ? mainSet :mainSet.asSet(games.getValue());
-                gameService.initGame(set.shuffle());
+                MainSet finalSet = shuffle.getValue() ? set.shuffle() : set;
+                gameService.initGame(finalSet);
                 UI.getCurrent().navigate(DjView.class);
             });
-            add(games, start);
+            add(games, shuffle, start);
         } catch (Throwable throwable) {
             StringWriter stringWriter = new StringWriter();
             PrintWriter printWriter = new PrintWriter(stringWriter);
