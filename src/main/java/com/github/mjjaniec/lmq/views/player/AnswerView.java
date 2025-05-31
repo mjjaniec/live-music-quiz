@@ -67,8 +67,8 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
         confirm.addClickListener(event -> forPlayer(UI.getCurrent(), player -> {
             gameService.stage().asPiece().ifPresent(piece -> gameService.reportResult(
                     player,
-                    artist.getValue().equals(piece.piece.artist()) ||
-                    piece.piece.artistAlternative() != null && artist.getValue().equals(piece.piece.artistAlternative()),
+                    !Constants.UNKNOWN.equals(piece.piece.artist()) && (artist.getValue().equals(piece.piece.artist()) ||
+                    piece.piece.artistAlternative() != null && artist.getValue().equals(piece.piece.artistAlternative())),
                     title.getValue().equals(piece.piece.title()),
                     piece.getBonus(),
                     artist.getValue(),
