@@ -39,6 +39,5 @@ Postgres is used
 
 ## Production
 
-Deployed on render 
-
- * after each commit to master a new deployment is automactically started.
+Deployed to amazon via SSH. 
+use `deploy.sh` script
