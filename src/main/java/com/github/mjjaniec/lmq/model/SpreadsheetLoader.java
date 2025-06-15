@@ -76,7 +76,21 @@ public class SpreadsheetLoader {
         }
         List<MainSet.Piece> fPieces = pieces;
         diff.ifPresent(d -> result.add(new MainSet.LevelPieces(d, fPieces)));
-        return new MainSet(result);
+        return validateMainSet(new MainSet(result));
+    }
+
+    private MainSet validateMainSet(MainSet set) {
+        Set<String> artists = new HashSet<>(loadArtists());
+        Set<String> titles = new HashSet<>(loadTitles());
+        var invalids = set.levels().stream().flatMap(l -> l.pieces().stream()).filter(piece ->
+                !(piece.artist().equals(Constants.UNKNOWN) || artists.contains(piece.artist())) ||
+                !(piece.artistAlternative() == null || artists.contains(piece.artistAlternative())) ||
+                !titles.contains(piece.title())
+        ).map(MainSet.Piece::toString).toList();
+        if (!invalids.isEmpty()) {
+            throw new RuntimeException("The following pieces do not match with hints\n" + String.join("\n", invalids));
+        }
+        return set;
     }
 
     @SneakyThrows
