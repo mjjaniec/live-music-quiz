@@ -1,6 +1,7 @@
 package com.github.mjjaniec.lmq.views.maestro;
 
 import com.github.mjjaniec.lmq.components.Audio;
+import com.github.mjjaniec.lmq.model.Constants;
 import com.github.mjjaniec.lmq.model.GameStage;
 import com.github.mjjaniec.lmq.model.Player;
 import com.github.mjjaniec.lmq.services.MaestroInterface;
@@ -24,6 +25,9 @@ public class PlayTimeComponent extends VerticalLayout {
             notification.play();
             add(new Paragraph("Odpowiada: " + responder));
             Checkbox artist = new Checkbox("artysta");
+            if (Constants.UNKNOWN.equals(piece.piece.artist())) {
+                piece.setArtistAnswered(true);
+            }
             artist.setEnabled(!piece.isArtistAnswered());
             Checkbox title = new Checkbox("tytuł");
             title.setEnabled(!piece.isTitleAnswered());
