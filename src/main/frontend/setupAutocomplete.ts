@@ -78,7 +78,7 @@ function processHints(hints: Hint[]): Hint[] {
     return processedHints;
 }
 
-function setupAutocomplete(elementId: string, placeHolder: string, fetchApiPath: string, dunnoOption: string) {
+function setupAutocomplete(elementId: string, placeHolder: string, fetchApiPath: string, dunnoOption: string, vaadinElement: any) {
     const config = {
         selector: `#${elementId}`,
         placeHolder: placeHolder,
@@ -114,18 +114,21 @@ function setupAutocomplete(elementId: string, placeHolder: string, fetchApiPath:
                     element.input.blur();
                     element.input.classList.remove("search");
                     element.input.classList.add("wait");
+                    vaadinElement.$server.setProvided(fetchApiPath, true);
                 },
                 focus() {
                     if (element.input.value === dunnoOption) {
                         element.input.value = "";
                         element.input.classList.remove("wait");
                         element.input.classList.add("search");
+                        vaadinElement.$server.setProvided(fetchApiPath, false);
                     }
                     element.start();
                 },
                 keydown () {
                     element.input.classList.remove("wait");
                     element.input.classList.add("search");
+                    vaadinElement.$server.setProvided(fetchApiPath, false);
                 }
             }
         },
