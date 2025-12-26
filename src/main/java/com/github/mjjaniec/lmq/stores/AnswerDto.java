@@ -5,7 +5,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @Data
 @Entity

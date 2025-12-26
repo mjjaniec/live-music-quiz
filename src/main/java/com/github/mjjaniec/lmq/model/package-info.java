@@ -1,7 +1,2 @@
-@NonNullApi
-@NonNullFields
+@org.jspecify.annotations.NullMarked
 package com.github.mjjaniec.lmq.model;
-
-
-import org.springframework.lang.NonNullFields;
-import reactor.util.annotation.NonNullApi;

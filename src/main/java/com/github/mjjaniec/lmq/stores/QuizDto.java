@@ -2,7 +2,7 @@ package com.github.mjjaniec.lmq.stores;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 

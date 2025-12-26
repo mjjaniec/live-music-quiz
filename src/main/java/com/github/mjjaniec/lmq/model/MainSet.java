@@ -1,7 +1,7 @@
 package com.github.mjjaniec.lmq.model;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;

@@ -4,7 +4,7 @@ import com.github.mjjaniec.lmq.model.*;
 import com.github.mjjaniec.lmq.stores.*;
 import com.google.common.collect.Streams;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
