@@ -11,14 +11,17 @@
     <packaging>jar</packaging>
 
     <properties>
-        <java.version>21</java.version>
-        <vaadin.version>24.7.6</vaadin.version>
+        <java.version>25</java.version>
+        <vaadin.version>25.0.2</vaadin.version>
+        <jackson.version>2.20.1</jackson.version>
+        <lombok.version>1.18.42</lombok.version>
+        <postgresql.version>42.7.8</postgresql.version>
     </properties>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.5</version>
+        <version>4.0.1</version>
     </parent>
 
     <repositories>
@@ -47,10 +50,12 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-core</artifactId>
+            <version>${vaadin.version}</version>
         </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-spring-boot-starter</artifactId>
+            <version>${vaadin.version}</version>
         </dependency>
 
         <dependency>
@@ -61,6 +66,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
+            <version>${postgresql.version}</version>
         </dependency>
 
         <dependency>
@@ -75,18 +81,19 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-testbench-junit5</artifactId>
+            <version>${vaadin.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.38</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-csv</artifactId>
-            <version>2.19.0</version>
+            <version>${jackson.version}</version>
         </dependency>
     </dependencies>
 
@@ -100,7 +107,7 @@
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>
-                <version>2.44.4</version>
+                <version>3.1.0</version>
                 <configuration>
                     <java>
                         <eclipse>
@@ -126,13 +133,12 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>21</source>
-                    <target>21</target>
+                    <source>25</source>
+                    <target>25</target>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.36</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
@@ -149,6 +155,7 @@
                 <dependency>
                     <groupId>com.vaadin</groupId>
                     <artifactId>vaadin-core</artifactId>
+                    <version>${vaadin.version}</version>
                     <exclusions>
                         <exclusion>
                             <groupId>com.vaadin</groupId>

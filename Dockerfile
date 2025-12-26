@@ -1,5 +1,5 @@
 # Importing JDK and copying required files
-FROM eclipse-temurin:21 AS build
+FROM eclipse-temurin:25 AS build
 
 WORKDIR /app
 COPY pom.xml .
@@ -13,8 +13,8 @@ COPY .mvn .mvn
 RUN chmod +x ./mvnw
 RUN ./mvnw --no-transfer-progress clean package -Pproduction
 
-# Stage 2: Create the final Docker image using OpenJDK 19
-FROM eclipse-temurin:21
+# Stage 2: Create the final Docker image using OpenJDK 25
+FROM eclipse-temurin:25
 
 ARG db_pass
 ARG db_user
