@@ -4,10 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +16,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class SpreadsheetLoader {
     private static final String SetList = "set-list";
     private static final String Artists = "artists";
@@ -24,7 +25,7 @@ public class SpreadsheetLoader {
     private static final String DocumentId = "1PFvN5U5W9eYuTpGlPgk8bBKe-ErZUfNYG61Aw1DNUMk";
     private static final String BaseUrl = "https://docs.google.com/spreadsheets/d/" + DocumentId + "/gviz/tq?tqx=out:csv&sheet=";
 
-    private final ObjectMapper jsonMapper = JsonMapper.builder().enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS).build();
+    private final ObjectMapper jsonMapper;
     private final CsvSchema csvSchema = CsvSchema.emptySchema().withSkipFirstDataRow(true);
     private final CsvMapper mapper = CsvMapper.builder().enable(CsvParser.Feature.WRAP_AS_ARRAY).build();
 
