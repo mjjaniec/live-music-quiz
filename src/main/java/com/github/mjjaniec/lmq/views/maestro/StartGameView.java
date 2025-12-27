@@ -35,15 +35,12 @@ public class StartGameView extends VerticalLayout implements RouterLayout {
             start.setEnabled(false);
             games.addValueChangeListener(event -> start.setEnabled(true));
 
-            Checkbox shuffle = new Checkbox("Shuffle");
-
             start.addClickListener(event -> {
                 MainSet set = ALL.equals(games.getValue()) ? mainSet :mainSet.asSet(games.getValue());
-                MainSet finalSet = shuffle.getValue() ? set.shuffle() : set;
-                gameService.initGame(finalSet);
+                gameService.initGame(set);
                 UI.getCurrent().navigate(DjView.class);
             });
-            add(games, shuffle, start);
+            add(games, start);
         } catch (Throwable throwable) {
             StringWriter stringWriter = new StringWriter();
             PrintWriter printWriter = new PrintWriter(stringWriter);

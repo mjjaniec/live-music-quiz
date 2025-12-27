@@ -40,7 +40,6 @@ public class QuizDto {
         @Nullable
         private String artistAlternative;
         private String title;
-        private String instrument;
         @Nullable
         private Integer tempo;
         @Nullable

@@ -8,12 +8,6 @@ import java.util.stream.Collectors;
 
 public record MainSet(List<LevelPieces> levels) {
     @RequiredArgsConstructor
-    public enum Instrument {
-        Bass("\uD834\uDD22"), Piano("\uD83C\uDFB9"), Guitar("\uD83C\uDFB8"), Xylophone("\uD83C\uDFBC");
-        public final String icon;
-    }
-
-    @RequiredArgsConstructor
     public enum Difficulty {
         Easiest(RoundMode.EVERYBODY, new RoundPoints(2, 3)),
         Easy(RoundMode.EVERYBODY, new RoundPoints(3, 4)),
@@ -28,25 +22,12 @@ public record MainSet(List<LevelPieces> levels) {
     }
 
     public record LevelPieces(Difficulty level, List<Piece> pieces) {
-        public LevelPieces shuffle() {
-            List<Instrument> instruments = new ArrayList<>();
-            pieces.stream().map(p -> p.instrument).distinct().forEach(instruments::add);
-            Collections.shuffle(instruments);
-            Map<Instrument, List<Piece>> byInstrument = pieces.stream().collect(Collectors.groupingBy(p -> p.instrument));
-            List<Piece> shuffled = instruments.stream().flatMap(instrument -> {
-                List<Piece> shufflable = new ArrayList<>(byInstrument.getOrDefault(instrument, new ArrayList<>()));
-                Collections.shuffle(shufflable);
-                return shufflable.stream();
-            }).toList();
-            return new LevelPieces(level, shuffled);
-        }
     }
 
     public record Piece(
             String artist,
             @Nullable String artistAlternative,
             String title,
-            Instrument instrument,
             @Nullable Integer tempo,
             @Nullable String hint,
             Set<String> sets
@@ -73,10 +54,6 @@ public record MainSet(List<LevelPieces> levels) {
     }
 
     public record RoundPoints(int artist, int title) {
-    }
-
-    public MainSet shuffle() {
-        return new MainSet(levels.stream().map(LevelPieces::shuffle).toList());
     }
 }
 

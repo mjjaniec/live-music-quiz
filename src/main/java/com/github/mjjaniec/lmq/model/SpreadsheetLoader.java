@@ -70,8 +70,7 @@ public class SpreadsheetLoader {
                     Integer tempo = row[3].isBlank() ? null : Integer.parseInt(row[3]);
                     String hint = row[5];
                     Set<String> sets = readSets(row[6]);
-                    MainSet.Instrument instrument = read(row[7], MainSet.Instrument.class);
-                    pieces.add(new MainSet.Piece(artist, artistAlternative, title, instrument, tempo, hint, sets));
+                    pieces.add(new MainSet.Piece(artist, artistAlternative, title, tempo, hint, sets));
                 }
             }
         }

@@ -331,37 +331,20 @@ public class DjView extends VerticalLayout implements RouterLayout {
         return new AccordionPanel(header, content);
     }
 
-    private HtmlContainer icon(MainSet.Instrument instrument) {
-        Div result = new Div(instrument.icon);
-        if (MainSet.Instrument.Bass == instrument) {
-            result.getStyle().setColor(Palette.BLUE).setFontWeight(Style.FontWeight.BOLD)
-                    .setWidth("22px")
-                    .setTransform("translate(3px, 3px)")
-                    .setFontSize("120%")
-                    .setDisplay(Style.Display.INLINE_BLOCK).setLineHeight("0").setWidth("20px");
-        } else {
-            result.getStyle().setDisplay(Style.Display.INLINE_BLOCK);
-            result.setWidth("22px");
-        }
-        return result;
-    }
-
     private AccordionPanel pieceComponent(GameStage.RoundPiece piece) {
-        Div headerComponent = new Div(icon(piece.piece.instrument()), new Span(" " + piece.piece.artist() + " - " + piece.piece.title()));
+        Div headerComponent = new Div(new Span(piece.piece.artist() + " - " + piece.piece.title()));
         Div header = createPanelHeader(headerComponent, piece);
         VerticalLayout content = new VerticalLayout();
         content.setWidthFull();
         HorizontalLayout row = new HorizontalLayout();
         row.setPadding(false);
         row.setWidthFull();
-        Div instr = new Div(icon(piece.piece.instrument()), new Span(" " + piece.piece.instrument().name()));
-        instr.setWidth("10%");
+        row.getStyle().setMarginLeft("2em");
         Span tempo = new Span("\uD83E\uDD41 " + Optional.ofNullable(piece.piece.tempo()).map(Object::toString).orElse("zmienne"));
         tempo.setWidth("10%");
         Span hint = new Span(piece.piece.hint());
         content.add(row);
-
-        row.add(instr, tempo, hint);
+        row.add(tempo, hint);
         if (gameService.stage() == piece) {
             pieceContent.removeFromParent();
             content.add(pieceContent);
@@ -375,7 +358,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
                     refreshPieceContent(stage);
                 }))
                 .forEach(row::add);
-        row.getStyle().setMarginLeft("2em");
+
         return new AccordionPanel(header, content);
     }
 

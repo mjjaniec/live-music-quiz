@@ -48,7 +48,6 @@ public interface JpaQuizStore extends CrudRepository<QuizDto, Long>, QuizStore {
         res.setArtist(piece.artist());
         res.setArtistAlternative(piece.artistAlternative());
         res.setTitle(piece.title());
-        res.setInstrument(piece.instrument().name());
         res.setTempo(piece.tempo());
         res.setHint(piece.hint());
         return res;
@@ -70,7 +69,6 @@ public interface JpaQuizStore extends CrudRepository<QuizDto, Long>, QuizStore {
                 piece.getArtist(),
                 piece.getArtistAlternative(),
                 piece.getTitle(),
-                MainSet.Instrument.valueOf(piece.getInstrument()),
                 piece.getTempo(),
                 piece.getHint(),
                 Set.of()

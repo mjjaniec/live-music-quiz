@@ -22,7 +22,7 @@ public class TestDataProvider {
         return Optional.of(new GameStage.RoundPiece(
                 4,
                 new GameStage.PieceNumber(3, 10),
-                new MainSet.Piece("Red Hot Chilli Pepper", null,"Callifornication", MainSet.Instrument.Bass, null, null, Set.of()),
+                new MainSet.Piece("Red Hot Chilli Pepper", null,"Callifornication", null, null, Set.of()),
                 List.of(GameStage.PieceStage.LISTEN, GameStage.PieceStage.REVEAL)
         )).filter(event -> config.testData());
 
