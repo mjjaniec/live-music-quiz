@@ -1,7 +1,6 @@
 package com.github.mjjaniec.lmq.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
@@ -83,12 +83,28 @@ public class SpreadsheetLoader {
     private MainSet validateMainSet(MainSet set) {
         Set<String> artists = new HashSet<>(loadArtists());
         Set<String> titles = new HashSet<>(loadTitles());
-        var invalids = set.levels().stream().flatMap(l -> l.pieces().stream()).filter(piece ->
-                !(piece.artist().equals(Constants.UNKNOWN) || artists.contains(piece.artist())) ||
-                !(piece.artistAlternative() == null || artists.contains(piece.artistAlternative())) ||
-                !titles.contains(piece.title()) ||
-                !(piece.titleAlternative() == null || titles.contains(piece.titleAlternative()))
-        ).map(MainSet.Piece::toString).toList();
+        var invalids = set.levels().stream().flatMap(l -> l.pieces().stream()).flatMap(piece -> {
+            List<String> invalidFields = new ArrayList<>();
+            if (!(piece.artist().equals(Constants.UNKNOWN) || artists.contains(piece.artist()))) {
+                invalidFields.add("artist: " + piece.artist());
+            }
+            if (!(piece.artistAlternative() == null || artists.contains(piece.artistAlternative()))) {
+                invalidFields.add("artistAlternative: " + piece.artistAlternative());
+            }
+            if (!titles.contains(piece.title())) {
+                invalidFields.add("title: " + piece.title());
+            }
+            if (!(piece.titleAlternative() == null || titles.contains(piece.titleAlternative()))) {
+                invalidFields.add("titleAlternative: " + piece.titleAlternative());
+            }
+
+            if (invalidFields.isEmpty()) {
+                return Stream.empty();
+            } else {
+                return Stream.of(piece + " -> " + invalidFields);
+            }
+        }).toList();
+
         if (!invalids.isEmpty()) {
             throw new RuntimeException("The following pieces do not match with hints\n" + String.join("\n", invalids));
         }
