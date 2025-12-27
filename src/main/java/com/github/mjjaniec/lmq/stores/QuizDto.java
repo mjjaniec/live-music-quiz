@@ -41,6 +41,8 @@ public class QuizDto {
         private String artistAlternative;
         private String title;
         @Nullable
+        private String titleAlternative;
+        @Nullable
         private Integer tempo;
         @Nullable
         private String hint;

@@ -1,6 +1,7 @@
 package com.github.mjjaniec.lmq;
 
 import com.github.mjjaniec.lmq.config.ApplicationConfig;
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.server.AppShellSettings;
@@ -13,7 +14,7 @@ import java.io.IOException;
 
 @SpringBootApplication
 @EnableConfigurationProperties(ApplicationConfig.class)
-@Theme(value = "live-music-quiz")
+@StyleSheet("styles.css")
 @Push
 public class LiveMusicQuizApp implements AppShellConfigurator {
 

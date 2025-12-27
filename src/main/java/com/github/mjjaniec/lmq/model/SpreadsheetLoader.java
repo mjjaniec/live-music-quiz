@@ -22,7 +22,7 @@ public class SpreadsheetLoader {
     private static final String Artists = "artists";
     private static final String Titles = "titles";
     private static final String PlayOff = "play-offs";
-    private static final String DocumentId = "1PFvN5U5W9eYuTpGlPgk8bBKe-ErZUfNYG61Aw1DNUMk";
+    private static final String DocumentId = "15zxKdCWWvwQrPFfB0i30tH5I09g-S8j8-ulSaKI-la0";
     private static final String BaseUrl = "https://docs.google.com/spreadsheets/d/" + DocumentId + "/gviz/tq?tqx=out:csv&sheet=";
 
     private final ObjectMapper jsonMapper;
@@ -32,7 +32,7 @@ public class SpreadsheetLoader {
     @SneakyThrows
     public PlayOffs loadPlayOffs() {
         try (MappingIterator<String[]> readValues =
-                     mapper.readerFor(String[].class).with(csvSchema).readValues(new URI(BaseUrl + PlayOff).toURL())) {
+                     mapper.readerFor(String[].class).with(csvSchema).readValues(new URI(BaseUrl + PlayOff).toURL().openStream())) {
             return new PlayOffs(readValues.readAll().stream()
                     .map(array -> new PlayOffs.PlayOff(array[1], Integer.parseInt(array[0]), Integer.parseInt(array[2])))
                     .toList());
@@ -53,7 +53,7 @@ public class SpreadsheetLoader {
         List<MainSet.Piece> pieces = new ArrayList<>();
         Optional<MainSet.RoundMode> mode = Optional.empty();
         try (MappingIterator<String[]> readValues =
-                     mapper.readerFor(String[].class).with(csvSchema).readValues(new URI(BaseUrl + SetList).toURL())) {
+                     mapper.readerFor(String[].class).with(csvSchema).readValues(new URI(BaseUrl + SetList).toURL().openStream())) {
             List<String[]> rows = readValues.readAll();
             for (String[] row : rows) {
                 if (row[2].isBlank()) {
@@ -67,10 +67,11 @@ public class SpreadsheetLoader {
                     String artist = row[0];
                     String artistAlternative = row[1].isBlank() ? null : row[1];
                     String title = row[2];
-                    Integer tempo = row[3].isBlank() ? null : Integer.parseInt(row[3]);
+                    String titleAlternative = row[3].isBlank() ? null : row[3];
+                    Integer tempo = row[4].isBlank() ? null : Integer.parseInt(row[4]);
                     String hint = row[5];
                     Set<String> sets = readSets(row[6]);
-                    pieces.add(new MainSet.Piece(artist, artistAlternative, title, tempo, hint, sets));
+                    pieces.add(new MainSet.Piece(artist, artistAlternative, title, titleAlternative, tempo, hint, sets));
                 }
             }
         }
@@ -85,7 +86,8 @@ public class SpreadsheetLoader {
         var invalids = set.levels().stream().flatMap(l -> l.pieces().stream()).filter(piece ->
                 !(piece.artist().equals(Constants.UNKNOWN) || artists.contains(piece.artist())) ||
                 !(piece.artistAlternative() == null || artists.contains(piece.artistAlternative())) ||
-                !titles.contains(piece.title())
+                !titles.contains(piece.title()) ||
+                !(piece.titleAlternative() == null || titles.contains(piece.titleAlternative()))
         ).map(MainSet.Piece::toString).toList();
         if (!invalids.isEmpty()) {
             throw new RuntimeException("The following pieces do not match with hints\n" + String.join("\n", invalids));
@@ -96,7 +98,7 @@ public class SpreadsheetLoader {
     @SneakyThrows
     private List<String> loadStrings(String tab) {
         try (MappingIterator<String[]> readValues =
-                     mapper.readerFor(String[].class).with(csvSchema).readValues(new URI(BaseUrl + tab).toURL())) {
+                     mapper.readerFor(String[].class).with(csvSchema).readValues(new URI(BaseUrl + tab).toURL().openStream())) {
             return readValues.readAll().stream().map(array -> array[0]).toList();
         }
     }

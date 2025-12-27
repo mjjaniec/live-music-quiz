@@ -25,7 +25,7 @@ public class Hot100Parser {
         mapper.enable(CsvParser.Feature.WRAP_AS_ARRAY);
 
         try (MappingIterator<String[]> readValues =
-                     mapper.readerFor(String[].class).with(bootstrapSchema).readValues(new URI(hot100Url).toURL())) {
+                     mapper.readerFor(String[].class).with(bootstrapSchema).readValues(new URI(hot100Url).toURL().openStream())) {
 
             List<String[]> rows = readValues.readAll();
             for (String[] row : rows) {

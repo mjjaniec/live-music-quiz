@@ -52,7 +52,7 @@ public class StageSet {
                                 (int) roundIndex + 1,
                                 new GameStage.PieceNumber((int) index + 1, level.pieces().size()),
                                 piece,
-                                level.level().mode == MainSet.RoundMode.EVERYBODY ?
+                                level.level().isEverybody() ?
                                         List.of(GameStage.PieceStage.LISTEN, GameStage.PieceStage.REVEAL) :
                                         List.of(GameStage.PieceStage.PLAY, GameStage.PieceStage.REVEAL)
                         )

@@ -14,6 +14,7 @@ public record MainSet(List<LevelPieces> levels) {
             String artist,
             @Nullable String artistAlternative,
             String title,
+            @Nullable String titleAlternative,
             @Nullable Integer tempo,
             @Nullable String hint,
             Set<String> sets
