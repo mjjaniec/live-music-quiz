@@ -1,7 +1,6 @@
 package com.github.mjjaniec.lmq.views.bigscreen;
 
 import com.github.mjjaniec.lmq.model.GameStage;
-import com.github.mjjaniec.lmq.model.MainSet;
 import com.github.mjjaniec.lmq.services.GameService;
 import com.github.mjjaniec.lmq.services.TestDataProvider;
 import com.github.mjjaniec.lmq.util.Palette;
@@ -31,9 +30,9 @@ public class RoundInitView extends VerticalLayout implements BigScreenRoute {
     private void setupUI(GameStage.RoundInit roundInit) {
         add(new Div());
         add(keyValue("Witajcie w rundzie", String.valueOf(roundInit.roundNumber().number())));
-        add(keyValue("Kto odpowiada", roundInit.difficulty().mode == MainSet.RoundMode.EVERYBODY ? "Wszyscy" : "Pierwsza/y"));
-        add(keyValue("Punkty za wykonawcę", String.valueOf(roundInit.difficulty().points.artist())));
-        add(keyValue("Punkty za tytuł", String.valueOf(roundInit.difficulty().points.title())));
+        add(keyValue("Kto odpowiada", roundInit.roundMode().isEverybody() ? "Wszyscy" : "Pierwsza/y"));
+        add(keyValue("Punkty za wykonawcę", String.valueOf(roundInit.roundMode().artistPoints)));
+        add(keyValue("Punkty za tytuł", String.valueOf(roundInit.roundMode().titlePoints)));
         add(keyValue("Przed nami utworów", String.valueOf(roundInit.pieces().size())));
         add(new Div());
         add(new Div());

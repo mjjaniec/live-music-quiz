@@ -351,9 +351,9 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     private Map<String, Map<Integer, Integer>> totalPoints() {
         Map<String, Map<Integer, Integer>> result = new HashMap<>();
         answerStore.allAnswers().forEach(answer ->
-                stageSet.roundInit(answer.round()).map(GameStage.RoundInit::difficulty).map(d -> d.points).ifPresent(points -> {
+                stageSet.roundInit(answer.round()).map(GameStage.RoundInit::roundMode).ifPresent(mode -> {
                             var players = result.computeIfAbsent(answer.player(), k -> new HashMap<>());
-                            players.put(answer.round(), players.getOrDefault(answer.round(), 0) + forAnswer(points, answer));
+                            players.put(answer.round(), players.getOrDefault(answer.round(), 0) + forAnswer(mode, answer));
                         }
                 )
         );
@@ -361,10 +361,10 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     }
 
     private int roundPoints(Player player, GameStage.RoundSummary summary) {
-        return stageSet.roundInit(summary.roundNumber().number()).map(GameStage.RoundInit::difficulty).map(d -> d.points)
-                .map(points ->
+        return stageSet.roundInit(summary.roundNumber().number()).map(GameStage.RoundInit::roundMode)
+                .map(mode ->
                         answerStore.playerAnswers(player.name(), summary.roundNumber().number())
-                                .mapToInt(answer -> forAnswer(points, answer))
+                                .mapToInt(answer -> forAnswer(mode, answer))
                                 .sum()
                 ).orElse(0);
     }
@@ -372,14 +372,14 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     private int piecePoints(Player player, GameStage.RoundPiece piece) {
         return answerStore.playerAnswer(player.name(), piece.roundNumber, piece.pieceNumber.number()).map(
                 answer -> stageSet.roundInit(piece.roundNumber).map(
-                        round -> forAnswer(round.difficulty().points, answer)
+                        round -> forAnswer(round.roundMode(), answer)
                 ).orElse(0)
         ).orElse(0);
     }
 
-    private int forAnswer(MainSet.RoundPoints roundPoints, Answer answer) {
-        return answer.bonus() * b2i(answer.title()) * roundPoints.title()
-               + answer.bonus() * b2i(answer.artist()) * roundPoints.artist();
+    private int forAnswer(MainSet.RoundMode roundMode, Answer answer) {
+        return answer.bonus() * b2i(answer.title()) * roundMode.titlePoints
+               + answer.bonus() * b2i(answer.artist()) * roundMode.artistPoints;
     }
 
     private void clearCurrentPoints(GameStage.RoundPiece piece) {

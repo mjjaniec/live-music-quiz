@@ -38,7 +38,7 @@ public interface JpaQuizStore extends CrudRepository<QuizDto, Long>, QuizStore {
 
     private QuizDto.Level mapToDto(MainSet.LevelPieces level) {
         QuizDto.Level res = new QuizDto.Level();
-        res.setDifficulty(level.level().name());
+        res.setRoundMode(level.level().name());
         res.setPieces(level.pieces().stream().map(this::mapToDto).toList());
         return res;
     }
@@ -59,7 +59,7 @@ public interface JpaQuizStore extends CrudRepository<QuizDto, Long>, QuizStore {
 
     private MainSet.LevelPieces mapFromDto(QuizDto.Level level) {
         return new MainSet.LevelPieces(
-                MainSet.Difficulty.valueOf(level.getDifficulty()),
+                MainSet.RoundMode.valueOf(level.getRoundMode()),
                 level.getPieces().stream().map(this::mapFromDto).toList()
         );
     }

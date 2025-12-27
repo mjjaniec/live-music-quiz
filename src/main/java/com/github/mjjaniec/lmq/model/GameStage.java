@@ -78,7 +78,7 @@ public sealed interface GameStage {
     }
 
     record RoundInit(RoundNumber roundNumber,
-                     MainSet.Difficulty difficulty,
+                     MainSet.RoundMode roundMode,
                      List<RoundPiece> pieces,
                      RoundSummary roundSummary) implements GameStage {
         @Override

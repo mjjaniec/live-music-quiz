@@ -7,21 +7,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public record MainSet(List<LevelPieces> levels) {
-    @RequiredArgsConstructor
-    public enum Difficulty {
-        Easiest(RoundMode.EVERYBODY, new RoundPoints(2, 3)),
-        Easy(RoundMode.EVERYBODY, new RoundPoints(3, 4)),
-        Moderate(RoundMode.FIRST, new RoundPoints(5, 8)),
-        Moderate_All(RoundMode.EVERYBODY, new RoundPoints(4, 6)),
-        Hard(RoundMode.FIRST, new RoundPoints(10, 15)),
-        Harder(RoundMode.FIRST, new RoundPoints(15, 20)),
-        Impossible(RoundMode.FIRST, new RoundPoints(20, 30));
-
-        public final RoundMode mode;
-        public final RoundPoints points;
-    }
-
-    public record LevelPieces(Difficulty level, List<Piece> pieces) {
+    public record LevelPieces(RoundMode level, List<Piece> pieces) {
     }
 
     public record Piece(
@@ -48,12 +34,18 @@ public record MainSet(List<LevelPieces> levels) {
         );
     }
 
+    @RequiredArgsConstructor
     public enum RoundMode {
-        EVERYBODY,
-        FIRST
-    }
+        EVERYBODY(4, 6),
+        ONION(12, 16),
+        FIRST(12, 16);
 
-    public record RoundPoints(int artist, int title) {
+        public final int artistPoints;
+        public final int titlePoints;
+
+        public boolean isEverybody() {
+            return this == EVERYBODY;
+        }
     }
 }
 

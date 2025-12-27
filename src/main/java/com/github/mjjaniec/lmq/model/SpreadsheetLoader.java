@@ -51,7 +51,7 @@ public class SpreadsheetLoader {
     public MainSet loadMainSet() {
         List<MainSet.LevelPieces> result = new ArrayList<>();
         List<MainSet.Piece> pieces = new ArrayList<>();
-        Optional<MainSet.Difficulty> diff = Optional.empty();
+        Optional<MainSet.RoundMode> mode = Optional.empty();
         try (MappingIterator<String[]> readValues =
                      mapper.readerFor(String[].class).with(csvSchema).readValues(new URI(BaseUrl + SetList).toURL())) {
             List<String[]> rows = readValues.readAll();
@@ -59,9 +59,9 @@ public class SpreadsheetLoader {
                 if (row[2].isBlank()) {
                     if (!row[6].isBlank()) {
                         List<MainSet.Piece> fPieces = pieces;
-                        diff.ifPresent(d -> result.add(new MainSet.LevelPieces(d, fPieces)));
+                        mode.ifPresent(d -> result.add(new MainSet.LevelPieces(d, fPieces)));
                         pieces = new ArrayList<>();
-                        diff = Optional.of(read(row[6], MainSet.Difficulty.class));
+                        mode = Optional.of(read(row[6], MainSet.RoundMode.class));
                     }
                 } else {
                     String artist = row[0];
@@ -75,7 +75,7 @@ public class SpreadsheetLoader {
             }
         }
         List<MainSet.Piece> fPieces = pieces;
-        diff.ifPresent(d -> result.add(new MainSet.LevelPieces(d, fPieces)));
+        mode.ifPresent(d -> result.add(new MainSet.LevelPieces(d, fPieces)));
         return validateMainSet(new MainSet(result));
     }
 

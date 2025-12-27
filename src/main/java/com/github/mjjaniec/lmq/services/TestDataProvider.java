@@ -30,7 +30,7 @@ public class TestDataProvider {
 
     public Optional<GameStage.RoundInit> init() {
         return Optional.of(new GameStage.RoundInit(new GameStage.RoundNumber(1, 3),
-                MainSet.Difficulty.Easy,
+                MainSet.RoundMode.EVERYBODY,
                 List.of(),
                 new GameStage.RoundSummary(new GameStage.RoundNumber(1, 3))
         )).filter(event -> config.testData());

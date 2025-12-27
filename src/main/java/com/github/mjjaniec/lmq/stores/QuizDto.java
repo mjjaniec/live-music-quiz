@@ -24,7 +24,7 @@ public class QuizDto {
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
         private Long id;
-        private String difficulty;
+        private String roundMode;
         @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
         private List<Piece> pieces;
     }

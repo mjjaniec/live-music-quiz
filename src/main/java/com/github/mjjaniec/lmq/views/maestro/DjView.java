@@ -4,7 +4,6 @@ import com.github.mjjaniec.lmq.components.*;
 import com.github.mjjaniec.lmq.model.*;
 import com.github.mjjaniec.lmq.services.BroadcastAttach;
 import com.github.mjjaniec.lmq.services.MaestroInterface;
-import com.github.mjjaniec.lmq.util.Palette;
 import com.github.mjjaniec.lmq.views.bigscreen.InviteView;
 import com.github.mjjaniec.lmq.views.player.JoinView;
 import com.vaadin.flow.component.*;
@@ -25,7 +24,6 @@ import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
@@ -236,8 +234,8 @@ public class DjView extends VerticalLayout implements RouterLayout {
     private AccordionPanel roundInitComponent(GameStage.RoundInit roundInit) {
         HorizontalLayout content = new HorizontalLayout();
         content.add(createActivateComponent(roundInit));
-        MainSet.Difficulty difficulty = roundInit.difficulty();
-        content.add(new Span("typ: " + difficulty.mode + ", za-artystę: " + difficulty.points.artist() + ", za-tytuł: " + difficulty.points.title()));
+        MainSet.RoundMode roundMode = roundInit.roundMode();
+        content.add(new Span("typ: " + (roundMode.isEverybody() ? "EVERYBODY" : "FIRST") + ", za-artystę: " + roundMode.artistPoints + ", za-tytuł: " + roundMode.titlePoints));
         return new AccordionPanel(createPanelHeader(new Text("▶️ Rozpoczęcie rundy"), roundInit), content);
     }
 
