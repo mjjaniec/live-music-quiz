@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import com.github.mjjaniec.lmq.model.MainSet;
 import lombok.SneakyThrows;
 
 import java.io.BufferedWriter;
@@ -15,7 +14,7 @@ import java.util.*;
 public class Hot100Parser {
     private static final String hot100Url = "https://raw.githubusercontent.com/utdata/rwd-billboard-data/refs/heads/main/data-out/hot-100-current.csv";
     @SneakyThrows
-    public static void main(String [] args) {
+    static void main(String [] args) {
 
         Set<String> titles = new TreeSet<>();
         Set<String> artists = new TreeSet<>();

@@ -5,7 +5,6 @@ import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.server.AppShellSettings;
-import com.vaadin.flow.theme.Theme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -23,7 +22,7 @@ public class LiveMusicQuizApp implements AppShellConfigurator {
         settings.addFavIcon("icon", "themes/live-music-quiz/favico.svg", "128x128");
     }
 
-    public static void main(String[] args) throws IOException {
+    static void main(String[] args) throws IOException {
         SpringApplication.run(LiveMusicQuizApp.class, args);
     }
 }
