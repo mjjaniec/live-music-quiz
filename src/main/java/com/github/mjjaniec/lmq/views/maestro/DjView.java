@@ -235,7 +235,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
         HorizontalLayout content = new HorizontalLayout();
         content.add(createActivateComponent(roundInit));
         MainSet.RoundMode roundMode = roundInit.roundMode();
-        content.add(new Span("typ: " + (roundMode.isEverybody() ? "EVERYBODY" : "FIRST") + ", za-artystę: " + roundMode.artistPoints + ", za-tytuł: " + roundMode.titlePoints));
+        content.add(new Span("typ: " + roundMode + ", za-artystę: " + roundMode.artistPoints + ", za-tytuł: " + roundMode.titlePoints));
         return new AccordionPanel(createPanelHeader(new Text("▶️ Rozpoczęcie rundy"), roundInit), content);
     }
 
@@ -396,7 +396,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
                 }
             }
             case REVEAL -> pieceContent.add(new LittleSlackerList(gameService.getSlackers()));
-            case PLAY -> pieceContent.add(new PlayTimeComponent(piece, gameService, notification));
+            case PLAY -> pieceContent.add(new PlayTimeComponent(piece, gameService, notification, this::refreshPlay));
         }
 
     }

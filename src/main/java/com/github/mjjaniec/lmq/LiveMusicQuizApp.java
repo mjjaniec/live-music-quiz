@@ -13,7 +13,7 @@ import java.io.IOException;
 
 @SpringBootApplication
 @EnableConfigurationProperties(ApplicationConfig.class)
-@StyleSheet("styles.css")
+@StyleSheet("themes/live-music-quiz/styles.css")
 @Push
 public class LiveMusicQuizApp implements AppShellConfigurator {
 

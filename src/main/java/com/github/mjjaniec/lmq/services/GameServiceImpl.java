@@ -216,13 +216,16 @@ public class GameServiceImpl implements GameService, MaestroInterface {
 
                 MainSet.RoundMode mode = stageSet.roundInit(piece.roundNumber).map(GameStage.RoundInit::roundMode).orElseThrow();
                 switch (mode) {
-                    case FIRST -> piece.setBonus(1 + piece.getFailedResponders().size());
+                    case FIRST -> {
+                        piece.setBonus(1 + piece.getFailedResponders().size());
+                        if (piece.isCompleted()) piece.setCurrentStage(GameStage.PieceStage.REVEAL);
+                    }
                     case ONION -> piece.setBonus(onionBonus(piece.getArtistAnswered() + piece.getTitleAnswered()));
                 }
 
+                answerStore.saveAnswer(new Answer(artist, title, piece.getBonus(), player.name(), piece.roundNumber, piece.pieceNumber.number(), actualArtist, actualTitle));
                 setStage(piece);
 
-                answerStore.saveAnswer(new Answer(artist, title, piece.getBonus(), player.name(), piece.roundNumber, piece.pieceNumber.number(), actualArtist, actualTitle));
                 slackers.remove(player);
                 navigator.refreshSlackersList();
             }, () -> log.error("Report result called in wrong state (expected Piece but it is: {}", stage));
@@ -234,7 +237,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
             return 4;
         } else if (correctAnswers <= 6) {
             return 3;
-        } else if (correctAnswers <= 14) {
+        } else if (correctAnswers <= 12) {
             return 2;
         } else {
             return 1;
@@ -271,7 +274,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     }
 
     @Override
-    public int getCurrentPlayerPoints(Player player) {
+    public synchronized int getCurrentPlayerPoints(Player player) {
         if (stage == null || stageSet == null) {
             return 0;
         }

@@ -4,8 +4,6 @@ import com.github.mjjaniec.lmq.model.*;
 import com.github.mjjaniec.lmq.stores.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 import java.util.HashSet;
 import java.util.List;
@@ -15,8 +13,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
 
 class PointsCounterTest {
 

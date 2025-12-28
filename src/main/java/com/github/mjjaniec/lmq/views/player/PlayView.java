@@ -1,5 +1,6 @@
 package com.github.mjjaniec.lmq.views.player;
 
+import com.github.mjjaniec.lmq.model.GameStage;
 import com.github.mjjaniec.lmq.model.Player;
 import com.github.mjjaniec.lmq.services.BroadcastAttach;
 import com.github.mjjaniec.lmq.services.GameService;
@@ -11,6 +12,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -23,7 +25,7 @@ public class PlayView extends VerticalLayout implements PlayerRoute {
     private final BroadcastAttach broadcastAttach;
     private final Span caption;
     private final Button theButton;
-    private Player player;
+    private @Nullable Player player;
 
     public PlayView(GameService gameService, BroadcastAttach broadcastAttach) {
         this.gameService = gameService;
@@ -45,7 +47,7 @@ public class PlayView extends VerticalLayout implements PlayerRoute {
     }
 
     private void refresh() {
-        gameService.stage().asPiece()
+        Optional.ofNullable(gameService.stage()).flatMap(GameStage::asPiece)
                 .filter(ignored -> player != null)
                 .ifPresent(piece -> {
                     theButton.setEnabled(piece.getCurrentResponder() == null);

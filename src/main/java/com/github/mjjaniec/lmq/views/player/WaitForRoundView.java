@@ -24,7 +24,7 @@ public class WaitForRoundView extends HorizontalLayout implements PlayerRoute {
                 .map(round -> String.valueOf(round.roundNumber().number()))
                 .ifPresent(outlet::setText);
         outlet.getStyle().setFontSize("7em").setFontWeight(Style.FontWeight.BOLD).setLineHeight("1.5");
-        outlet.setClassName("pulse pt-mono-regular");
+        outlet.setClassName("pulse");
         getStyle().setBackground(Palette.BLUE);
         setAlignItems(Alignment.CENTER);
 

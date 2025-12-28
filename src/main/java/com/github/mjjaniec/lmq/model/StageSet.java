@@ -52,9 +52,9 @@ public class StageSet {
                                 (int) roundIndex + 1,
                                 new GameStage.PieceNumber((int) index + 1, level.pieces().size()),
                                 piece,
-                                level.level().isEverybody() ?
-                                        List.of(GameStage.PieceStage.LISTEN, GameStage.PieceStage.REVEAL) :
-                                        List.of(GameStage.PieceStage.PLAY, GameStage.PieceStage.REVEAL)
+                                level.level() == MainSet.RoundMode.FIRST ?
+                                        List.of(GameStage.PieceStage.PLAY, GameStage.PieceStage.REVEAL) :
+                                        List.of(GameStage.PieceStage.LISTEN, GameStage.PieceStage.REVEAL)
                         )
                 ).toList(),
                 new GameStage.RoundSummary(new GameStage.RoundNumber((int) roundIndex + 1, quiz.levels().size()))

@@ -43,10 +43,6 @@ public record MainSet(List<LevelPieces> levels) {
 
         public final int artistPoints;
         public final int titlePoints;
-
-        public boolean isEverybody() {
-            return this == EVERYBODY;
-        }
     }
 }
 

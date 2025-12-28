@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 public class PieceStageButton extends Button {
     public PieceStageButton(GameStage.RoundPiece piece, GameStage.PieceStage pieceStage, Consumer<GameStage.RoundPiece> onActivate) {
         setText(caption(pieceStage));
-        addClickListener(event -> {
+        addClickListener(_ -> {
             piece.setCurrentStage(pieceStage);
             onActivate.accept(piece);
         });

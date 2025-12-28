@@ -12,7 +12,7 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 public class PlayTimeComponent extends VerticalLayout {
-    public PlayTimeComponent(GameStage.RoundPiece piece, MaestroInterface gameService, Audio notification) {
+    public PlayTimeComponent(GameStage.RoundPiece piece, MaestroInterface gameService, Audio notification, Runnable refreshPlay) {
         add(new Paragraph("play time!"));
         String responder = piece.getCurrentResponder();
         if (piece.isCompleted()) {
@@ -32,12 +32,15 @@ public class PlayTimeComponent extends VerticalLayout {
             Checkbox title = new Checkbox("tytuł");
             title.setEnabled(piece.getTitleAnswered() == 0);
             Button confirm = new Button("zatwierdź");
-            confirm.addClickListener(_ -> gameService.reportResult(
-                    new Player(responder),
-                    artist.getValue(),
-                    title.getValue(),
-                    null,
-                    null));
+            confirm.addClickListener(_ -> {
+                gameService.reportResult(
+                        new Player(responder),
+                        artist.getValue(),
+                        title.getValue(),
+                        null,
+                        null);
+                refreshPlay.run();
+            });
             add(artist, title, confirm);
         }
     }
