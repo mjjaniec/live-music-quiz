@@ -84,7 +84,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
         button.setWidth("6rem");
         message.setValueChangeMode(ValueChangeMode.EAGER);
         message.addInputListener(_ -> button.setText(message.getValue().isBlank() ? "Wyczyść" : "Ustaw"));
-        button.addClickListener(event -> {
+        button.addClickListener(_ -> {
             if (message.getValue().isBlank()) {
                 gameService.clearCustomMessage();
             } else {
@@ -160,7 +160,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
         playersGrid.addColumn(new ComponentRenderer<>((SerializableFunction<Player, Component>) player -> {
             Div result = new Div();
             Checkbox danger = new Checkbox("danger", false);
-            Button bumpOut = new Button("Wyrzuć", event -> gameService.removePlayer(player));
+            Button bumpOut = new Button("Wyrzuć", _ -> gameService.removePlayer(player));
             bumpOut.addThemeVariants(ButtonVariant.LUMO_ERROR);
             bumpOut.setEnabled(false);
             danger.addValueChangeListener(event -> bumpOut.setEnabled(event.getValue()));
@@ -250,7 +250,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
         comboBox.setWidthFull();
         comboBox.setEnabled(gameService.playOffTask().isEmpty());
 
-        ActivateComponent activateComponent = new ActivateComponent(playOff, gameService.stage() == playOff, gameStage -> {
+        ActivateComponent activateComponent = new ActivateComponent(playOff, gameService.stage() == playOff, _ -> {
             gameService.setPlayOffTask(comboBox.getValue());
             onActivate(playOff);
         });
@@ -266,7 +266,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
 
             Checkbox danger = new Checkbox("danger");
             Button reset = new Button("resetuj dogrywkę");
-            reset.addClickListener(event -> {
+            reset.addClickListener(_ -> {
                 gameService.clearPlayOffTask();
                 comboBox.setValue(null);
                 playOff.setPerformed(false);
@@ -277,7 +277,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
             danger.addValueChangeListener(event -> reset.setEnabled(event.getValue()));
             Button collectAnswers = new Button("≙ Niech odpowiadajo!");
             collectAnswers.setEnabled(!playOff.isPerformed());
-            collectAnswers.addClickListener(event -> {
+            collectAnswers.addClickListener(_ -> {
                 playOff.setPerformed(true);
                 gameService.setStage(playOff);
                 refreshPlayOffContent();
