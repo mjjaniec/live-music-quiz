@@ -17,41 +17,6 @@ public sealed interface GameStage {
 
     Class<? extends BigScreenRoute> bigScreenView();
 
-    default Optional<RoundInit> asRoundInit() {
-        return switch (this) {
-            case RoundInit it -> Optional.of(it);
-            default -> Optional.empty();
-        };
-    }
-
-    default Optional<RoundPiece> asPiece() {
-        return switch (this) {
-            case RoundPiece it -> Optional.of(it);
-            default -> Optional.empty();
-        };
-    }
-
-    default Optional<WrapUp> asWrapUp() {
-        return switch (this) {
-            case WrapUp it -> Optional.of(it);
-            default -> Optional.empty();
-        };
-    }
-
-    default Optional<PlayOff> asPlayOff() {
-        return switch (this) {
-            case PlayOff it -> Optional.of(it);
-            default -> Optional.empty();
-        };
-    }
-
-    default Optional<RoundSummary> asRoundSummary() {
-        return switch (this) {
-            case RoundSummary it -> Optional.of(it);
-            default -> Optional.empty();
-        };
-    }
-
     record RoundNumber(int number, int of) {
     }
 

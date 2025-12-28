@@ -20,7 +20,7 @@ public class WaitForRoundView extends HorizontalLayout implements PlayerRoute {
         setSizeFull();
         getStyle().setColor(Palette.WHITE).setFontSize("1.6em");
         Div outlet = new Div();
-        gameService.stage().asRoundInit().or(testDataProvider::init)
+        gameService.roundInitStage().or(testDataProvider::init)
                 .map(round -> String.valueOf(round.roundNumber().number()))
                 .ifPresent(outlet::setText);
         outlet.getStyle().setFontSize("7em").setFontWeight(Style.FontWeight.BOLD).setLineHeight("1.5");

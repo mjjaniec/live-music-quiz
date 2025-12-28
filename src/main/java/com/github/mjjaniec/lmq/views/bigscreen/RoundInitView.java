@@ -23,7 +23,7 @@ public class RoundInitView extends VerticalLayout implements BigScreenRoute {
         getStyle().setBackgroundColor(Palette.GREEN);
         setJustifyContentMode(JustifyContentMode.BETWEEN);
 
-        gameService.stage().asRoundInit()
+        gameService.roundInitStage()
                 .or(testDataProvider::init)   //temporary
                 .ifPresent(this::setupUI);
     }

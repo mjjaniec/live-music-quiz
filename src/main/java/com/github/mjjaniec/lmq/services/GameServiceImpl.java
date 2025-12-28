@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -127,13 +128,62 @@ public class GameServiceImpl implements GameService, MaestroInterface {
                 .forEach(slackers::add);
     }
 
+
+    @Override
+    public Optional<GameStage.RoundInit> roundInitStage() {
+        return forStageAndSet((stage, set) -> switch (stage) {
+            case GameStage.RoundInit roundInit -> Optional.of(roundInit);
+            case GameStage.RoundPiece roundPiece -> set.roundInit(roundPiece.roundNumber);
+            case GameStage.RoundSummary roundSummary -> set.roundInit(roundSummary.roundNumber().number());
+            default -> Optional.empty();
+        });
+    }
+
+    private <T> Optional<T> forStageAndSet(BiFunction<GameStage, StageSet, Optional<T>> function) {
+        return Optional.ofNullable(stageSet).flatMap(set -> Optional.ofNullable(stage).flatMap(stage -> function.apply(stage, set)));
+    }
+
+    @Override
+    public Optional<GameStage.RoundSummary> roundSummaryStage() {
+        return forStageAndSet((stage, set) -> switch (stage) {
+            case GameStage.RoundSummary roundSummary -> Optional.of(roundSummary);
+            case GameStage.RoundInit roundInit -> Optional.of(roundInit.roundSummary());
+            case GameStage.WrapUp wrapUp -> Optional.of(set.lastRoundSummary());
+            default -> Optional.empty();
+        });
+    }
+
+    @Override
+    public Optional<GameStage.RoundPiece> pieceStage() {
+        return Optional.ofNullable(stage).flatMap(st -> switch (st) {
+            case GameStage.RoundPiece roundPiece -> Optional.of(roundPiece);
+            default -> Optional.empty();
+        });
+    }
+
+    @Override
+    public Optional<GameStage.WrapUp> wrapUpStage() {
+        return Optional.ofNullable(stage).flatMap(st -> switch (st) {
+            case GameStage.WrapUp wrapUp -> Optional.of(wrapUp);
+            default -> Optional.empty();
+        });
+    }
+
+    @Override
+    public Optional<GameStage.PlayOff> playOffStage() {
+        return Optional.ofNullable(stage).flatMap(st -> switch (st) {
+            case GameStage.PlayOff playOff -> Optional.of(playOff);
+            default -> Optional.empty();
+        });
+    }
+
     @Override
     public void setStage(GameStage gameStage) {
         GameStage previousStage = this.stage;
         this.stage = gameStage;
         stageStore.saveStage(gameStage);
 
-        gameStage.asPiece().ifPresent(piece -> {
+        pieceStage().ifPresent(piece -> {
             switch (piece.getCurrentStage()) {
                 case LISTEN -> {
                     initSlackers(piece);
@@ -155,14 +205,14 @@ public class GameServiceImpl implements GameService, MaestroInterface {
                 }
             }
         });
-        gameStage.asPlayOff().ifPresent(playOff -> {
+        playOffStage().ifPresent(playOff -> {
             if (!playOff.isPerformed()) {
                 slackers.clear();
                 slackers.addAll(playerStore.getPlayers());
             }
             navigator.refreshPlayOff();
         });
-        gameStage.asWrapUp().ifPresent(ignored -> navigator.refreshWrapUp());
+        wrapUpStage().ifPresent(ignored -> navigator.refreshWrapUp());
 
         navigator.navigatePlayers(gameStage.playerView());
         navigator.navigateBigScreen(gameStage.bigScreenView());
@@ -190,7 +240,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
 
     @Override
     public Optional<Answer> getCurrentAnswer(Player player) {
-        return Optional.ofNullable(stage).flatMap(GameStage::asPiece)
+        return pieceStage()
                 .flatMap(piece -> answerStore.playerAnswer(player.name(), piece.roundNumber, piece.pieceNumber.number()));
     }
 
@@ -200,7 +250,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         if (stage == null || stageSet == null) {
             log.error("reportResult called when stage or stageSet is not set");
         } else {
-            stage.asPiece().ifPresentOrElse(piece -> {
+            pieceStage().ifPresentOrElse(piece -> {
 
                 if (title) {
                     piece.incrementTitleAnswered();
@@ -279,12 +329,12 @@ public class GameServiceImpl implements GameService, MaestroInterface {
             return 0;
         }
 
-        return stage.asPiece()
+        return pieceStage()
                 .map(piece -> {
                     Optional<Answer> pieceAnswer = answerStore.playerAnswer(player.name(), piece.roundNumber, piece.pieceNumber.number());
                     return pointsCounter.piecePoints(piece, stageSet, pieceAnswer);
                 })
-                .or(() -> stage.asRoundSummary()
+                .or(() -> roundSummaryStage()
                         .map(summary -> {
                             Stream<Answer> playerAnswers = answerStore.playerAnswers(player.name(), summary.roundNumber().number());
                             return pointsCounter.roundPoints(summary, stageSet, playerAnswers);
@@ -310,14 +360,18 @@ public class GameServiceImpl implements GameService, MaestroInterface {
 
     @Override
     public Results results() {
-        if (stage == null || stageSet == null || playOffs == null) {
+        var roundSummary = roundSummaryStage();
+        if (stageSet == null || playOffs == null || roundSummary.isEmpty()) {
             return new Results(0, 0, 0, List.of());
+        } else {
+            return pointsCounter.results(
+                    roundSummary.get(),
+                    stageSet,
+                    playerStore.getPlayers(),
+                    answerStore.allAnswers(),
+                    playOffTaskStore.getPlayOffTask(playOffs),
+                    playOffStore.getPlayOffs());
         }
-        return pointsCounter.results(stage, stageSet,
-                playerStore.getPlayers(),
-                answerStore.allAnswers(),
-                playOffTaskStore.getPlayOffTask(playOffs),
-                playOffStore.getPlayOffs());
     }
 
     @Override
@@ -332,7 +386,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
 
     @Override
     public synchronized void raise(Player player) {
-        Optional.ofNullable(stage).flatMap(GameStage::asPiece).ifPresent(piece -> {
+        pieceStage().ifPresent(piece -> {
             if (piece.getCurrentResponder() == null) {
                 piece.setCurrentResponder(player.name());
                 stageStore.saveStage(stage);

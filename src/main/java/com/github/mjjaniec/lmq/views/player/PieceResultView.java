@@ -28,7 +28,7 @@ public class PieceResultView extends VerticalLayout implements PlayerRoute {
 
     public PieceResultView(GameService gameService) {
         this.gameService = gameService;
-        withAutocomplete = gameService.stage().asPiece()
+        withAutocomplete = gameService.pieceStage()
                 .filter(p -> !p.innerStages.contains(GameStage.PieceStage.PLAY)).isPresent();
         setSpacing(true);
         setPadding(true);

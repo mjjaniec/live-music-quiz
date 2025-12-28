@@ -1,6 +1,5 @@
 package com.github.mjjaniec.lmq.views.player;
 
-import com.github.mjjaniec.lmq.model.GameStage;
 import com.github.mjjaniec.lmq.model.Player;
 import com.github.mjjaniec.lmq.services.BroadcastAttach;
 import com.github.mjjaniec.lmq.services.GameService;
@@ -39,7 +38,7 @@ public class PlayView extends VerticalLayout implements PlayerRoute {
         theButton = new Button(caption);
         theButton.setSizeFull();
         theButton.addClassName("magic-button");
-        theButton.addClickListener(event ->
+        theButton.addClickListener(_ ->
                 Optional.ofNullable(player).ifPresent(gameService::raise));
         add(theButton);
 
@@ -47,8 +46,8 @@ public class PlayView extends VerticalLayout implements PlayerRoute {
     }
 
     private void refresh() {
-        Optional.ofNullable(gameService.stage()).flatMap(GameStage::asPiece)
-                .filter(ignored -> player != null)
+        gameService.pieceStage()
+                .filter(_ -> player != null)
                 .ifPresent(piece -> {
                     theButton.setEnabled(piece.getCurrentResponder() == null);
                     theButton.getStyle().remove("background-color");

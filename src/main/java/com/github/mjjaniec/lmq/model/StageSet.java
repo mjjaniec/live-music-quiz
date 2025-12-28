@@ -24,6 +24,10 @@ public class StageSet {
         return mainStages.getFirst();
     }
 
+    public GameStage.RoundSummary lastRoundSummary() {
+        return ((GameStage.RoundInit) mainStages.get(mainStages.size() - 3)).roundSummary();
+    }
+
     public GameStage.PlayOff playOff() {
         return (GameStage.PlayOff) mainStages.get(mainStages.size() - 2);
     }
@@ -36,7 +40,10 @@ public class StageSet {
         if (roundNumber == 0 || roundNumber >= mainStages.size() - 1) {
             return Optional.empty();
         }
-        return mainStages.get(roundNumber).asRoundInit();
+        return switch (mainStages.get(roundNumber)) {
+            case GameStage.RoundInit roundInit -> Optional.of(roundInit);
+            default -> Optional.empty();
+        };
     }
 
     public List<GameStage> topLevelStages() {

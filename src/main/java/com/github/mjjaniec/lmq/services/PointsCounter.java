@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 public class PointsCounter {
 
 
-    public Results results(GameStage stage, StageSet stageSet,
+    public Results results(GameStage.RoundSummary stage, StageSet stageSet,
                            List<Player> players, Stream<Answer> allAnswers,
                            Optional<PlayOffs.PlayOff> playOffTask, Map<String, Integer> playOffsValues) {
         Map<String, Map<Integer, Integer>> byRounds = totalPoints(stageSet, allAnswers);
@@ -40,8 +40,8 @@ public class PointsCounter {
             }
         }).toList();
 
-        int rounds = (int) stageSet.topLevelStages().stream().filter(s -> s.asRoundInit().isPresent()).count();
-        int currentRound = stage.asRoundSummary().map(s -> s.roundNumber().number()).orElse(rounds);
+        int rounds = stage.roundNumber().of();
+        int currentRound = stage.roundNumber().number();
 
         if (order.isEmpty()) {
             return new Results(rounds, currentRound, playOffTarget, List.of());

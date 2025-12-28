@@ -30,7 +30,7 @@ public class BigScreenPlayView extends VerticalLayout implements BigScreenRoute 
     }
 
     private void refreshState() {
-        gameService.stage().asPiece().ifPresent(piece -> {
+        gameService.pieceStage().ifPresent(piece -> {
             removeAll();
 
             if (!piece.isCompleted()) {

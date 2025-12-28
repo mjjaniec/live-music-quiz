@@ -29,7 +29,7 @@ public class WrapUpView extends VerticalLayout implements BigScreenRoute {
     }
 
     void refresh() {
-        gameService.stage().asWrapUp()
+        gameService.wrapUpStage()
                 .flatMap(w -> Optional.ofNullable(w.getDisplay()))
                 .ifPresent(display -> {
                     removeAll();

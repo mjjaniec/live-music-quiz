@@ -1,6 +1,7 @@
 package com.github.mjjaniec.lmq.views.bigscreen;
 
 import com.github.mjjaniec.lmq.components.NotesAnimation;
+import com.github.mjjaniec.lmq.model.MainSet;
 import com.github.mjjaniec.lmq.services.BroadcastAttach;
 import com.github.mjjaniec.lmq.services.GameService;
 import com.vaadin.flow.component.AttachEvent;
@@ -46,8 +47,8 @@ public class BigScreenListenView extends VerticalLayout implements BigScreenRout
     }
 
     private void refreshBonusMessage() {
-        gameService.stage().asPiece().map(p -> p.getBonus() > 1).ifPresent(bonus -> {
-            if (bonus) {
+        gameService.pieceStage().map(p -> p.getBonus() > 1).ifPresent(bonus -> {
+            if (bonus && gameService.roundInitStage().map(init -> init.roundMode() == MainSet.RoundMode.EVERYBODY).orElse(false)) {
                 message.setText("Słuchaj i zgarnij BONUS! \uD83D\uDC8E");
             } else {
                 message.setText("Słuchaj, słuchaj jaj jaj");

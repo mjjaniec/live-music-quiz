@@ -22,7 +22,7 @@ public class RevealView extends VerticalLayout implements BigScreenRoute {
         setJustifyContentMode(JustifyContentMode.EVENLY);
         setSizeFull();
 
-        gameService.stage().asPiece().or(testDataProvider::piece)
+        gameService.pieceStage().or(testDataProvider::piece)
                 .ifPresent(piece -> {
                     String artist = piece.piece.artist() + (Optional.ofNullable(piece.piece.artistAlternative()).map(a -> " / " + a).orElse(""));
                     add(new VerticalLayout());

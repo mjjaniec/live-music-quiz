@@ -20,6 +20,16 @@ public interface GameService {
 
     @Nullable GameStage stage();
 
+    Optional<GameStage.RoundInit> roundInitStage();
+
+    Optional<GameStage.RoundPiece> pieceStage();
+
+    Optional<GameStage.WrapUp> wrapUpStage();
+
+    Optional<GameStage.PlayOff> playOffStage();
+
+    Optional<GameStage.RoundSummary> roundSummaryStage();
+
     List<Player> getPlayers();
 
     List<Player> getSlackers();

@@ -35,8 +35,6 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
 
     private final Map<String, Boolean> isProvidedMap = new HashMap<>(Map.of(ARTIST_PATH, false, TITLE_PATH, false));
 
-    private final GameStage.RoundPiece piece;
-
     @ClientCallable
     public void setProvided(String path, boolean set) {
         isProvidedMap.put(path, set);
@@ -45,51 +43,52 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
 
     public AnswerView(GameService gameService) {
         this.gameService = gameService;
-        this.piece = Objects.requireNonNull(gameService.stage()).asPiece().orElseThrow();
-        artist.setId("artist-input");
-        title.setId("title-input");
+        gameService.pieceStage().ifPresent(piece -> {
+            artist.setId("artist-input");
+            title.setId("title-input");
 
-        add(new H5("artysta:"));
-        add(artist);
-        add(new H5("tytuł:"));
-        add(title);
+            add(new H5("artysta:"));
+            add(artist);
+            add(new H5("tytuł:"));
+            add(title);
 
-        confirm.setEnabled(false);
-        confirm.setWidthFull();
-        confirm.addThemeVariants(ButtonVariant.LUMO_LARGE, ButtonVariant.LUMO_PRIMARY);
-        add(confirm);
+            confirm.setEnabled(false);
+            confirm.setWidthFull();
+            confirm.addThemeVariants(ButtonVariant.LUMO_LARGE, ButtonVariant.LUMO_PRIMARY);
+            add(confirm);
 
-        H4 waitMessage1 = new H4("poczekaj na pozostałych graczy");
-        H3 waitMessage2 = new H3("\uD83E\uDD71 \uD83D\uDCA4 \uD83D\uDCA4");
-        VerticalLayout waitLayout = new VerticalLayout(waitMessage1, waitMessage2);
-        waitLayout.setAlignItems(Alignment.CENTER);
-        waitLayout.setVisible(false);
+            H4 waitMessage1 = new H4("poczekaj na pozostałych graczy");
+            H3 waitMessage2 = new H3("\uD83E\uDD71 \uD83D\uDCA4 \uD83D\uDCA4");
+            VerticalLayout waitLayout = new VerticalLayout(waitMessage1, waitMessage2);
+            waitLayout.setAlignItems(Alignment.CENTER);
+            waitLayout.setVisible(false);
 
-        if (Constants.UNKNOWN.equals(piece.piece.artist())) {
-            artist.setValue(Constants.UNKNOWN);
-            artist.setEnabled(false);
-            isProvidedMap.put(ARTIST_PATH, true);
-        }
+            if (Constants.UNKNOWN.equals(piece.piece.artist())) {
+                artist.setValue(Constants.UNKNOWN);
+                artist.setEnabled(false);
+                isProvidedMap.put(ARTIST_PATH, true);
+            }
 
 
-        confirm.addClickListener(_ -> forPlayer(UI.getCurrent(), player -> {
-            boolean correctArtist = !Constants.UNKNOWN.equals(piece.piece.artist()) && isCorrect(artist.getValue(), piece.piece.artist(), piece.piece.artistAlternative());
-            boolean correctTitle = isCorrect(title.getValue(), piece.piece.title(), piece.piece.titleAlternative());
-            gameService.reportResult(
-                    player,
-                    correctArtist,
-                    correctTitle,
-                    artist.getValue(),
-                    title.getValue()
-            );
-            artist.setEnabled(false);
-            title.setEnabled(false);
-            confirm.setVisible(false);
-            waitLayout.setVisible(true);
-        }));
+            confirm.addClickListener(_ -> forPlayer(UI.getCurrent(), player -> {
+                boolean correctArtist = !Constants.UNKNOWN.equals(piece.piece.artist()) && isCorrect(artist.getValue(), piece.piece.artist(), piece.piece.artistAlternative());
+                boolean correctTitle = isCorrect(title.getValue(), piece.piece.title(), piece.piece.titleAlternative());
+                gameService.reportResult(
+                        player,
+                        correctArtist,
+                        correctTitle,
+                        artist.getValue(),
+                        title.getValue()
+                );
+                artist.setEnabled(false);
+                title.setEnabled(false);
+                confirm.setVisible(false);
+                waitLayout.setVisible(true);
+            }));
 
-        add(confirm);
-        add(waitLayout);
+            add(confirm);
+            add(waitLayout);
+        });
     }
 
     private boolean isCorrect(@Nullable String value, String correct, @Nullable String correctAlternative) {

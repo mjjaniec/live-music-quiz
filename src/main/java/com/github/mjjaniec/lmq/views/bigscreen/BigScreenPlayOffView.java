@@ -33,7 +33,7 @@ public class BigScreenPlayOffView extends VerticalLayout implements BigScreenRou
 
     void refreshPlayOff() {
         removeAll();
-        gameService.stage().asPlayOff().ifPresent(playOff -> {
+        gameService.playOffStage().ifPresent(playOff -> {
             if (!playOff.isPerformed()) {
                 add(new Div());
                 add(new H1("Słuchaj i licz!"));

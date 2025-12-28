@@ -83,14 +83,10 @@ public class BigScreenView extends VerticalLayout implements RouterLayoutWithOut
     private void refreshProgressBars() {
         progressBarsOutlet.removeAll();
 
-        var roundP = Optional.ofNullable(gameService.stage()).flatMap(stage ->
-                        stage.asRoundInit()
-                                .or(() -> stage.asPiece().flatMap(piece -> Optional.ofNullable(gameService.stageSet()).flatMap(set -> set.roundInit(piece.roundNumber))))
-                                .or(() -> stage.asRoundSummary().flatMap(summary -> Optional.ofNullable(gameService.stageSet()).flatMap(set -> set.roundInit(summary.roundNumber().number()))))
-                ).or(testDataProvider::init)
+        var roundP = gameService.roundInitStage().or(testDataProvider::init)
                 .map(init ->
                         new ProgressBar("Runda", init.roundNumber().number(), init.roundNumber().of(), Palette.DARKER));
-        var pieceP = Optional.ofNullable(gameService.stage()).flatMap(GameStage::asPiece).or(testDataProvider::piece).map(piece ->
+        var pieceP = gameService.pieceStage().or(testDataProvider::piece).map(piece ->
                 new ProgressBar("Utwór", piece.pieceNumber.number(), piece.pieceNumber.of(), Palette.DARKER));
 
         roundP.ifPresent(round -> pieceP.ifPresent(piece -> {
