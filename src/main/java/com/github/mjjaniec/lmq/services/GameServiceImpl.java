@@ -65,7 +65,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
 
     @Override
     public boolean isGameStarted() {
-        return quiz != null;
+        return quiz != null && stageSet != null;
     }
 
     @Override

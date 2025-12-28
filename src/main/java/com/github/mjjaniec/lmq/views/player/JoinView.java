@@ -45,7 +45,7 @@ public class JoinView extends VerticalLayout {
         TextField field = new TextField("ksywka");
         Button join = testId(new Button("Dołączam!"), "player/join/button");
         join.setEnabled(false);
-        join.addClickListener(event -> {
+        join.addClickListener(_ -> {
             if (service.addPlayer(field.getValue())) {
                 LocalStorage.savePlayer(UI.getCurrent(), new Player(field.getValue()));
                 UI.getCurrent().navigate(PlayerView.class);
@@ -55,7 +55,7 @@ public class JoinView extends VerticalLayout {
             }
         });
         field.setValueChangeMode(ValueChangeMode.EAGER);
-        field.addInputListener(event -> join.setEnabled(!field.getValue().isBlank()));
+        field.addInputListener(_ -> join.setEnabled(!field.getValue().isBlank()));
         field.setWidthFull();
         join.setWidthFull();
         join.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -70,7 +70,7 @@ public class JoinView extends VerticalLayout {
             UI ui = attachEvent.getUI();
             LocalStorage.readPlayer(ui).thenAccept(playerOpt -> playerOpt
                     .filter(service::hasPlayer)
-                    .ifPresent(player -> ui.access(() -> ui.navigate(PlayerView.class)))
+                    .ifPresent(_ -> ui.access(() -> ui.navigate(PlayerView.class)))
             );
         }
     }

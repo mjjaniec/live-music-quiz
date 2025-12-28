@@ -59,7 +59,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
         setSizeFull();
         setPadding(false);
 
-        reset.addClickListener(event -> {
+        reset.addClickListener(_ -> {
             gameService.reset();
             getUI().ifPresent(ui -> ui.navigate(StartGameView.class));
         });
@@ -67,7 +67,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
         if (gameService.isGameStarted()) {
             Accordion main = new Accordion();
             main.setSizeFull();
-            gameService.stageSet().topLevelStages().stream().map(this::createStagePanel).forEach(main::add);
+            Objects.requireNonNull(gameService.stageSet()).topLevelStages().stream().map(this::createStagePanel).forEach(main::add);
             add(customMessageComponent());
             add(main);
             add(notification);
@@ -83,7 +83,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
         Button button = new Button("Wyczyść");
         button.setWidth("6rem");
         message.setValueChangeMode(ValueChangeMode.EAGER);
-        message.addInputListener(event -> button.setText(message.getValue().isBlank() ? "Wyczyść" : "Ustaw"));
+        message.addInputListener(_ -> button.setText(message.getValue().isBlank() ? "Wyczyść" : "Ustaw"));
         button.addClickListener(event -> {
             if (message.getValue().isBlank()) {
                 gameService.clearCustomMessage();

@@ -5,7 +5,6 @@ import com.github.mjjaniec.lmq.model.SpreadsheetLoader;
 import com.github.mjjaniec.lmq.services.MaestroInterface;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -35,9 +34,9 @@ public class StartGameView extends VerticalLayout implements RouterLayout {
             games.setItems(Stream.concat(sets.stream(), Stream.of(ALL)).toList());
             Button start = testId(new Button("Start"), "meastro/start/button");
             start.setEnabled(false);
-            games.addValueChangeListener(event -> start.setEnabled(true));
+            games.addValueChangeListener(_ -> start.setEnabled(true));
 
-            start.addClickListener(event -> {
+            start.addClickListener(_ -> {
                 MainSet set = ALL.equals(games.getValue()) ? mainSet :mainSet.asSet(games.getValue());
                 gameService.initGame(set);
                 UI.getCurrent().navigate(DjView.class);
