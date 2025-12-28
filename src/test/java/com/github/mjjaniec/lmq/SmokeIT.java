@@ -16,7 +16,7 @@ public class SmokeIT {
     static void launchBrowser() {
         playwright = Playwright.create();
         // Set headless to true for CI/CD environments
-        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
+        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
     }
 
     @AfterAll
@@ -59,10 +59,10 @@ public class SmokeIT {
 
     @Test
     void bigscreenPageLoads() {
-        page.navigate("http://localhost:8080/maestro/start");
+        page.navigate("http://localhost:8080/big-screen");
         page.waitForLoadState();
 
         assertTrue(page.title().contains("Live Music Quiz"));
-        assertThat(page.getByTestId("meastro/start/button")).isVisible();
+        assertThat(page.getByTestId("big-screen/top")).isVisible();
     }
 }

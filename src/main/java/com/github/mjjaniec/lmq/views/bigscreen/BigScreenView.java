@@ -21,6 +21,8 @@ import com.vaadin.flow.router.RoutePrefix;
 
 import java.util.Optional;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
+
 
 @Route("")
 @RoutePrefix("big-screen")
@@ -55,6 +57,7 @@ public class BigScreenView extends VerticalLayout implements RouterLayoutWithOut
         Component topComponent = gameService.customMessage()
                 .map(this::customMessageComponent)
                 .orElse(new BannerBand(Palette.GREEN));
+        testId(topComponent, "big-screen/top");
         add(topComponent);
         add(progressBarsOutlet);
         add(outlet);
