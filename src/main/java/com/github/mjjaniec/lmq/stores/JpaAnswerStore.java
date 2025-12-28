@@ -44,7 +44,7 @@ public interface JpaAnswerStore extends CrudRepository<AnswerDto, String>, Answe
     List<AnswerDto> findByPlayerAndRound(String player, int round);
 
     private Answer mapFromDto(AnswerDto dto) {
-        return new Answer(dto.isArtist(), dto.isTitle(), dto.getBonus(), dto.getPlayer(), dto.getRound(), dto.getPiece(), dto.getActualArtist(), dto.getActualTitle());
+        return new Answer(dto.isArtist(), dto.isTitle(), dto.getPoints(), dto.getPlayer(), dto.getRound(), dto.getPiece(), dto.getActualArtist(), dto.getActualTitle());
     }
 
     private AnswerDto mapToDto(Answer answer) {
@@ -52,7 +52,7 @@ public interface JpaAnswerStore extends CrudRepository<AnswerDto, String>, Answe
         dto.setId(id(answer.player(), answer.round(), answer.piece()));
         dto.setArtist(answer.artist());
         dto.setTitle(answer.title());
-        dto.setBonus(answer.bonus());
+        dto.setPoints(answer.points());
         dto.setPlayer(answer.player());
         dto.setRound(answer.round());
         dto.setPiece(answer.piece());

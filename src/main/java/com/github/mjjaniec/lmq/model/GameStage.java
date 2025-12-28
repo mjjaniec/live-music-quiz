@@ -109,6 +109,7 @@ public sealed interface GameStage {
         public void addFailedResponder(String responder) {
             this.failedResponders.add(responder);
             this.currentResponder = null;
+            this.bonus += 1;
         }
 
         @Override

@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
-import java.util.stream.Stream;
 
 @Slf4j
 @Component
@@ -265,12 +264,8 @@ public class GameServiceImpl implements GameService, MaestroInterface {
                 }
 
                 MainSet.RoundMode mode = stageSet.roundInit(piece.roundNumber).map(GameStage.RoundInit::roundMode).orElseThrow();
-                switch (mode) {
-                    case FIRST -> {
-                        piece.setBonus(1 + piece.getFailedResponders().size());
-                        if (piece.isCompleted()) piece.setCurrentStage(GameStage.PieceStage.REVEAL);
-                    }
-                    case ONION -> piece.setBonus(onionBonus(piece.getArtistAnswered() + piece.getTitleAnswered()));
+                if (mode == MainSet.RoundMode.FIRST && piece.isCompleted()) {
+                    piece.setCurrentStage(GameStage.PieceStage.REVEAL);
                 }
 
                 answerStore.saveAnswer(new Answer(artist, title, piece.getBonus(), player.name(), piece.roundNumber, piece.pieceNumber.number(), actualArtist, actualTitle));
@@ -279,18 +274,6 @@ public class GameServiceImpl implements GameService, MaestroInterface {
                 slackers.remove(player);
                 navigator.refreshSlackersList();
             }, () -> log.error("Report result called in wrong state (expected Piece but it is: {}", stage));
-        }
-    }
-
-    private int onionBonus(int correctAnswers) {
-        if (correctAnswers <= 2) {
-            return 4;
-        } else if (correctAnswers <= 6) {
-            return 3;
-        } else if (correctAnswers <= 12) {
-            return 2;
-        } else {
-            return 1;
         }
     }
 
@@ -330,15 +313,15 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         }
 
         return pieceStage()
-                .map(piece -> {
-                    Optional<Answer> pieceAnswer = answerStore.playerAnswer(player.name(), piece.roundNumber, piece.pieceNumber.number());
-                    return pointsCounter.piecePoints(piece, stageSet, pieceAnswer);
-                })
-                .or(() -> roundSummaryStage()
-                        .map(summary -> {
-                            Stream<Answer> playerAnswers = answerStore.playerAnswers(player.name(), summary.roundNumber().number());
-                            return pointsCounter.roundPoints(summary, stageSet, playerAnswers);
-                        }))
+                .map(piece ->
+                        answerStore
+                                .playerAnswer(player.name(), piece.roundNumber, piece.pieceNumber.number())
+                                .map(Answer::points).orElse(0))
+                .or(() -> roundSummaryStage().map(summary ->
+                        answerStore
+                                .playerAnswers(player.name(), summary.roundNumber().number())
+                                .mapToInt(Answer::points).sum()
+                ))
                 .orElse(0);
     }
 

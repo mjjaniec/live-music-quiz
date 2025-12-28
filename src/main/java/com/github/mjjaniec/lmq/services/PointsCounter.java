@@ -1,7 +1,6 @@
 package com.github.mjjaniec.lmq.services;
 
 import com.github.mjjaniec.lmq.model.*;
-import com.github.mjjaniec.lmq.stores.*;
 import com.google.common.collect.Streams;
 import org.springframework.stereotype.Component;
 
@@ -91,36 +90,10 @@ public class PointsCounter {
         allAnswers.forEach(answer ->
                 set.roundInit(answer.round()).map(GameStage.RoundInit::roundMode).ifPresent(mode -> {
                             var players = result.computeIfAbsent(answer.player(), _ -> new HashMap<>());
-                            players.put(answer.round(), players.getOrDefault(answer.round(), 0) + forAnswer(mode, answer));
+                            players.put(answer.round(), players.getOrDefault(answer.round(), 0) + answer.points());
                         }
                 )
         );
         return result;
-    }
-
-    public int roundPoints(GameStage.RoundSummary summary, StageSet set, Stream<Answer> playerAnswers) {
-        return set.roundInit(summary.roundNumber().number()).map(GameStage.RoundInit::roundMode)
-                .map(mode ->
-                        playerAnswers
-                                .mapToInt(answer -> forAnswer(mode, answer))
-                                .sum()
-                ).orElse(0);
-    }
-
-    public int piecePoints(GameStage.RoundPiece piece, StageSet set, Optional<Answer> pieceAnswer) {
-        return pieceAnswer.map(
-                answer -> set.roundInit(piece.roundNumber).map(
-                        round -> forAnswer(round.roundMode(), answer)
-                ).orElse(0)
-        ).orElse(0);
-    }
-
-    private int forAnswer(MainSet.RoundMode roundMode, Answer answer) {
-        return answer.bonus() * b2i(answer.title()) * roundMode.titlePoints
-               + answer.bonus() * b2i(answer.artist()) * roundMode.artistPoints;
-    }
-
-    private int b2i(boolean b) {
-        return b ? 1 : 0;
     }
 }

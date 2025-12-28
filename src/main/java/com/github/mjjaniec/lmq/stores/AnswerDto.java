@@ -17,7 +17,7 @@ public class AnswerDto {
 
     private boolean artist;
     private boolean title;
-    private int bonus;
+    private int points;
     private String player;
     private int round;
     private int piece;
