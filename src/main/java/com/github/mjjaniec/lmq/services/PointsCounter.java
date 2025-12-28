@@ -11,6 +11,30 @@ import java.util.stream.Stream;
 @Component
 public class PointsCounter {
 
+    public int points(boolean artist, boolean title, GameStage.RoundInit round, GameStage.RoundPiece piece) {
+        var mode = round.roundMode();
+        return switch (mode) {
+            case EVERYBODY -> b2i(artist) * mode.artistPoints * (1 + b2i(piece.isBonus())) +
+                              b2i(title) * mode.titlePoints * (1 + b2i(piece.isBonus()));
+            case ONION -> b2i(artist) * mode.artistPoints * onionBonus(piece.getArtistAnswered()) +
+                          b2i(title) * mode.titlePoints * onionBonus(piece.getTitleAnswered());
+            case FIRST -> b2i(artist) * mode.artistPoints * (1 + piece.getFailedResponders().size()) +
+                          b2i(title) * mode.titlePoints * (1 + piece.getFailedResponders().size());
+        };
+    }
+    
+    private int onionBonus(int answersCount) {
+        if (answersCount == 0) {
+            return 4;
+        } else if (answersCount < 2) {
+            return 3;
+        } else if (answersCount < 5) {
+            return 2;
+        } else {
+            return 1;
+        }
+    }
+
 
     public Results results(GameStage.RoundSummary stage, StageSet stageSet,
                            List<Player> players, Stream<Answer> allAnswers,
@@ -95,5 +119,9 @@ public class PointsCounter {
                 )
         );
         return result;
+    }
+
+    private int b2i(boolean cond) {
+        return cond ? 1 : 0;
     }
 }

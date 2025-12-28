@@ -250,6 +250,8 @@ public class GameServiceImpl implements GameService, MaestroInterface {
             log.error("reportResult called when stage or stageSet is not set");
         } else {
             pieceStage().ifPresentOrElse(piece -> {
+                GameStage.RoundInit roundInit = stageSet.roundInit(piece.roundNumber).orElseThrow();
+                int points = pointsCounter.points(artist, title, roundInit, piece);
 
                 if (title) {
                     piece.incrementTitleAnswered();
@@ -262,13 +264,12 @@ public class GameServiceImpl implements GameService, MaestroInterface {
                 } else {
                     piece.setCurrentResponder(null);
                 }
-
-                MainSet.RoundMode mode = stageSet.roundInit(piece.roundNumber).map(GameStage.RoundInit::roundMode).orElseThrow();
-                if (mode == MainSet.RoundMode.FIRST && piece.isCompleted()) {
+                
+                if (roundInit.roundMode() == MainSet.RoundMode.FIRST && piece.isCompleted()) {
                     piece.setCurrentStage(GameStage.PieceStage.REVEAL);
                 }
 
-                answerStore.saveAnswer(new Answer(artist, title, piece.getBonus(), player.name(), piece.roundNumber, piece.pieceNumber.number(), actualArtist, actualTitle));
+                answerStore.saveAnswer(new Answer(artist, title, points, player.name(), piece.roundNumber, piece.pieceNumber.number(), actualArtist, actualTitle));
                 setStage(piece);
 
                 slackers.remove(player);

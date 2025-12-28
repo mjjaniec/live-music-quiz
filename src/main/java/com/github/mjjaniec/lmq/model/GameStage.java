@@ -68,7 +68,7 @@ public sealed interface GameStage {
         private PieceStage currentStage;
         @Setter
         @Getter
-        private int bonus;
+        private boolean bonus;
         @Getter
         private final List<String> failedResponders;
         @Setter
@@ -92,7 +92,7 @@ public sealed interface GameStage {
             this.piece = piece;
             this.currentStage = innerStages.getFirst();
             this.innerStages = innerStages;
-            this.bonus = 1;
+            this.bonus = false;
             this.artistAnswered = 0;
             this.titleAnswered = 0;
             failedResponders = new ArrayList<>();
@@ -109,7 +109,6 @@ public sealed interface GameStage {
         public void addFailedResponder(String responder) {
             this.failedResponders.add(responder);
             this.currentResponder = null;
-            this.bonus += 1;
         }
 
         @Override
@@ -131,7 +130,7 @@ public sealed interface GameStage {
         }
 
         public void clear() {
-            bonus = 1;
+            bonus = false;
             artistAnswered = 0;
             titleAnswered = 0;
             failedResponders.clear();

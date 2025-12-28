@@ -383,9 +383,9 @@ public class DjView extends VerticalLayout implements RouterLayout {
         pieceContent.removeAll();
         switch (piece.getCurrentStage()) {
             case LISTEN -> {
-                Checkbox bonus = new Checkbox("Bonus", piece.getBonus() > 1);
+                Checkbox bonus = new Checkbox("Bonus", piece.isBonus());
                 bonus.addValueChangeListener(event -> {
-                    piece.setBonus(event.getValue() ? 2 : 1);
+                    piece.setBonus(event.getValue());
                     gameService.setStage(piece);
                 });
                 pieceContent.add(bonus);

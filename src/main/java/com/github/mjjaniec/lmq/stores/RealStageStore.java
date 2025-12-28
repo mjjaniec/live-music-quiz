@@ -19,7 +19,7 @@ public class RealStageStore implements StageStore {
     private final JpaStageGenStore jpaStore;
     private final ObjectMapper mapper;
 
-    private record PieceAdditionsDto(GameStage.PieceStage stage, int bonus, String currentResponder,
+    private record PieceAdditionsDto(GameStage.PieceStage stage, boolean bonus, String currentResponder,
                                      List<String> failedResponders, int artistAnswered, int titleAnswered) {
     }
 
@@ -125,7 +125,7 @@ public class RealStageStore implements StageStore {
 
     @SneakyThrows
     private String toAdditions(GameStage.RoundPiece piece) {
-        var dto = new PieceAdditionsDto(piece.getCurrentStage(), piece.getBonus(), piece.getCurrentResponder(), piece.getFailedResponders(), piece.getArtistAnswered(), piece.getTitleAnswered());
+        var dto = new PieceAdditionsDto(piece.getCurrentStage(), piece.isBonus(), piece.getCurrentResponder(), piece.getFailedResponders(), piece.getArtistAnswered(), piece.getTitleAnswered());
         return mapper.writeValueAsString(dto);
     }
 }

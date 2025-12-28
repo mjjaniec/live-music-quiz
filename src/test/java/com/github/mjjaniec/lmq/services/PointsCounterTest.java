@@ -22,23 +22,7 @@ class PointsCounterTest {
     void setUp() {
         pointsCounter = new PointsCounter();
     }
-
-    @Test
-    void testPiecePoints() {
-        MainSet.Piece piece = new MainSet.Piece("Artist", null, "Title", null, null, null, new HashSet<>());
-        GameStage.RoundPiece roundPiece = new GameStage.RoundPiece(1, new GameStage.PieceNumber(1, 1), piece, List.of(GameStage.PieceStage.LISTEN));
-
-        MainSet.LevelPieces level = new MainSet.LevelPieces(MainSet.RoundMode.EVERYBODY, List.of(piece));
-        MainSet quiz = new MainSet(List.of(level));
-        StageSet stageSet = new StageSet(quiz);
-
-        Answer answer = new Answer(true, true, 1, "Player1", 1, 1, "Artist", "Title");
-
-        int points = pointsCounter.piecePoints(roundPiece, stageSet, Optional.of(answer));
-
-        // EVERYBODY mode: artistPoints=4, titlePoints=6. Both true, bonus=1 => 4+6=10
-        assertEquals(10, points);
-    }
+    
 
     @Test
     void testResultsCalculation() {
@@ -51,8 +35,8 @@ class PointsCounterTest {
         StageSet stageSet = new StageSet(quiz);
         GameStage.RoundSummary summary = new GameStage.RoundSummary(new GameStage.RoundNumber(1, 1));
 
-        Answer a1 = new Answer(true, true, 1, "P1", 1, 1, "Artist", "Title");
-        Answer a2 = new Answer(true, false, 1, "P2", 1, 1, "Artist", "Title");
+        Answer a1 = new Answer(true, true, 10, "P1", 1, 1, "Artist", "Title");
+        Answer a2 = new Answer(true, false, 4, "P2", 1, 1, "Artist", "Title");
 
         Results results = pointsCounter.results(summary, stageSet,
                 List.of(p1, p2), Stream.of(a1, a2), Optional.empty(), Map.of());
@@ -68,6 +52,40 @@ class PointsCounterTest {
         assertEquals(4, r2.total());
         assertEquals(1, r1.position());
         assertEquals(2, r2.position());
+    }
+
+    @Test
+    void testPointsCalculation() {
+        GameStage.RoundNumber roundNumber = new GameStage.RoundNumber(1, 1);
+        GameStage.RoundSummary dummySummary = new GameStage.RoundSummary(roundNumber);
+        MainSet.Piece piece = new MainSet.Piece("Artist", null, "Title", null, null, null, new HashSet<>());
+        GameStage.RoundPiece roundPiece = new GameStage.RoundPiece(1, new GameStage.PieceNumber(1, 1), piece, List.of(GameStage.PieceStage.LISTEN));
+        GameStage.RoundInit roundInit = new GameStage.RoundInit(roundNumber, MainSet.RoundMode.EVERYBODY, List.of(roundPiece), dummySummary);
+
+        // Everybody mode: artist 4, title 6
+        assertEquals(10, pointsCounter.points(true, true, roundInit, roundPiece));
+        assertEquals(4, pointsCounter.points(true, false, roundInit, roundPiece));
+        assertEquals(6, pointsCounter.points(false, true, roundInit, roundPiece));
+
+        // Onion mode: artist 2, title 3. Multipliers: 0->4, 1->3, 2-4->2, 5+ -> 1
+        roundInit = new GameStage.RoundInit(roundNumber, MainSet.RoundMode.ONION, List.of(roundPiece), dummySummary);
+        assertEquals(2*4 + 3*4, pointsCounter.points(true, true, roundInit, roundPiece));
+        
+        roundPiece.incrementArtistAnswered(); // artistAnswered = 1
+        assertEquals(2*3 + 3*4, pointsCounter.points(true, true, roundInit, roundPiece));
+
+        roundPiece.incrementArtistAnswered(); // artistAnswered = 1
+        assertEquals(2*3 + 3*4, pointsCounter.points(true, true, roundInit, roundPiece));
+
+        roundPiece.incrementArtistAnswered(); // artistAnswered = 1
+        assertEquals(2*2 + 3*2, pointsCounter.points(true, true, roundInit, roundPiece));
+
+
+        // First mode: artist 12, title 16. Multiplier: 1 + failedResponders
+        roundInit = new GameStage.RoundInit(roundNumber, MainSet.RoundMode.FIRST, List.of(roundPiece), dummySummary);
+        assertEquals(12 + 16, pointsCounter.points(true, true, roundInit, roundPiece));
+        roundPiece.addFailedResponder("Other");
+        assertEquals((12 + 16) * 2, pointsCounter.points(true, true, roundInit, roundPiece));
     }
 
     @Test
@@ -89,90 +107,56 @@ class PointsCounterTest {
         StageSet stageSet = new StageSet(quiz);
         // Stage: end of round 3
         GameStage.RoundSummary summary = new GameStage.RoundSummary(new GameStage.RoundNumber(3, 3));
-
-        // Generate answers
-        // EVERYBODY (R1): A:4, T:6
-        // ONION (R2): A:12, T:16
-        // FIRST (R3): A:12, T:16
-
-        // P1: all correct everywhere. 
-        // R1: 3 * (4+6) = 30
-        // R2: 3 * (12+16) = 84
-        // R3: 3 * (12+16) = 84
-        // Total: 30 + 84 + 84 = 198
-
-        // P2: only artist correct everywhere.
-        // R1: 3 * 4 = 12
-        // R2: 3 * 12 = 36
-        // R3: 3 * 12 = 36
-        // Total: 12 + 36 + 36 = 84
-
-        // P3: only title correct everywhere.
-        // R1: 3 * 6 = 18
-        // R2: 3 * 16 = 48
-        // R3: 3 * 16 = 48
-        // Total: 18 + 48 + 48 = 114
-
-        // P4: R1 correct, others wrong.
-        // Total: 30
-
-        // P5: R2 correct, others wrong.
-        // Total: 84 (same as P2)
-
-        // P6: R3 correct, others wrong.
-        // Total: 84 (same as P2, P5)
-
-        // P7: nothing correct.
-        // Total: 0
+        
 
         List<Answer> answers = List.of(
-                // P1
-                new Answer(true, true, 1, "P1", 1, 1, "A", "T"),
-                new Answer(true, true, 1, "P1", 1, 2, "A", "T"),
-                new Answer(true, true, 2, "P1", 1, 3, "A", "T"),
-                new Answer(true, true, 1, "P1", 2, 1, "A", "T"),
-                new Answer(true, true, 1, "P1", 2, 2, "A", "T"),
-                new Answer(true, true, 1, "P1", 2, 3, "A", "T"),
-                new Answer(true, true, 1, "P1", 3, 1, "A", "T"),
-                new Answer(true, true, 1, "P1", 3, 2, "A", "T"),
-                new Answer(true, true, 1, "P1", 3, 3, "A", "T"),
+                // P1: 10*3 + 20*3 + (28 + 40 + 40) = 30 + 60 + 108 = 198
+                new Answer(true, true, 10, "P1", 1, 1, "A", "T"),
+                new Answer(true, true, 10, "P1", 1, 2, "A", "T"),
+                new Answer(true, true, 10, "P1", 1, 3, "A", "T"),
+                new Answer(true, true, 20, "P1", 2, 1, "A", "T"),
+                new Answer(true, true, 20, "P1", 2, 2, "A", "T"),
+                new Answer(true, true, 20, "P1", 2, 3, "A", "T"),
+                new Answer(true, true, 28, "P1", 3, 1, "A", "T"),
+                new Answer(true, true, 40, "P1", 3, 2, "A", "T"),
+                new Answer(true, true, 40, "P1", 3, 3, "A", "T"),
 
-                // P2
-                new Answer(true, false, 1, "P2", 1, 1, "A", "T"),
-                new Answer(true, false, 1, "P2", 1, 2, "A", "T"),
-                new Answer(true, false, 1, "P2", 1, 3, "A", "T"),
-                new Answer(true, false, 1, "P2", 2, 1, "A", "T"),
-                new Answer(true, false, 2, "P2", 2, 2, "A", "T"),
-                new Answer(true, false, 1, "P2", 2, 3, "A", "T"),
-                new Answer(true, false, 1, "P2", 3, 1, "A", "T"),
-                new Answer(true, false, 2, "P2", 3, 2, "A", "T"),
-                new Answer(true, false, 1, "P2", 3, 3, "A", "T"),
+                // P2: 4*3 + (8 + 12 + 8) + (12 + 24 + 8) = 12 + 28 + 44 = 84
+                new Answer(true, false, 4, "P2", 1, 1, "A", "T"),
+                new Answer(true, false, 4, "P2", 1, 2, "A", "T"),
+                new Answer(true, false, 4, "P2", 1, 3, "A", "T"),
+                new Answer(true, false, 8, "P2", 2, 1, "A", "T"),
+                new Answer(true, false, 12, "P2", 2, 2, "A", "T"),
+                new Answer(true, false, 8, "P2", 2, 3, "A", "T"),
+                new Answer(true, false, 12, "P2", 3, 1, "A", "T"),
+                new Answer(true, false, 24, "P2", 3, 2, "A", "T"),
+                new Answer(true, false, 8, "P2", 3, 3, "A", "T"),
 
-                // P3
-                new Answer(false, true, 1, "P3", 1, 1, "A", "T"),
-                new Answer(false, true, 1, "P3", 1, 2, "A", "T"),
-                new Answer(false, true, 1, "P3", 1, 3, "A", "T"),
-                new Answer(false, true, 1, "P3", 2, 1, "A", "T"),
-                new Answer(false, true, 1, "P3", 2, 2, "A", "T"),
-                new Answer(false, true, 1, "P3", 2, 3, "A", "T"),
-                new Answer(false, true, 1, "P3", 3, 1, "A", "T"),
-                new Answer(false, true, 1, "P3", 3, 2, "A", "T"),
-                new Answer(false, true, 1, "P3", 3, 3, "A", "T"),
+                // P3: 6*3 + 12*3 + 20*3 = 18 + 36 + 60 = 114
+                new Answer(false, true, 6, "P3", 1, 1, "A", "T"),
+                new Answer(false, true, 6, "P3", 1, 2, "A", "T"),
+                new Answer(false, true, 6, "P3", 1, 3, "A", "T"),
+                new Answer(false, true, 12, "P3", 2, 1, "A", "T"),
+                new Answer(false, true, 12, "P3", 2, 2, "A", "T"),
+                new Answer(false, true, 12, "P3", 2, 3, "A", "T"),
+                new Answer(false, true, 20, "P3", 3, 1, "A", "T"),
+                new Answer(false, true, 20, "P3", 3, 2, "A", "T"),
+                new Answer(false, true, 20, "P3", 3, 3, "A", "T"),
 
                 // P4
-                new Answer(true, true, 1, "P4", 1, 1, "A", "T"),
-                new Answer(true, true, 1, "P4", 1, 2, "A", "T"),
-                new Answer(true, true, 1, "P4", 1, 3, "A", "T"),
+                new Answer(true, true, 10, "P4", 1, 1, "A", "T"),
+                new Answer(true, true, 10, "P4", 1, 2, "A", "T"),
+                new Answer(true, true, 10, "P4", 1, 3, "A", "T"),
 
                 // P5
-                new Answer(true, true, 1, "P5", 2, 1, "A", "T"),
-                new Answer(true, true, 1, "P5", 2, 2, "A", "T"),
-                new Answer(true, true, 1, "P5", 2, 3, "A", "T"),
+                new Answer(true, true, 28, "P5", 2, 1, "A", "T"),
+                new Answer(true, true, 28, "P5", 2, 2, "A", "T"),
+                new Answer(true, true, 28, "P5", 2, 3, "A", "T"),
 
                 // P6
-                new Answer(true, true, 1, "P6", 3, 1, "A", "T"),
-                new Answer(true, true, 1, "P6", 3, 2, "A", "T"),
-                new Answer(true, true, 1, "P6", 3, 3, "A", "T")
+                new Answer(true, true, 28, "P6", 3, 1, "A", "T"),
+                new Answer(true, true, 28, "P6", 3, 2, "A", "T"),
+                new Answer(true, true, 28, "P6", 3, 3, "A", "T")
         );
 
         Results results = pointsCounter.results(summary, stageSet, players, answers.stream(), Optional.empty(), Map.of());
