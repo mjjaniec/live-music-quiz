@@ -8,36 +8,25 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
-@RequiredArgsConstructor
 public class PointsCounter {
-    private final PlayerStore playerStore;
-    private final PlayOffStore playOffStore;
-    private final PlayOffTaskStore playOffTaskStore;
-    private final AnswerStore answerStore;
 
-    public int getCurrentPlayerPoints(Player player, GameStage stage, StageSet stageSet) {
-        return stage.asPiece().map(piece -> piecePoints(player, piece, stageSet))
-                .or(() -> stage.asRoundSummary().map(summary -> roundPoints(player, summary, stageSet)))
-                .orElse(0);
-    }
 
-    public Results results(GameStage stage, StageSet stageSet, PlayOffs playOffs) {
-        Map<String, Map<Integer, Integer>> byRounds = totalPoints(stageSet);
+    public Results results(GameStage stage, StageSet stageSet,
+                           List<Player> players, Stream<Answer> allAnswers,
+                           Optional<PlayOffs.PlayOff> playOffTask, Map<String, Integer> playOffsValues) {
+        Map<String, Map<Integer, Integer>> byRounds = totalPoints(stageSet, allAnswers);
         Map<String, Integer> altogether = byRounds.entrySet().stream().collect(Collectors.toMap(
                 Map.Entry::getKey,
                 entry -> entry.getValue().values().stream().mapToInt(x -> x).sum()
         ));
-        int playOffTarget = playOffTaskStore.getPlayOffTask(playOffs).map(PlayOffs.PlayOff::value).orElse(0);
+        int playOffTarget = playOffTask.map(PlayOffs.PlayOff::value).orElse(0);
         Map<String, Integer> playOffsDiffs = new HashMap<>();
-        Map<String, Integer> playOffsValues = new HashMap<>();
-        playOffTaskStore.getPlayOffTask(playOffs).ifPresent(_ -> {
-            playOffsValues.putAll(playOffStore.getPlayOffs());
-            playOffsValues.forEach((key, value) -> playOffsDiffs.put(key, Math.abs(value - playOffTarget)));
-        });
+        playOffTask.ifPresent(_ -> playOffsValues.forEach((key, value) -> playOffsDiffs.put(key, Math.abs(value - playOffTarget))));
 
-        List<String> order = playerStore.getPlayers().stream().map(Player::name).sorted((a, b) -> {
+        List<String> order = players.stream().map(Player::name).sorted((a, b) -> {
             int aPoints = altogether.getOrDefault(a, 0);
             int bPoints = altogether.getOrDefault(b, 0);
             int aDiff = playOffsDiffs.getOrDefault(a, 0);
@@ -98,9 +87,9 @@ public class PointsCounter {
         }).toList());
     }
 
-    private Map<String, Map<Integer, Integer>> totalPoints(StageSet set) {
+    private Map<String, Map<Integer, Integer>> totalPoints(StageSet set, Stream<Answer> allAnswers) {
         Map<String, Map<Integer, Integer>> result = new HashMap<>();
-        answerStore.allAnswers().forEach(answer ->
+        allAnswers.forEach(answer ->
                 set.roundInit(answer.round()).map(GameStage.RoundInit::roundMode).ifPresent(mode -> {
                             var players = result.computeIfAbsent(answer.player(), _ -> new HashMap<>());
                             players.put(answer.round(), players.getOrDefault(answer.round(), 0) + forAnswer(mode, answer));
@@ -110,17 +99,17 @@ public class PointsCounter {
         return result;
     }
 
-    private int roundPoints(Player player, GameStage.RoundSummary summary, StageSet set) {
+    public int roundPoints(GameStage.RoundSummary summary, StageSet set, Stream<Answer> playerAnswers) {
         return set.roundInit(summary.roundNumber().number()).map(GameStage.RoundInit::roundMode)
                 .map(mode ->
-                        answerStore.playerAnswers(player.name(), summary.roundNumber().number())
+                        playerAnswers
                                 .mapToInt(answer -> forAnswer(mode, answer))
                                 .sum()
                 ).orElse(0);
     }
 
-    private int piecePoints(Player player, GameStage.RoundPiece piece, StageSet set) {
-        return answerStore.playerAnswer(player.name(), piece.roundNumber, piece.pieceNumber.number()).map(
+    public int piecePoints(GameStage.RoundPiece piece, StageSet set, Optional<Answer> pieceAnswer) {
+        return pieceAnswer.map(
                 answer -> set.roundInit(piece.roundNumber).map(
                         round -> forAnswer(round.roundMode(), answer)
                 ).orElse(0)

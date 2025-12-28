@@ -38,7 +38,7 @@ public record MainSet(List<LevelPieces> levels) {
     @RequiredArgsConstructor
     public enum RoundMode {
         EVERYBODY(4, 6),
-        ONION(12, 16),
+        ONION(2, 3),
         FIRST(12, 16);
 
         public final int artistPoints;

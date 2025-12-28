@@ -15,7 +15,7 @@ public class PlayTimeComponent extends VerticalLayout {
     public PlayTimeComponent(GameStage.RoundPiece piece, MaestroInterface gameService, Audio notification) {
         add(new Paragraph("play time!"));
         String responder = piece.getCurrentResponder();
-        if (piece.isTitleAnswered() && piece.isArtistAnswered()) {
+        if (piece.isCompleted()) {
             Paragraph p = new Paragraph("zgadnięte!");
             p.getStyle().setColor(Palette.GREEN);
             add(p);
@@ -26,36 +26,18 @@ public class PlayTimeComponent extends VerticalLayout {
             add(new Paragraph("Odpowiada: " + responder));
             Checkbox artist = new Checkbox("artysta");
             if (Constants.UNKNOWN.equals(piece.piece.artist())) {
-                piece.setArtistAnswered(true);
+                piece.setArtistAnswered(1);
             }
-            artist.setEnabled(!piece.isArtistAnswered());
+            artist.setEnabled(piece.getArtistAnswered() == 0);
             Checkbox title = new Checkbox("tytuł");
-            title.setEnabled(!piece.isTitleAnswered());
+            title.setEnabled(piece.getTitleAnswered() == 0);
             Button confirm = new Button("zatwierdź");
-            confirm.addClickListener(event -> {
-                gameService.reportResult(
-                        new Player(responder),
-                        artist.getValue(),
-                        title.getValue(),
-                        piece.getFailedResponders().size() + 1,
-                        null,
-                        null);
-                if (!artist.getValue() || !title.getValue()) {
-                    piece.addFailedResponder(responder);
-                } else {
-                    piece.setCurrentResponder(null);
-                }
-                if (artist.getValue()) {
-                    piece.setArtistAnswered(true);
-                }
-                if (title.getValue()) {
-                    piece.setTitleAnswered(true);
-                }
-                if (piece.isCompleted()) {
-                    piece.setCurrentStage(GameStage.PieceStage.REVEAL);
-                }
-                gameService.setStage(piece);
-            });
+            confirm.addClickListener(_ -> gameService.reportResult(
+                    new Player(responder),
+                    artist.getValue(),
+                    title.getValue(),
+                    null,
+                    null));
             add(artist, title, confirm);
         }
     }

@@ -20,7 +20,7 @@ public class RealStageStore implements StageStore {
     private final ObjectMapper mapper;
 
     private record PieceAdditionsDto(GameStage.PieceStage stage, int bonus, String currentResponder,
-                                     List<String> failedResponders, boolean artistAnswered, boolean titleAnswered) {
+                                     List<String> failedResponders, int artistAnswered, int titleAnswered) {
     }
 
     private record PlayOffDto(boolean performed) {
@@ -125,7 +125,7 @@ public class RealStageStore implements StageStore {
 
     @SneakyThrows
     private String toAdditions(GameStage.RoundPiece piece) {
-        var dto = new PieceAdditionsDto(piece.getCurrentStage(), piece.getBonus(), piece.getCurrentResponder(), piece.getFailedResponders(), piece.isArtistAnswered(), piece.isTitleAnswered());
+        var dto = new PieceAdditionsDto(piece.getCurrentStage(), piece.getBonus(), piece.getCurrentResponder(), piece.getFailedResponders(), piece.getArtistAnswered(), piece.getTitleAnswered());
         return mapper.writeValueAsString(dto);
     }
 }

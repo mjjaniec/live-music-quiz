@@ -30,7 +30,7 @@ public interface GameService {
 
     Optional<Answer> getCurrentAnswer(Player player);
 
-    void reportResult(Player player, boolean artist, boolean title, int bonus, @Nullable String actualArtist, @Nullable String actualTitle);
+    void reportResult(Player player, boolean artist, boolean title, @Nullable String actualArtist, @Nullable String actualTitle);
 
     void savePlayOff(Player player, int value);
 

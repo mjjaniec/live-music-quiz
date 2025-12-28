@@ -1,6 +1,7 @@
 package com.github.mjjaniec.lmq.views.player;
 
 import com.github.mjjaniec.lmq.model.Constants;
+import com.github.mjjaniec.lmq.model.GameStage;
 import com.github.mjjaniec.lmq.services.GameService;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
@@ -15,9 +16,11 @@ import com.vaadin.flow.component.html.Input;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 
 @JsModule(value = "./setupAutocomplete.ts")
@@ -32,14 +35,17 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
 
     private final Map<String, Boolean> isProvidedMap = new HashMap<>(Map.of(ARTIST_PATH, false, TITLE_PATH, false));
 
+    private final GameStage.RoundPiece piece;
+
     @ClientCallable
     public void setProvided(String path, boolean set) {
         isProvidedMap.put(path, set);
         confirm.setEnabled(isProvidedMap.values().stream().allMatch(v -> v));
-   }
+    }
 
     public AnswerView(GameService gameService) {
         this.gameService = gameService;
+        this.piece = Objects.requireNonNull(gameService.stage()).asPiece().orElseThrow();
         artist.setId("artist-input");
         title.setId("title-input");
 
@@ -59,23 +65,22 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
         waitLayout.setAlignItems(Alignment.CENTER);
         waitLayout.setVisible(false);
 
-        gameService.stage().asPiece()
-                .filter(piece -> Constants.UNKNOWN.equals(piece.piece.artist()))
-                .ifPresent(ignored -> {
-                    artist.setValue(Constants.UNKNOWN);
-                    artist.setEnabled(false);
-                    isProvidedMap.put(ARTIST_PATH, true);
-                });
+        if (Constants.UNKNOWN.equals(piece.piece.artist())) {
+            artist.setValue(Constants.UNKNOWN);
+            artist.setEnabled(false);
+            isProvidedMap.put(ARTIST_PATH, true);
+        }
 
-        confirm.addClickListener(event -> forPlayer(UI.getCurrent(), player -> {
-            gameService.stage().asPiece().ifPresent(piece -> gameService.reportResult(
+
+        confirm.addClickListener(_ -> forPlayer(UI.getCurrent(), player -> {
+            boolean correctArtist = !Constants.UNKNOWN.equals(piece.piece.artist()) && isCorrect(artist.getValue(), piece.piece.artist(), piece.piece.artistAlternative());
+            boolean correctTitle = isCorrect(title.getValue(), piece.piece.title(), piece.piece.titleAlternative());
+            gameService.reportResult(
                     player,
-                    !Constants.UNKNOWN.equals(piece.piece.artist()) && (artist.getValue().equals(piece.piece.artist()) ||
-                                                                        piece.piece.artistAlternative() != null && artist.getValue().equals(piece.piece.artistAlternative())),
-                    title.getValue().equals(piece.piece.title()),
-                    piece.getBonus(),
+                    correctArtist,
+                    correctTitle,
                     artist.getValue(),
-                    title.getValue())
+                    title.getValue()
             );
             artist.setEnabled(false);
             title.setEnabled(false);
@@ -85,6 +90,10 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
 
         add(confirm);
         add(waitLayout);
+    }
+
+    private boolean isCorrect(@Nullable String value, String correct, @Nullable String correctAlternative) {
+        return value != null && (value.equals(correct) || value.equals(correctAlternative));
     }
 
     @Override

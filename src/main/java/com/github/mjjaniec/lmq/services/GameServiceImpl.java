@@ -2,13 +2,14 @@ package com.github.mjjaniec.lmq.services;
 
 import com.github.mjjaniec.lmq.model.*;
 import com.github.mjjaniec.lmq.stores.*;
-import com.google.common.collect.Streams;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @Slf4j
 @Component
@@ -137,12 +138,12 @@ public class GameServiceImpl implements GameService, MaestroInterface {
                 case LISTEN -> {
                     initSlackers(piece);
                     navigator.refreshBonus();
-                    if (previousStage!= gameStage) {
+                    if (previousStage != gameStage) {
                         clearCurrentPoints(piece);
                     }
                 }
                 case PLAY -> {
-                    if (previousStage!= gameStage) {
+                    if (previousStage != gameStage) {
                         clearCurrentPoints(piece);
                         piece.clear();
                         stageStore.saveStage(stage);
@@ -195,12 +196,49 @@ public class GameServiceImpl implements GameService, MaestroInterface {
 
 
     @Override
-    public void reportResult(Player player, boolean artist, boolean title, int bonus, @Nullable String actualArtist, @Nullable String actualTitle) {
-        Optional.ofNullable(stage).flatMap(GameStage::asPiece).ifPresentOrElse(piece -> {
-            answerStore.saveAnswer(new Answer(artist, title, bonus, player.name(), piece.roundNumber, piece.pieceNumber.number(), actualArtist, actualTitle));
-            slackers.remove(player);
-            navigator.refreshSlackersList();
-        }, () -> log.error("Report result called in wrong state (expected Piece but it is: {}", stage));
+    public synchronized void reportResult(Player player, boolean artist, boolean title, @Nullable String actualArtist, @Nullable String actualTitle) {
+        if (stage == null || stageSet == null) {
+            log.error("reportResult called when stage or stageSet is not set");
+        } else {
+            stage.asPiece().ifPresentOrElse(piece -> {
+
+                if (title) {
+                    piece.incrementTitleAnswered();
+                }
+                if (artist) {
+                    piece.incrementArtistAnswered();
+                }
+                if (!artist || !title) {
+                    piece.addFailedResponder(player.name());
+                } else {
+                    piece.setCurrentResponder(null);
+                }
+
+                MainSet.RoundMode mode = stageSet.roundInit(piece.roundNumber).map(GameStage.RoundInit::roundMode).orElseThrow();
+                switch (mode) {
+                    case FIRST -> piece.setBonus(1 + piece.getFailedResponders().size());
+                    case ONION -> piece.setBonus(onionBonus(piece.getArtistAnswered() + piece.getTitleAnswered()));
+                }
+
+                setStage(piece);
+
+                answerStore.saveAnswer(new Answer(artist, title, piece.getBonus(), player.name(), piece.roundNumber, piece.pieceNumber.number(), actualArtist, actualTitle));
+                slackers.remove(player);
+                navigator.refreshSlackersList();
+            }, () -> log.error("Report result called in wrong state (expected Piece but it is: {}", stage));
+        }
+    }
+
+    private int onionBonus(int correctAnswers) {
+        if (correctAnswers <= 2) {
+            return 4;
+        } else if (correctAnswers <= 6) {
+            return 3;
+        } else if (correctAnswers <= 14) {
+            return 2;
+        } else {
+            return 1;
+        }
     }
 
     @Override
@@ -237,7 +275,18 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         if (stage == null || stageSet == null) {
             return 0;
         }
-        return pointsCounter.getCurrentPlayerPoints(player, stage, stageSet);
+
+        return stage.asPiece()
+                .map(piece -> {
+                    Optional<Answer> pieceAnswer = answerStore.playerAnswer(player.name(), piece.roundNumber, piece.pieceNumber.number());
+                    return pointsCounter.piecePoints(piece, stageSet, pieceAnswer);
+                })
+                .or(() -> stage.asRoundSummary()
+                        .map(summary -> {
+                            Stream<Answer> playerAnswers = answerStore.playerAnswers(player.name(), summary.roundNumber().number());
+                            return pointsCounter.roundPoints(summary, stageSet, playerAnswers);
+                        }))
+                .orElse(0);
     }
 
     @Override
@@ -261,7 +310,11 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         if (stage == null || stageSet == null || playOffs == null) {
             return new Results(0, 0, 0, List.of());
         }
-        return pointsCounter.results(stage, stageSet, playOffs);
+        return pointsCounter.results(stage, stageSet,
+                playerStore.getPlayers(),
+                answerStore.allAnswers(),
+                playOffTaskStore.getPlayOffTask(playOffs),
+                playOffStore.getPlayOffs());
     }
 
     @Override

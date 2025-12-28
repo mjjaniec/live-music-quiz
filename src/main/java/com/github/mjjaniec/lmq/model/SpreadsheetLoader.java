@@ -1,8 +1,6 @@
 package com.github.mjjaniec.lmq.model;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
@@ -11,9 +9,8 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.HashSet;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -25,7 +22,6 @@ public class SpreadsheetLoader {
     private static final String DocumentId = "15zxKdCWWvwQrPFfB0i30tH5I09g-S8j8-ulSaKI-la0";
     private static final String BaseUrl = "https://docs.google.com/spreadsheets/d/" + DocumentId + "/gviz/tq?tqx=out:csv&sheet=";
 
-    private final ObjectMapper jsonMapper;
     private final MainSetParser mainSetParser;
     private final CsvSchema csvSchema = CsvSchema.emptySchema().withSkipFirstDataRow(true);
     private final CsvMapper mapper = CsvMapper.builder().enable(CsvParser.Feature.WRAP_AS_ARRAY).build();
