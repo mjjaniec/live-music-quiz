@@ -4,6 +4,7 @@ import com.github.mjjaniec.lmq.components.BannerBand;
 import com.github.mjjaniec.lmq.components.FooterBand;
 import com.github.mjjaniec.lmq.components.ProgressBar;
 import com.github.mjjaniec.lmq.components.RouterLayoutWithOutlet;
+import com.github.mjjaniec.lmq.model.GameStage;
 import com.github.mjjaniec.lmq.services.BroadcastAttach;
 import com.github.mjjaniec.lmq.services.GameService;
 import com.github.mjjaniec.lmq.services.TestDataProvider;
@@ -17,6 +18,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RoutePrefix;
+
+import java.util.Optional;
 
 
 @Route("")
@@ -77,12 +80,14 @@ public class BigScreenView extends VerticalLayout implements RouterLayoutWithOut
     private void refreshProgressBars() {
         progressBarsOutlet.removeAll();
 
-        var roundP = gameService.stage().asRoundInit()
-                .or(() -> gameService.stage().asPiece().flatMap(piece -> gameService.stageSet().roundInit(piece.roundNumber)))
-                .or(() -> gameService.stage().asRoundSummary().flatMap(summary -> gameService.stageSet().roundInit(summary.roundNumber().number())))
-                .or(testDataProvider::init).map(init ->
+        var roundP = Optional.ofNullable(gameService.stage()).flatMap(stage ->
+                        stage.asRoundInit()
+                                .or(() -> stage.asPiece().flatMap(piece -> Optional.ofNullable(gameService.stageSet()).flatMap(set -> set.roundInit(piece.roundNumber))))
+                                .or(() -> stage.asRoundSummary().flatMap(summary -> Optional.ofNullable(gameService.stageSet()).flatMap(set -> set.roundInit(summary.roundNumber().number()))))
+                ).or(testDataProvider::init)
+                .map(init ->
                         new ProgressBar("Runda", init.roundNumber().number(), init.roundNumber().of(), Palette.DARKER));
-        var pieceP = gameService.stage().asPiece().or(testDataProvider::piece).map(piece ->
+        var pieceP = Optional.ofNullable(gameService.stage()).flatMap(GameStage::asPiece).or(testDataProvider::piece).map(piece ->
                 new ProgressBar("Utwór", piece.pieceNumber.number(), piece.pieceNumber.of(), Palette.DARKER));
 
         roundP.ifPresent(round -> pieceP.ifPresent(piece -> {

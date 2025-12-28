@@ -18,7 +18,7 @@ public interface GameService {
 
     void removePlayer(Player player);
 
-    GameStage stage();
+    @Nullable GameStage stage();
 
     List<Player> getPlayers();
 
@@ -34,7 +34,7 @@ public interface GameService {
 
     void savePlayOff(Player player, int value);
 
-    StageSet stageSet();
+    @Nullable StageSet stageSet();
 
     Results results();
 

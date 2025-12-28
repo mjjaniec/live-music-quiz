@@ -23,10 +23,10 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     private final FeedbackStore feedbackStore;
     private final PlayOffStore playOffStore;
     private final PlayOffTaskStore playOffTaskStore;
-    private MainSet quiz;
-    private GameStage stage;
-    private StageSet stageSet;
-    private PlayOffs playOffs;
+    private @Nullable MainSet quiz;
+    private @Nullable GameStage stage;
+    private @Nullable StageSet stageSet;
+    private @Nullable PlayOffs playOffs;
 
     private final List<Player> slackers = new ArrayList<>();
 
@@ -53,7 +53,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
 
         quizStore.getQuiz().ifPresent(this::initGame);
         stageStore.readStage(stageSet).ifPresentOrElse(this::setStage, () -> {
-            if (quiz != null) setStage(stageSet.initStage());
+            if (quiz != null && stageSet != null) setStage(stageSet.initStage());
         });
     }
 
@@ -94,7 +94,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     }
 
     @Override
-    public GameStage stage() {
+    public @Nullable GameStage stage() {
         return stage;
     }
 
@@ -180,19 +180,20 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     }
 
     @Override
-    public StageSet stageSet() {
+    public @Nullable StageSet stageSet() {
         return stageSet;
     }
 
     @Override
     public Optional<Answer> getCurrentAnswer(Player player) {
-        return stage.asPiece().flatMap(piece -> answerStore.playerAnswer(player.name(), piece.roundNumber, piece.pieceNumber.number()));
+        return Optional.ofNullable(stage).flatMap(GameStage::asPiece)
+                .flatMap(piece -> answerStore.playerAnswer(player.name(), piece.roundNumber, piece.pieceNumber.number()));
     }
 
 
     @Override
     public void reportResult(Player player, boolean artist, boolean title, int bonus, @Nullable String actualArtist, @Nullable String actualTitle) {
-        stage.asPiece().ifPresentOrElse(piece -> {
+        Optional.ofNullable(stage).flatMap(GameStage::asPiece).ifPresentOrElse(piece -> {
             answerStore.saveAnswer(new Answer(artist, title, bonus, player.name(), piece.roundNumber, piece.pieceNumber.number(), actualArtist, actualTitle));
             slackers.remove(player);
             navigator.refreshSlackersList();
@@ -230,8 +231,11 @@ public class GameServiceImpl implements GameService, MaestroInterface {
 
     @Override
     public int getCurrentPlayerPoints(Player player) {
-        return stage.asPiece().map(piece -> piecePoints(player, piece))
-                .or(() -> stage.asRoundSummary().map(summary -> roundPoints(player, summary)))
+        if (stageSet == null) {
+            return 0;
+        }
+        return Optional.ofNullable(stage).flatMap(GameStage::asPiece).map(piece -> piecePoints(player, piece, stageSet))
+                .or(() -> Optional.ofNullable(stage).flatMap(GameStage::asRoundSummary).map(summary -> roundPoints(player, summary, stageSet)))
                 .orElse(0);
     }
 
@@ -253,7 +257,9 @@ public class GameServiceImpl implements GameService, MaestroInterface {
 
     @Override
     public Results results() {
-        Map<String, Map<Integer, Integer>> byRounds = totalPoints();
+        Objects.requireNonNull(stageSet);
+        Objects.requireNonNull(stage);
+        Map<String, Map<Integer, Integer>> byRounds = totalPoints(stageSet);
         Map<String, Integer> altogether = byRounds.entrySet().stream().collect(Collectors.toMap(
                 Map.Entry::getKey,
                 entry -> entry.getValue().values().stream().mapToInt(x -> x).sum()
@@ -261,7 +267,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         int playOffTarget = playOffTaskStore.getPlayOffTask(playOffs).map(PlayOffs.PlayOff::value).orElse(0);
         Map<String, Integer> playOffsDiffs = new HashMap<>();
         Map<String, Integer> playOffsValues = new HashMap<>();
-        playOffTaskStore.getPlayOffTask(playOffs).ifPresent(playOff -> {
+        playOffTaskStore.getPlayOffTask(playOffs).ifPresent(_ -> {
             playOffsValues.putAll(playOffStore.getPlayOffs());
             playOffsValues.forEach((key, value) -> playOffsDiffs.put(key, Math.abs(value - playOffTarget)));
         });
@@ -281,8 +287,8 @@ public class GameServiceImpl implements GameService, MaestroInterface {
             }
         }).toList();
 
-        int rounds = (int) stageSet().topLevelStages().stream().filter(stage -> stage.asRoundInit().isPresent()).count();
-        int currentRound = stage().asRoundSummary().map(s -> s.roundNumber().number()).orElse(rounds);
+        int rounds = (int) stageSet.topLevelStages().stream().filter(stage -> stage.asRoundInit().isPresent()).count();
+        int currentRound = stage.asRoundSummary().map(s -> s.roundNumber().number()).orElse(rounds);
 
         if (order.isEmpty()) {
             return new Results(rounds, currentRound, playOffTarget, List.of());
@@ -339,7 +345,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
 
     @Override
     public synchronized void raise(Player player) {
-        stage.asPiece().ifPresent(piece -> {
+        Optional.ofNullable(stage).flatMap(GameStage::asPiece).ifPresent(piece -> {
             if (piece.getCurrentResponder() == null) {
                 piece.setCurrentResponder(player.name());
                 stageStore.saveStage(stage);
@@ -348,11 +354,11 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         });
     }
 
-    private Map<String, Map<Integer, Integer>> totalPoints() {
+    private Map<String, Map<Integer, Integer>> totalPoints(StageSet set) {
         Map<String, Map<Integer, Integer>> result = new HashMap<>();
         answerStore.allAnswers().forEach(answer ->
-                stageSet.roundInit(answer.round()).map(GameStage.RoundInit::roundMode).ifPresent(mode -> {
-                            var players = result.computeIfAbsent(answer.player(), k -> new HashMap<>());
+                set.roundInit(answer.round()).map(GameStage.RoundInit::roundMode).ifPresent(mode -> {
+                            var players = result.computeIfAbsent(answer.player(), _ -> new HashMap<>());
                             players.put(answer.round(), players.getOrDefault(answer.round(), 0) + forAnswer(mode, answer));
                         }
                 )
@@ -360,8 +366,8 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         return result;
     }
 
-    private int roundPoints(Player player, GameStage.RoundSummary summary) {
-        return stageSet.roundInit(summary.roundNumber().number()).map(GameStage.RoundInit::roundMode)
+    private int roundPoints(Player player, GameStage.RoundSummary summary, StageSet set) {
+        return set.roundInit(summary.roundNumber().number()).map(GameStage.RoundInit::roundMode)
                 .map(mode ->
                         answerStore.playerAnswers(player.name(), summary.roundNumber().number())
                                 .mapToInt(answer -> forAnswer(mode, answer))
@@ -369,9 +375,9 @@ public class GameServiceImpl implements GameService, MaestroInterface {
                 ).orElse(0);
     }
 
-    private int piecePoints(Player player, GameStage.RoundPiece piece) {
+    private int piecePoints(Player player, GameStage.RoundPiece piece, StageSet set) {
         return answerStore.playerAnswer(player.name(), piece.roundNumber, piece.pieceNumber.number()).map(
-                answer -> stageSet.roundInit(piece.roundNumber).map(
+                answer -> set.roundInit(piece.roundNumber).map(
                         round -> forAnswer(round.roundMode(), answer)
                 ).orElse(0)
         ).orElse(0);

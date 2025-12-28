@@ -18,6 +18,8 @@ import java.io.StringWriter;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
+
 @Route(value = "start", layout = MaestroView.class)
 public class StartGameView extends VerticalLayout implements RouterLayout {
 
@@ -31,7 +33,7 @@ public class StartGameView extends VerticalLayout implements RouterLayout {
 
             ComboBox<String> games = new ComboBox<>("Choose Game");
             games.setItems(Stream.concat(sets.stream(), Stream.of(ALL)).toList());
-            Button start = new Button("Start");
+            Button start = testId(new Button("Start"), "meastro/start/button");
             start.setEnabled(false);
             games.addValueChangeListener(event -> start.setEnabled(true));
 

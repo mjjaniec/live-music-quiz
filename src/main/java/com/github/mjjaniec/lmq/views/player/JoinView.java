@@ -18,6 +18,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
+
 @Route(value = "player/join")
 public class JoinView extends VerticalLayout {
 
@@ -41,7 +43,7 @@ public class JoinView extends VerticalLayout {
         outlet.add(new Div(new Text("Witaj w Live Music Quiz by Michał Janiec!")));
         outlet.add(new Div(new Text("podaj ksywkę żeby dołączyć:")));
         TextField field = new TextField("ksywka");
-        Button join = new Button("Dołączam!");
+        Button join = testId(new Button("Dołączam!"), "player/join/button");
         join.setEnabled(false);
         join.addClickListener(event -> {
             if (service.addPlayer(field.getValue())) {

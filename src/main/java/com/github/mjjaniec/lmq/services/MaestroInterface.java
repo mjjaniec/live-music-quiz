@@ -4,6 +4,7 @@ import com.github.mjjaniec.lmq.model.GameStage;
 import com.github.mjjaniec.lmq.model.MainSet;
 import com.github.mjjaniec.lmq.model.PlayOffs;
 import com.github.mjjaniec.lmq.model.StageSet;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +19,7 @@ public interface MaestroInterface extends GameService {
 
     void setStage(GameStage gameStage);
 
-    StageSet stageSet();
+    @Nullable StageSet stageSet();
 
     void setCustomMessage(String customMessage);
 
