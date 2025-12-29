@@ -18,6 +18,11 @@ class PointsCounterTest {
 
     private PointsCounter pointsCounter;
 
+    private final MainSet.Piece piece = new MainSet.Piece("Artist", null, "Title", null, null, null, new HashSet<>());
+    private final GameStage.RoundNumber roundNumber = new GameStage.RoundNumber(1, 1);
+    private final GameStage.RoundSummary dummySummary = new GameStage.RoundSummary(roundNumber);
+    private final GameStage.RoundPiece roundPiece = new GameStage.RoundPiece(1, new GameStage.PieceNumber(1, 1), piece, List.of(GameStage.PieceStage.LISTEN));
+
     @BeforeEach
     void setUp() {
         pointsCounter = new PointsCounter();
@@ -29,7 +34,6 @@ class PointsCounterTest {
         Player p1 = new Player("P1");
         Player p2 = new Player("P2");
 
-        MainSet.Piece piece = new MainSet.Piece("Artist", null, "Title", null, null, null, new HashSet<>());
         MainSet.LevelPieces level = new MainSet.LevelPieces(MainSet.RoundMode.EVERYBODY, List.of(piece));
         MainSet quiz = new MainSet(List.of(level));
         StageSet stageSet = new StageSet(quiz);
@@ -55,34 +59,50 @@ class PointsCounterTest {
     }
 
     @Test
-    void testPointsCalculation() {
-        GameStage.RoundNumber roundNumber = new GameStage.RoundNumber(1, 1);
-        GameStage.RoundSummary dummySummary = new GameStage.RoundSummary(roundNumber);
-        MainSet.Piece piece = new MainSet.Piece("Artist", null, "Title", null, null, null, new HashSet<>());
-        GameStage.RoundPiece roundPiece = new GameStage.RoundPiece(1, new GameStage.PieceNumber(1, 1), piece, List.of(GameStage.PieceStage.LISTEN));
-        GameStage.RoundInit roundInit = new GameStage.RoundInit(roundNumber, MainSet.RoundMode.EVERYBODY, List.of(roundPiece), dummySummary);
-
+    void testPointsCalculation_Everybody() {
+        var roundInit = new GameStage.RoundInit(roundNumber, MainSet.RoundMode.EVERYBODY, List.of(roundPiece), dummySummary);
         // Everybody mode: artist 4, title 6
         assertEquals(10, pointsCounter.points(true, true, roundInit, roundPiece));
         assertEquals(4, pointsCounter.points(true, false, roundInit, roundPiece));
         assertEquals(6, pointsCounter.points(false, true, roundInit, roundPiece));
+        assertEquals(0, pointsCounter.points(false, false, roundInit, roundPiece));
 
-        // Onion mode: artist 2, title 3. Multipliers: 0->4, 1->3, 2-4->2, 5+ -> 1
-        roundInit = new GameStage.RoundInit(roundNumber, MainSet.RoundMode.ONION, List.of(roundPiece), dummySummary);
+        roundPiece.setBonus(true);
+
+        // Everybody mode: artist 4, title 6
+        assertEquals(20, pointsCounter.points(true, true, roundInit, roundPiece));
+        assertEquals(8, pointsCounter.points(true, false, roundInit, roundPiece));
+        assertEquals(12, pointsCounter.points(false, true, roundInit, roundPiece));
+        assertEquals(0, pointsCounter.points(false, false, roundInit, roundPiece));
+    }
+
+    @Test
+    void testPointsCalculation_Onion() {
+         // Onion mode: artist 2, title 3. Multipliers: 0->4, 1-2->3, 3-5->2, 6+ -> 1
+        var roundInit = new GameStage.RoundInit(roundNumber, MainSet.RoundMode.ONION, List.of(roundPiece), dummySummary);
         assertEquals(2*4 + 3*4, pointsCounter.points(true, true, roundInit, roundPiece));
-        
-        roundPiece.incrementArtistAnswered(); // artistAnswered = 1
-        assertEquals(2*3 + 3*4, pointsCounter.points(true, true, roundInit, roundPiece));
+        assertEquals(3*4, pointsCounter.points(false, true, roundInit, roundPiece));
+        assertEquals(2*4, pointsCounter.points(true, false, roundInit, roundPiece));
 
         roundPiece.incrementArtistAnswered(); // artistAnswered = 1
         assertEquals(2*3 + 3*4, pointsCounter.points(true, true, roundInit, roundPiece));
 
-        roundPiece.incrementArtistAnswered(); // artistAnswered = 1
-        assertEquals(2*2 + 3*2, pointsCounter.points(true, true, roundInit, roundPiece));
+        roundPiece.incrementArtistAnswered(); // artistAnswered = 2
+        assertEquals(2*3 + 3*4, pointsCounter.points(true, true, roundInit, roundPiece));
+
+        roundPiece.incrementArtistAnswered(); // artistAnswered = 3
+        assertEquals(2*2 + 3*4, pointsCounter.points(true, true, roundInit, roundPiece));
+
+        roundPiece.incrementTitleAnswered(); // artistAnswered = 3
+        assertEquals(2*2 + 3*3, pointsCounter.points(true, true, roundInit, roundPiece));
 
 
+    }
+
+    @Test
+    void testPointsCalculation_First() {
         // First mode: artist 12, title 16. Multiplier: 1 + failedResponders
-        roundInit = new GameStage.RoundInit(roundNumber, MainSet.RoundMode.FIRST, List.of(roundPiece), dummySummary);
+        var roundInit = new GameStage.RoundInit(roundNumber, MainSet.RoundMode.FIRST, List.of(roundPiece), dummySummary);
         assertEquals(12 + 16, pointsCounter.points(true, true, roundInit, roundPiece));
         roundPiece.addFailedResponder("Other");
         assertEquals((12 + 16) * 2, pointsCounter.points(true, true, roundInit, roundPiece));

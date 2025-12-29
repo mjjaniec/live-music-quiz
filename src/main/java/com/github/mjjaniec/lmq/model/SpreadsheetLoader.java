@@ -6,6 +6,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
@@ -19,12 +20,11 @@ public class SpreadsheetLoader {
     private static final String Artists = "artists";
     private static final String Titles = "titles";
     private static final String PlayOff = "play-offs";
-    private static final String DocumentId = "15zxKdCWWvwQrPFfB0i30tH5I09g-S8j8-ulSaKI-la0";
-    private static final String BaseUrl = "https://docs.google.com/spreadsheets/d/" + DocumentId + "/gviz/tq?tqx=out:csv&sheet=";
 
     private final MainSetParser mainSetParser;
     private final CsvSchema csvSchema = CsvSchema.emptySchema().withSkipFirstDataRow(true);
     private final CsvMapper mapper = CsvMapper.builder().enable(CsvParser.Feature.WRAP_AS_ARRAY).build();
+    private @Value("https://docs.google.com/spreadsheets/d/${application.csm-spreadsheet-id}/gviz/tq?tqx=out:csv&sheet=") String BaseUrl;
 
     @SneakyThrows
     public PlayOffs loadPlayOffs() {

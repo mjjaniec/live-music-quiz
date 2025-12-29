@@ -10,11 +10,13 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
+import org.jspecify.annotations.Nullable;
 
 
 @Route(value = "play-off", layout = PlayerView.class)
 public class PlayOffView extends VerticalLayout implements PlayerRoute {
 
+    @Nullable
     private Player player;
 
     public PlayOffView(GameService gameService) {

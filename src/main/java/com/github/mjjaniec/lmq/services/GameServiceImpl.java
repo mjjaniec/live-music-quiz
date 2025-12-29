@@ -2,6 +2,7 @@ package com.github.mjjaniec.lmq.services;
 
 import com.github.mjjaniec.lmq.model.*;
 import com.github.mjjaniec.lmq.stores.*;
+import com.github.mjjaniec.lmq.views.bigscreen.InviteView;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
@@ -109,6 +110,8 @@ public class GameServiceImpl implements GameService, MaestroInterface {
 
     @Override
     public void reset() {
+        playerStore.getPlayers().forEach(this::removePlayer);
+        navigator.navigateBigScreen(InviteView.class);
         quiz = null;
         quizStore.clearQuiz();
         stage = null;

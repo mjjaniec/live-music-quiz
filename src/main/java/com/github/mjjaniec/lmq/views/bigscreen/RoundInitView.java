@@ -30,7 +30,7 @@ public class RoundInitView extends VerticalLayout implements BigScreenRoute {
 
     private void setupUI(GameStage.RoundInit roundInit) {
         add(new Div());
-        add(keyValue("Witajcie w rundzie", String.valueOf(roundInit.roundNumber().number())));
+        add(keyValue("Witajcie w rundzie", roundInit.roundNumber().number() + " - " + roundDescription(roundInit.roundMode())));
         add(keyValue("Kto odpowiada", whoAnswers(roundInit.roundMode())));
         add(keyValue("Punkty za wykonawcę", points(roundInit.roundMode(), roundInit.roundMode().artistPoints)));
         add(keyValue("Punkty za tytuł", points(roundInit.roundMode(), roundInit.roundMode().titlePoints)));
@@ -38,6 +38,16 @@ public class RoundInitView extends VerticalLayout implements BigScreenRoute {
         add(new Div());
         add(new Div());
     }
+
+
+    private String roundDescription(MainSet.RoundMode mode) {
+        return switch (mode) {
+            case EVERYBODY -> "Znaj łaskę pana";
+            case ONION -> "Cebula (ma warstwy)";
+            case FIRST -> "Wyścig szczurów";
+        };
+    }
+
 
     private String points(MainSet.RoundMode mode, int points) {
         return switch (mode) {

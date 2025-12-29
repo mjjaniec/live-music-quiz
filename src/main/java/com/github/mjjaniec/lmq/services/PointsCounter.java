@@ -26,9 +26,9 @@ public class PointsCounter {
     private int onionBonus(int answersCount) {
         if (answersCount == 0) {
             return 4;
-        } else if (answersCount < 2) {
+        } else if (answersCount <= 2) {
             return 3;
-        } else if (answersCount < 5) {
+        } else if (answersCount <= 5) {
             return 2;
         } else {
             return 1;
