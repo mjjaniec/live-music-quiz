@@ -1,5 +1,6 @@
 package com.github.mjjaniec.lmq.model;
 
+import com.github.mjjaniec.lmq.model.MainSet.RoundMode;
 import com.google.common.collect.Streams;
 
 import java.util.List;
@@ -59,10 +60,11 @@ public class StageSet {
                                 (int) roundIndex + 1,
                                 new GameStage.PieceNumber((int) index + 1, level.pieces().size()),
                                 piece,
-                                level.level() == MainSet.RoundMode.FIRST ?
-                                        List.of(GameStage.PieceStage.PLAY, GameStage.PieceStage.REVEAL) :
-                                        List.of(GameStage.PieceStage.LISTEN, GameStage.PieceStage.REVEAL)
-                        )
+                                switch (level.level()) {
+                                    case RoundMode.FIRST -> List.of(GameStage.PieceStage.PLAY, GameStage.PieceStage.REVEAL);
+                                    case RoundMode.ONION -> List.of(GameStage.PieceStage.ONION_LISTEN, GameStage.PieceStage.REVEAL);
+                                    case RoundMode.EVERYBODY ->  List.of(GameStage.PieceStage.LISTEN, GameStage.PieceStage.REVEAL);
+                                })
                 ).toList(),
                 new GameStage.RoundSummary(new GameStage.RoundNumber((int) roundIndex + 1, quiz.levels().size()))
         );

@@ -17,7 +17,7 @@ public class PieceStageButton extends Button {
 
     private String caption(GameStage.PieceStage pieceStage) {
         return switch (pieceStage) {
-            case LISTEN -> "\uD83C\uDFB5 Niech Słuchają";
+            case LISTEN, ONION_LISTEN -> "\uD83C\uDFB5 Niech Słuchają";
             case REVEAL -> "\uD83D\uDCDC Odsłoń";
             case PLAY -> "▶ Gramy!";
         };

@@ -250,16 +250,21 @@ public class DjView extends VerticalLayout implements RouterLayout {
         comboBox.setWidthFull();
         comboBox.setEnabled(gameService.playOffTask().isEmpty());
 
-        ActivateComponent activateComponent = new ActivateComponent(playOff, gameService.stage() == playOff, _ -> {
+        ActivateComponent activateComponent = new ActivateComponent(playOff, gameService.stage() == playOff, _ -> onActivate(playOff));
+        Button select = new Button("wybierz");
+        select.addClickListener(_ -> {
             gameService.setPlayOffTask(comboBox.getValue());
-            onActivate(playOff);
+            refreshPlayOffContent();
         });
+        select.setEnabled(comboBox.getValue() != null && gameService.playOffTask().isEmpty());
+
         activateComponents.put(playOff, activateComponent);
         activateComponent.setEnabled(comboBox.getValue() != null);
-        comboBox.addValueChangeListener(event -> activateComponent.setEnabled(event.getValue() != null));
-        row.add(comboBox, activateComponent);
+        comboBox.addValueChangeListener(event -> select.setEnabled(event.getValue() != null));
+        row.add(comboBox, select);
         row.setAlignItems(Alignment.END);
         row.setWidthFull();
+        playOffContent.add(activateComponent);
         playOffContent.add(row);
 
         if (gameService.stage() == playOff) {
@@ -268,7 +273,6 @@ public class DjView extends VerticalLayout implements RouterLayout {
             Button reset = new Button("resetuj dogrywkę");
             reset.addClickListener(_ -> {
                 gameService.clearPlayOffTask();
-                comboBox.setValue(null);
                 playOff.setPerformed(false);
                 gameService.setStage(playOff);
                 refreshPlayOffContent();
@@ -276,7 +280,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
             reset.setEnabled(false);
             danger.addValueChangeListener(event -> reset.setEnabled(event.getValue()));
             Button collectAnswers = new Button("≙ Niech odpowiadajo!");
-            collectAnswers.setEnabled(!playOff.isPerformed());
+            collectAnswers.setEnabled(!playOff.isPerformed() && gameService.playOffTask().isPresent());
             collectAnswers.addClickListener(_ -> {
                 playOff.setPerformed(true);
                 gameService.setStage(playOff);
@@ -284,10 +288,13 @@ public class DjView extends VerticalLayout implements RouterLayout {
             });
             HorizontalLayout buttons = new HorizontalLayout(danger, reset, collectAnswers);
             buttons.setPadding(false);
-            playOffContent.add(comboBox);
             playOffContent.add(buttons);
             if (playOff.isPerformed()) {
-                playOffContent.add(new LittleSlackerList(gameService.getSlackers()));
+                var slackers = gameService.getSlackers();
+                playOffContent.add(new LittleSlackerList(slackers));
+                if (slackers.isEmpty()) {
+                    notification.play();
+                }
             }
         }
     }
@@ -362,7 +369,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
 
     private void refreshSlackers() {
         if (gameService.stage() instanceof GameStage.RoundPiece piece) {
-            if (piece.getCurrentStage() == GameStage.PieceStage.LISTEN) {
+            if (piece.getCurrentStage() == GameStage.PieceStage.LISTEN || piece.getCurrentStage() == GameStage.PieceStage.ONION_LISTEN) {
                 refreshPieceContent(piece);
             }
         } else if (gameService.stage() instanceof GameStage.PlayOff) {
@@ -382,13 +389,15 @@ public class DjView extends VerticalLayout implements RouterLayout {
     private void refreshPieceContent(GameStage.RoundPiece piece) {
         pieceContent.removeAll();
         switch (piece.getCurrentStage()) {
-            case LISTEN -> {
-                Checkbox bonus = new Checkbox("Bonus", piece.isBonus());
-                bonus.addValueChangeListener(event -> {
-                    piece.setBonus(event.getValue());
-                    gameService.setStage(piece);
-                });
-                pieceContent.add(bonus);
+            case LISTEN, ONION_LISTEN -> {
+                if (piece.getCurrentStage() == GameStage.PieceStage.LISTEN) {
+                    Checkbox bonus = new Checkbox("Bonus", piece.isBonus());
+                    bonus.addValueChangeListener(event -> {
+                        piece.setBonus(event.getValue());
+                        gameService.setStage(piece);
+                    });
+                    pieceContent.add(bonus);
+                }
                 List<Player> slackers = gameService.getSlackers();
                 pieceContent.add(new LittleSlackerList(slackers));
                 if (slackers.isEmpty()) {

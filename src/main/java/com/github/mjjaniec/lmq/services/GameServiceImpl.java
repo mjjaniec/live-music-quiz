@@ -187,7 +187,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
 
         pieceStage().ifPresent(piece -> {
             switch (piece.getCurrentStage()) {
-                case LISTEN -> {
+                case LISTEN, ONION_LISTEN -> {
                     initSlackers(piece);
                     navigator.refreshBonus();
                     if (previousStage != gameStage) {

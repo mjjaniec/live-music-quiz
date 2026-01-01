@@ -25,7 +25,7 @@ public sealed interface GameStage {
 
 
     enum PieceStage {
-        LISTEN, REVEAL, PLAY
+        LISTEN, ONION_LISTEN, REVEAL, PLAY
     }
 
     record Invite() implements GameStage {
@@ -114,7 +114,7 @@ public sealed interface GameStage {
         @Override
         public Class<? extends PlayerRoute> playerView() {
             return switch (currentStage) {
-                case LISTEN -> AnswerView.class;
+                case LISTEN, ONION_LISTEN -> AnswerView.class;
                 case REVEAL -> PieceResultView.class;
                 case PLAY -> PlayView.class;
             };
@@ -123,7 +123,7 @@ public sealed interface GameStage {
         @Override
         public Class<? extends BigScreenRoute> bigScreenView() {
             return switch (currentStage) {
-                case LISTEN -> BigScreenListenView.class;
+                case LISTEN, ONION_LISTEN -> BigScreenListenView.class;
                 case REVEAL -> RevealView.class;
                 case PLAY -> BigScreenPlayView.class;
             };
