@@ -15,6 +15,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinService;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
 import java.util.List;
 
 @Route(value = "invite", layout = BigScreenView.class)
@@ -27,6 +28,7 @@ public class InviteView extends HorizontalLayout implements BigScreenRoute {
     public InviteView(GameService gameService, BroadcastAttach broadcastAttach) {
         this.gameService = gameService;
         this.broadcastAttach = broadcastAttach;
+        testId(playersContainer, "big-screen/players-container");
         setSizeFull();
         setSpacing(false);
 

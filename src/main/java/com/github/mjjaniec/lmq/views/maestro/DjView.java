@@ -29,6 +29,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RouterLink;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,7 +42,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
     private final Grid<Player> playersGrid = new Grid<>(Player.class, false);
     private final Map<GameStage, ActivateComponent> activateComponents = new HashMap<>();
     private final Map<GameStage, StageHeader> headers = new HashMap<>();
-    private final Button reset = new Button("Reset");
+    private final Button reset = testId(new Button("Reset"), "maestro/reset/button");
     private Optional<StageHeader> currentParentHeader = Optional.empty();
 
     private final Div pieceContent = new Div();
@@ -80,7 +81,9 @@ public class DjView extends VerticalLayout implements RouterLayout {
         HorizontalLayout layout = new HorizontalLayout();
         layout.setWidthFull();
         TextField message = new TextField("Wiadomość do publiczności", "jeśli ustawiona, zastępuje logo na dużym ekranie");
+        testId(message, "maestro/dj/message-field");
         Button button = new Button("Wyczyść");
+        testId(button, "maestro/dj/message-button");
         button.setWidth("6rem");
         message.setValueChangeMode(ValueChangeMode.EAGER);
         message.addInputListener(_ -> button.setText(message.getValue().isBlank() ? "Wyczyść" : "Ustaw"));
@@ -156,6 +159,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
     }
 
     private Component playersList() {
+        testId(playersGrid, "maestro/players-grid");
         playersGrid.addColumn(Player::name).setHeader("Ksywka");
         playersGrid.addColumn(new ComponentRenderer<>((SerializableFunction<Player, Component>) player -> {
             Div result = new Div();
@@ -219,7 +223,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
         content.setWidthFull();
         HorizontalLayout line = new HorizontalLayout();
         line.add(createActivateComponent(wrapUp));
-        Checkbox danger = new Checkbox("danger");
+        Checkbox danger = testId(new Checkbox("danger"), "maestro/reset/danger");
         reset.setEnabled(false);
         danger.addValueChangeListener(event -> reset.setEnabled(event.getValue()));
         line.add(danger);

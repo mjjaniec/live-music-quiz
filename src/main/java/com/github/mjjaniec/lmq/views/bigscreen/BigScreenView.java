@@ -4,7 +4,6 @@ import com.github.mjjaniec.lmq.components.BannerBand;
 import com.github.mjjaniec.lmq.components.FooterBand;
 import com.github.mjjaniec.lmq.components.ProgressBar;
 import com.github.mjjaniec.lmq.components.RouterLayoutWithOutlet;
-import com.github.mjjaniec.lmq.model.GameStage;
 import com.github.mjjaniec.lmq.services.BroadcastAttach;
 import com.github.mjjaniec.lmq.services.GameService;
 import com.github.mjjaniec.lmq.services.TestDataProvider;
@@ -73,6 +72,7 @@ public class BigScreenView extends VerticalLayout implements RouterLayoutWithOut
         result.setWidthFull();
         result.setAlignItems(Alignment.CENTER);
         H1 msg = new H1(message);
+        testId(msg, "big-screen/custom-message");
         msg.getStyle().setColor(Palette.WHITE);
         result.setJustifyContentMode(JustifyContentMode.CENTER);
         result.setVerticalComponentAlignment(Alignment.CENTER);

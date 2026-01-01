@@ -42,7 +42,7 @@ public class JoinView extends VerticalLayout {
         outlet.setSpacing(true);
         outlet.add(new Div(new Text("Witaj w Live Music Quiz by Michał Janiec!")));
         outlet.add(new Div(new Text("podaj ksywkę żeby dołączyć:")));
-        TextField field = new TextField("ksywka");
+        TextField field = testId(new TextField("ksywka"), "player/join/nickname");
         Button join = testId(new Button("Dołączam!"), "player/join/button");
         join.setEnabled(false);
         join.addClickListener(_ -> {

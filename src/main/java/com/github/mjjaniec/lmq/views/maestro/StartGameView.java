@@ -30,7 +30,7 @@ public class StartGameView extends VerticalLayout implements RouterLayout {
             Set<String> sets = mainSet.sets();
             String ALL = "ALL";
 
-            ComboBox<String> games = new ComboBox<>("Choose Game");
+            ComboBox<String> games = testId(new ComboBox<>("Choose Game"), "maestro/start/game-selection");
             games.setItems(Stream.concat(sets.stream(), Stream.of(ALL)).toList());
             Button start = testId(new Button("Start"), "meastro/start/button");
             start.setEnabled(false);

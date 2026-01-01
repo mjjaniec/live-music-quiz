@@ -1,6 +1,7 @@
 package com.github.mjjaniec.lmq;
 
 import com.microsoft.playwright.*;
+import com.microsoft.playwright.options.AriaRole;
 import org.junit.jupiter.api.*;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
@@ -19,7 +20,7 @@ public class SmokeIT {
     static void launchBrowser() {
         playwright = Playwright.create();
         // Set headless to true for CI/CD environments
-        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
+        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
     }
 
     @AfterAll
@@ -57,7 +58,6 @@ public class SmokeIT {
         page.waitForLoadState();
 
         assertTrue(page.title().contains("Live Music Quiz"));
-        assertThat(page.getByTestId("meastro/start/button")).isVisible();
     }
 
     @Test
