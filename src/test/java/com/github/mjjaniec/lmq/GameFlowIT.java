@@ -138,7 +138,49 @@ public class GameFlowIT {
 
             // 5. Verify logo (or at least that message is gone)
             log.info("Verifying message is gone from Big Screen");
-            assertThat(bigScreenPage.getByTestId("big-screen/custom-message")).isHidden();
+            assertThat(bigScreenPage.getByTestId("big-screen/custom-message-container")).isHidden();
+        }
+    }
+
+    @Test
+    void bumpOutPlayerFlow() {
+        try (BrowserContext maestroContext = browser.newContext();
+             BrowserContext bigScreenContext = browser.newContext();
+             BrowserContext playerContext = browser.newContext()) {
+
+            Page maestroPage = maestroContext.newPage();
+            Page bigScreenPage = bigScreenContext.newPage();
+            Page playerPage = playerContext.newPage();
+
+            // 1. Maestro starts the game
+            initTheGame(maestroPage, bigScreenPage);
+
+            // 2. One player joins
+            log.info("bump: Player joining");
+            joinPlayer(playerPage, "ToBoBumped");
+
+            // 3. Maestro bumps him out
+            log.info("bump: Maestro bumping out player");
+
+            maestroPage.getByTestId("mastero/players-grid/danger/ToBoBumped").click();
+            maestroPage.getByTestId("mastero/players-grid/bump-out/ToBoBumped").click();
+
+            // 4. Player is redirected to join page
+            log.info("bump: Verifying player redirected to join page");
+            // Vaadin might take a moment to redirect
+            playerPage.waitForURL(url -> url.contains("/player/join"));
+            assertThat(playerPage.getByTestId("player/join/button")).isVisible();
+
+            // 5. Player rejoins under new nickname
+            log.info("bump: Player rejoining with new nickname");
+            playerPage.locator("vaadin-text-field[data-testid='player/join/nickname'] input").fill("RejoinedPlayer");
+            playerPage.getByTestId("player/join/button").click();
+            assertThat(playerPage.getByText("poczekaj na pozostałych graczy")).isVisible();
+
+            // 6. Verify visible on big screen
+            log.info("bump: Verifying on Big Screen");
+            assertThat(bigScreenPage.getByTestId("big-screen/players-container")).containsText("RejoinedPlayer");
+            assertThat(bigScreenPage.getByTestId("big-screen/players-container")).not().containsText("ToBoBumped");
         }
     }
 

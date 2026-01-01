@@ -167,9 +167,11 @@ public class DjView extends VerticalLayout implements RouterLayout {
         playersGrid.addColumn(new ComponentRenderer<>((SerializableFunction<Player, Component>) player -> {
             Div result = new Div();
             Checkbox danger = new Checkbox("danger", false);
+            testId(danger, "mastero/players-grid/danger/" + player.name());
             Button bumpOut = new Button("Wyrzuć", _ -> gameService.removePlayer(player));
             bumpOut.addThemeVariants(ButtonVariant.LUMO_ERROR);
             bumpOut.setEnabled(false);
+            testId(bumpOut, "mastero/players-grid/bump-out/" + player.name());
             danger.addValueChangeListener(event -> bumpOut.setEnabled(event.getValue()));
             result.add(danger, bumpOut);
             return result;
