@@ -19,15 +19,15 @@ public interface JpaPlayOffStore extends CrudRepository<PlayOffDto, String>, Pla
     @Override
     default Map<String, Integer> getPlayOffs() {
         Map<String, Integer> result = new HashMap<>();
-        findAll().iterator().forEachRemaining(dto -> result.put(dto.getPlayer(), dto.getValue()));
+        findAll().iterator().forEachRemaining(dto -> result.put(dto.getPlayer(), dto.getAnswer()));
         return ImmutableMap.copyOf(result);
     }
 
     @Override
-    default void savePlayOff(Player player, int value) {
+    default void savePlayOff(Player player, int answer) {
         PlayOffDto dto = new PlayOffDto();
         dto.setPlayer(player.name());
-        dto.setValue(value);
+        dto.setAnswer(answer);
         save(dto);
     }
 

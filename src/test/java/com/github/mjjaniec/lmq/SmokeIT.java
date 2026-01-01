@@ -7,6 +7,9 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SmokeIT {
+    private static final int PORT = Integer.parseInt(System.getProperty("server.port", "8090"));
+    private static final String BASE_URL = "http://localhost:" + PORT;
+
     static Playwright playwright;
     static Browser browser;
     BrowserContext context;
@@ -41,7 +44,7 @@ public class SmokeIT {
 
     @Test
     void playerPageLoads() {
-        page.navigate("http://localhost:8080/");
+        page.navigate(BASE_URL + "/");
 
         page.waitForLoadState();
         assertTrue(page.title().contains("Live Music Quiz"));
@@ -50,7 +53,7 @@ public class SmokeIT {
 
     @Test
     void maestroPageLoads() {
-        page.navigate("http://localhost:8080/maestro/start");
+        page.navigate(BASE_URL + "/maestro/start");
         page.waitForLoadState();
 
         assertTrue(page.title().contains("Live Music Quiz"));
@@ -59,7 +62,7 @@ public class SmokeIT {
 
     @Test
     void bigscreenPageLoads() {
-        page.navigate("http://localhost:8080/big-screen");
+        page.navigate(BASE_URL + "/big-screen");
         page.waitForLoadState();
 
         assertTrue(page.title().contains("Live Music Quiz"));
