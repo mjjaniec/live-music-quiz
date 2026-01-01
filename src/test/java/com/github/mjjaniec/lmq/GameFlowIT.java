@@ -164,7 +164,7 @@ public class GameFlowIT {
         log.info("Big Screen top visible");
 
         // Wait for the redirect to invite view if it happens
-        bigScreenPage.waitForURL(url -> url.contains("/invite"), new Page.WaitForURLOptions());
+        bigScreenPage.waitForURL(url -> url.endsWith("/invite"), new Page.WaitForURLOptions());
         log.info("Big Screen at /invite");
 
         assertThat(bigScreenPage.getByText("Czekamy na graczy")).isVisible();
@@ -173,16 +173,10 @@ public class GameFlowIT {
 
     private void ensureGameNotStarted(Page maestroPage) {
         log.info("Ensuring game not started");
-        maestroPage.navigate(BASE_URL + "/maestro/start");
-        maestroPage.waitForLoadState();
-        // Wait for either the start button or the reset button to be attached
-        try {
-            maestroPage.locator("[data-testid='meastro/start/button'], [data-testid='maestro/reset/button']").first().waitFor(new Locator.WaitForOptions().setTimeout(10000));
-        } catch (Exception e) {
-            log.warn("Timeout waiting for maestro buttons, current URL: {}", maestroPage.url());
-        }
+        maestroPage.navigate(BASE_URL + "/maestro");
+        maestroPage.waitForURL(url -> url.endsWith("/dj") || url.endsWith("start"));
 
-        if (maestroPage.url().contains("/dj") || maestroPage.getByTestId("maestro/reset/button").count() > 0) {
+        if (maestroPage.url().endsWith("/dj")) {
             log.info("Game already started, resetting");
             // If the reset button is not visible, it might be inside a collapsed accordion
             if (!maestroPage.getByTestId("maestro/reset/button").isVisible()) {

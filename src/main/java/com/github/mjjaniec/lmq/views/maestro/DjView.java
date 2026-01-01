@@ -57,6 +57,8 @@ public class DjView extends VerticalLayout implements RouterLayout {
         this.broadcastAttach = broadcastAttach;
         this.spreadsheetLoader = spreadsheetLoader;
 
+        testId(this, "maestro/dj");
+
         setSizeFull();
         setPadding(false);
 
@@ -155,7 +157,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
         if (stage != null) {
             headers.put(stage, result);
         }
-        return result;
+        return testId(result, "maestro/dj/stage-header/" + stage.getClass().getSimpleName();
     }
 
     private Component playersList() {
