@@ -45,7 +45,7 @@ public class PlayOffView extends VerticalLayout implements PlayerRoute {
 
                 Button submit = new Button("Zatwierdź!");
                 submit.setEnabled(false);
-                submit.addClickListener(event -> {
+                submit.addClickListener(_ -> {
                     if (player != null && field.getValue() != null) {
                         field.setEnabled(false);
                         submit.setEnabled(false);

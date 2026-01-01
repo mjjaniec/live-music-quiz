@@ -28,6 +28,7 @@ import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RouterLink;
+import org.jspecify.annotations.Nullable;
 
 import static com.github.mjjaniec.lmq.util.TestId.testId;
 import java.util.*;
@@ -152,12 +153,12 @@ public class DjView extends VerticalLayout implements RouterLayout {
     }
 
 
-    private StageHeader createPanelHeader(Component content, GameStage stage) {
+    private StageHeader createPanelHeader(Component content, @Nullable GameStage stage) {
         StageHeader result = new StageHeader(content, gameService.stage() == stage, currentParentHeader);
         if (stage != null) {
             headers.put(stage, result);
         }
-        return testId(result, "maestro/dj/stage-header/" + stage.getClass().getSimpleName();
+        return result;
     }
 
     private Component playersList() {
@@ -234,7 +235,9 @@ public class DjView extends VerticalLayout implements RouterLayout {
         content.add(wrapUpContent);
         refreshWrapUpContent();
 
-        return new AccordionPanel(createPanelHeader(new Text("\uD83C\uDFC6 Podsumowanie"), wrapUp), content);
+        var header = createPanelHeader(new Text("\uD83C\uDFC6 Podsumowanie"), wrapUp);
+        testId(header, "maestro/dj/wrapup-header");
+        return new AccordionPanel(header, content);
     }
 
     private AccordionPanel roundInitComponent(GameStage.RoundInit roundInit) {

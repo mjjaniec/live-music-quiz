@@ -2,7 +2,9 @@ package com.github.mjjaniec.lmq;
 
 import com.microsoft.playwright.*;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
@@ -17,7 +19,7 @@ public class GameFlowIT {
     @BeforeAll
     static void launchBrowser() {
         playwright = Playwright.create();
-        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
+        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
     }
 
     @AfterAll
@@ -180,12 +182,12 @@ public class GameFlowIT {
             log.info("Game already started, resetting");
             // If the reset button is not visible, it might be inside a collapsed accordion
             if (!maestroPage.getByTestId("maestro/reset/button").isVisible()) {
-                log.info("Reset button not visible, clicking 'Podsumowanie' accordion");
-                maestroPage.getByText("Podsumowanie").last().click();
+                log.info("Reset button not visible, expanding wrap-up");
+                maestroPage.getByTestId("maestro/dj/wrapup-header").click();
             }
             maestroPage.getByTestId("maestro/reset/danger").click();
             maestroPage.getByTestId("maestro/reset/button").click();
-            maestroPage.waitForURL("**/start");
+            maestroPage.waitForURL(url -> url.endsWith("start"));
         }
         log.info("Game state: NOT STARTED");
     }

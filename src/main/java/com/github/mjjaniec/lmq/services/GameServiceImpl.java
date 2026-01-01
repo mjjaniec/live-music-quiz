@@ -150,7 +150,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         return forStageAndSet((stage, set) -> switch (stage) {
             case GameStage.RoundSummary roundSummary -> Optional.of(roundSummary);
             case GameStage.RoundInit roundInit -> Optional.of(roundInit.roundSummary());
-            case GameStage.WrapUp wrapUp -> Optional.of(set.lastRoundSummary());
+            case GameStage.WrapUp _ -> Optional.of(set.lastRoundSummary());
             default -> Optional.empty();
         });
     }
