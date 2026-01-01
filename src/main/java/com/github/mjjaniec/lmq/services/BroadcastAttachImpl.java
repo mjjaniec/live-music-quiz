@@ -22,7 +22,6 @@ public class BroadcastAttachImpl implements BroadcastAttach, Navigator {
     private final Map<UI, Runnable> wrapUps = new HashMap<>();
     private final Map<UI, Runnable> playOffs = new HashMap<>();
     private final Map<UI, Runnable> bonusListeners = new HashMap<>();
-    private final Map<UI, Runnable> customMessageListeners = new HashMap<>();
 
     @Override
     public void attachPlayerUI(UI ui) {
@@ -128,7 +127,7 @@ public class BroadcastAttachImpl implements BroadcastAttach, Navigator {
 
     @Override
     public void refreshCustomMessage() {
-        customMessageListeners.forEach((ui, runnable) -> ui.access(runnable::run));
+        List.copyOf(bigScreenUIs).forEach(ui -> ui.access(() -> ui.refreshCurrentRoute(true)));
     }
 
     @Override

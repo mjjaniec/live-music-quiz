@@ -17,7 +17,7 @@ public class GameFlowIT {
     @BeforeAll
     static void launchBrowser() {
         playwright = Playwright.create();
-        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
+        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
     }
 
     @AfterAll
@@ -125,10 +125,6 @@ public class GameFlowIT {
 
             // 3. Verify message on big screen
             log.info("Verifying message on Big Screen");
-            // Wait for constructor call if needed, or just reload to be sure
-            bigScreenPage.reload();
-            bigScreenPage.waitForLoadState();
-            assertThat(bigScreenPage.getByTestId("big-screen/custom-message-container")).isVisible();
             assertThat(bigScreenPage.getByTestId("big-screen/custom-message")).hasText(testMessage);
 
             // 4. Clear the message
@@ -140,14 +136,13 @@ public class GameFlowIT {
 
             // 5. Verify logo (or at least that message is gone)
             log.info("Verifying message is gone from Big Screen");
-            bigScreenPage.reload();
-            bigScreenPage.waitForLoadState();
-            assertThat(bigScreenPage.getByTestId("big-screen/custom-message-container")).isHidden();
+            assertThat(bigScreenPage.getByTestId("big-screen/custom-message")).isHidden();
         }
     }
 
     private void initTheGame(Page maestroPage, Page bigScreenPage) {
         ensureGameNotStarted(maestroPage);
+        loadBigScreenInvite(bigScreenPage);
 
         log.info("unique: Selecting game");
         maestroPage.getByTestId("maestro/start/game-selection").click();
@@ -158,8 +153,6 @@ public class GameFlowIT {
         maestroPage.getByTestId("meastro/start/button").click();
 
         log.info("Clicked Start button");
-
-        loadBigScreenInvite(bigScreenPage);
     }
 
     private void loadBigScreenInvite(Page bigScreenPage) {
@@ -171,7 +164,7 @@ public class GameFlowIT {
         log.info("Big Screen top visible");
 
         // Wait for the redirect to invite view if it happens
-        bigScreenPage.waitForURL(url -> url.contains("/invite"), new Page.WaitForURLOptions().setTimeout(15000));
+        bigScreenPage.waitForURL(url -> url.contains("/invite"), new Page.WaitForURLOptions());
         log.info("Big Screen at /invite");
 
         assertThat(bigScreenPage.getByText("Czekamy na graczy")).isVisible();

@@ -104,10 +104,15 @@ public class BigScreenView extends VerticalLayout implements RouterLayoutWithOut
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
         broadcaster.attachBigScreenUI(attachEvent.getUI());
         broadcaster.attachProgressBar(attachEvent.getUI(), this::refreshProgressBars);
+        Optional.ofNullable(gameService.stage()).ifPresentOrElse(
+                stage -> attachEvent.getUI().navigate((Class<? extends Component>) stage.bigScreenView()),
+                () -> attachEvent.getUI().navigate(InviteView.class)
+        );
     }
 
     @Override
