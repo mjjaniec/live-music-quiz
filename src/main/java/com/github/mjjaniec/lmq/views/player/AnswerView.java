@@ -22,14 +22,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
+
 
 @JsModule(value = "./setupAutocomplete.ts")
 @Route(value = "answer", layout = PlayerView.class)
 public class AnswerView extends VerticalLayout implements PlayerRoute {
-    private final Input artist = new Input();
-    private final Input title = new Input();
+    private final Input artist = testId(new Input(), "player/answer/artist");
+    private final Input title = testId(new Input(), "player/answer/title");
     private final GameService gameService;
-    private final Button confirm = new Button("Potwierdzam");
+    private final Button confirm = testId(new Button("Potwierdzam"), "player/answer/confirm");
     private static final String ARTIST_PATH = "api/v1/hint/artist";
     private static final String TITLE_PATH = "api/v1/hint/title";
 

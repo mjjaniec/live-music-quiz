@@ -6,7 +6,10 @@ import com.github.mjjaniec.lmq.services.BroadcastAttach;
 import com.github.mjjaniec.lmq.services.MaestroInterface;
 import com.github.mjjaniec.lmq.views.bigscreen.InviteView;
 import com.github.mjjaniec.lmq.views.player.JoinView;
-import com.vaadin.flow.component.*;
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.DetachEvent;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
@@ -30,9 +33,10 @@ import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RouterLink;
 import org.jspecify.annotations.Nullable;
 
-import static com.github.mjjaniec.lmq.util.TestId.testId;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.github.mjjaniec.lmq.util.TestId.testId;
 
 @Route(value = "dj", layout = MaestroView.class)
 public class DjView extends VerticalLayout implements RouterLayout {
@@ -244,7 +248,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
 
     private AccordionPanel roundInitComponent(GameStage.RoundInit roundInit) {
         HorizontalLayout content = new HorizontalLayout();
-        content.add(createActivateComponent(roundInit));
+        content.add(testId(createActivateComponent(roundInit), "maestro/dj/round-init/activate-" + roundInit.roundNumber().number()));
         MainSet.RoundMode roundMode = roundInit.roundMode();
         content.add(new Span("typ: " + roundMode + ", za-artystę: " + roundMode.artistPoints + ", za-tytuł: " + roundMode.titlePoints));
         return new AccordionPanel(createPanelHeader(new Text("▶️ Rozpoczęcie rundy"), roundInit), content);
@@ -252,62 +256,64 @@ public class DjView extends VerticalLayout implements RouterLayout {
 
     private void refreshPlayOffContent() {
         playOffContent.removeAll();
-        PlayOffs playOffs = spreadsheetLoader.loadPlayOffs();
 
-        GameStage.PlayOff playOff = gameService.stageSet().playOff();
-        HorizontalLayout row = new HorizontalLayout();
-        ComboBox<PlayOffs.PlayOff> comboBox = new ComboBox<>("Wybierz dogrywkę", playOffs.playOffs());
-        gameService.playOffTask().ifPresent(comboBox::setValue);
-        comboBox.setWidthFull();
-        comboBox.setEnabled(gameService.playOffTask().isEmpty());
+        gameService.playOffStage().ifPresent(playOff -> {
+            PlayOffs playOffs = spreadsheetLoader.loadPlayOffs();
 
-        ActivateComponent activateComponent = new ActivateComponent(playOff, gameService.stage() == playOff, _ -> onActivate(playOff));
-        Button select = new Button("wybierz");
-        select.addClickListener(_ -> {
-            gameService.setPlayOffTask(comboBox.getValue());
-            refreshPlayOffContent();
-        });
-        select.setEnabled(comboBox.getValue() != null && gameService.playOffTask().isEmpty());
+            HorizontalLayout row = new HorizontalLayout();
+            ComboBox<PlayOffs.PlayOff> comboBox = new ComboBox<>("Wybierz dogrywkę", playOffs.playOffs());
+            gameService.playOffTask().ifPresent(comboBox::setValue);
+            comboBox.setWidthFull();
+            comboBox.setEnabled(gameService.playOffTask().isEmpty());
 
-        activateComponents.put(playOff, activateComponent);
-        activateComponent.setEnabled(comboBox.getValue() != null);
-        comboBox.addValueChangeListener(event -> select.setEnabled(event.getValue() != null));
-        row.add(comboBox, select);
-        row.setAlignItems(Alignment.END);
-        row.setWidthFull();
-        playOffContent.add(activateComponent);
-        playOffContent.add(row);
-
-        if (gameService.stage() == playOff) {
-
-            Checkbox danger = new Checkbox("danger");
-            Button reset = new Button("resetuj dogrywkę");
-            reset.addClickListener(_ -> {
-                gameService.clearPlayOffTask();
-                playOff.setPerformed(false);
-                gameService.setStage(playOff);
+            ActivateComponent activateComponent = new ActivateComponent(playOff, gameService.stage() == playOff, _ -> onActivate(playOff));
+            Button select = new Button("wybierz");
+            select.addClickListener(_ -> {
+                gameService.setPlayOffTask(comboBox.getValue());
                 refreshPlayOffContent();
             });
-            reset.setEnabled(false);
-            danger.addValueChangeListener(event -> reset.setEnabled(event.getValue()));
-            Button collectAnswers = new Button("≙ Niech odpowiadajo!");
-            collectAnswers.setEnabled(!playOff.isPerformed() && gameService.playOffTask().isPresent());
-            collectAnswers.addClickListener(_ -> {
-                playOff.setPerformed(true);
-                gameService.setStage(playOff);
-                refreshPlayOffContent();
-            });
-            HorizontalLayout buttons = new HorizontalLayout(danger, reset, collectAnswers);
-            buttons.setPadding(false);
-            playOffContent.add(buttons);
-            if (playOff.isPerformed()) {
-                var slackers = gameService.getSlackers();
-                playOffContent.add(new LittleSlackerList(slackers));
-                if (slackers.isEmpty()) {
-                    notification.play();
+            select.setEnabled(comboBox.getValue() != null && gameService.playOffTask().isEmpty());
+
+            activateComponents.put(playOff, activateComponent);
+            activateComponent.setEnabled(comboBox.getValue() != null);
+            comboBox.addValueChangeListener(event -> select.setEnabled(event.getValue() != null));
+            row.add(comboBox, select);
+            row.setAlignItems(Alignment.END);
+            row.setWidthFull();
+            playOffContent.add(activateComponent);
+            playOffContent.add(row);
+
+            if (gameService.stage() == playOff) {
+
+                Checkbox danger = new Checkbox("danger");
+                Button reset = new Button("resetuj dogrywkę");
+                reset.addClickListener(_ -> {
+                    gameService.clearPlayOffTask();
+                    playOff.setPerformed(false);
+                    gameService.setStage(playOff);
+                    refreshPlayOffContent();
+                });
+                reset.setEnabled(false);
+                danger.addValueChangeListener(event -> reset.setEnabled(event.getValue()));
+                Button collectAnswers = new Button("≙ Niech odpowiadajo!");
+                collectAnswers.setEnabled(!playOff.isPerformed() && gameService.playOffTask().isPresent());
+                collectAnswers.addClickListener(_ -> {
+                    playOff.setPerformed(true);
+                    gameService.setStage(playOff);
+                    refreshPlayOffContent();
+                });
+                HorizontalLayout buttons = new HorizontalLayout(danger, reset, collectAnswers);
+                buttons.setPadding(false);
+                playOffContent.add(buttons);
+                if (playOff.isPerformed()) {
+                    var slackers = gameService.getSlackers();
+                    playOffContent.add(new LittleSlackerList(slackers));
+                    if (slackers.isEmpty()) {
+                        notification.play();
+                    }
                 }
             }
-        }
+        });
     }
 
     private AccordionPanel playOffComponent(GameStage.PlayOff playOff) {
@@ -333,7 +339,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
 
 
     private AccordionPanel roundComponent(GameStage.RoundInit roundInit) {
-        StageHeader header = createPanelHeader(new Text("\uD83C\uDFAF Runda " + roundInit.roundNumber().number()), null);
+        StageHeader header = testId(createPanelHeader(new Text("\uD83C\uDFAF Runda " + roundInit.roundNumber().number()), null), "maestro/dj/round-header-" + roundInit.roundNumber().number());
         currentParentHeader = Optional.of(header);
         Accordion content = new Accordion();
         content.getStyle().setMarginLeft("3em");
@@ -343,13 +349,13 @@ public class DjView extends VerticalLayout implements RouterLayout {
         currentParentHeader = Optional.empty();
         GameStage stage = gameService.stage();
         header.setActive(stage == roundInit || stage == roundInit.roundSummary() ||
-                (stage instanceof GameStage.RoundPiece rp && roundInit.pieces().contains(rp)));
+                         (stage instanceof GameStage.RoundPiece rp && roundInit.pieces().contains(rp)));
         return new AccordionPanel(header, content);
     }
 
     private AccordionPanel pieceComponent(GameStage.RoundPiece piece) {
         Div headerComponent = new Div(new Span("\uD83C\uDFBC " + piece.piece.artist() + " - " + piece.piece.title()));
-        Div header = createPanelHeader(headerComponent, piece);
+        StageHeader header = testId(createPanelHeader(headerComponent, piece), "maestro/dj/piece-header-" + piece.roundNumber + "-" + piece.pieceNumber.number());
         VerticalLayout content = new VerticalLayout();
         content.setWidthFull();
         HorizontalLayout row = new HorizontalLayout();

@@ -10,6 +10,8 @@ import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
+
 @Route(value = "piece-result", layout = PlayerView.class)
 public class PieceResultView extends VerticalLayout implements PlayerRoute {
 
@@ -20,7 +22,7 @@ public class PieceResultView extends VerticalLayout implements PlayerRoute {
     }
 
     private final GameService gameService;
-    private final H1 pointsHolder = new H1();
+    private final H1 pointsHolder = testId(new H1(), "player/piece-result/points");
     private final H3 pointsCaptionHolder = new H3();
     private final FakeAutocomplete fakeArtist = fakeAutocomplete();
     private final FakeAutocomplete fakeTitle = fakeAutocomplete();

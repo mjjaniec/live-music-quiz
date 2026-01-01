@@ -15,6 +15,8 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
+
 
 @Route(value = "play", layout = PlayerView.class)
 public class PlayView extends VerticalLayout implements PlayerRoute {
@@ -27,6 +29,7 @@ public class PlayView extends VerticalLayout implements PlayerRoute {
     private @Nullable Player player;
 
     public PlayView(GameService gameService, BroadcastAttach broadcastAttach) {
+        testId(this, "player/play");
         this.gameService = gameService;
         this.broadcastAttach = broadcastAttach;
         setSpacing(true);

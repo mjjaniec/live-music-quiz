@@ -5,9 +5,11 @@ import com.vaadin.flow.component.button.Button;
 
 import java.util.function.Consumer;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
 
 public class PieceStageButton extends Button {
     public PieceStageButton(GameStage.RoundPiece piece, GameStage.PieceStage pieceStage, Consumer<GameStage.RoundPiece> onActivate) {
+        testId(this, "maestro/dj/piece-" + pieceStage.name() + "-" + piece.roundNumber + "-" + piece.pieceNumber.number());
         setText(caption(pieceStage));
         addClickListener(_ -> {
             piece.setCurrentStage(pieceStage);

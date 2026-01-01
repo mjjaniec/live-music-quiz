@@ -10,11 +10,14 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
+
 @Route(value = "wait-for-round", layout = PlayerView.class)
 public class WaitForRoundView extends HorizontalLayout implements PlayerRoute {
 
 
     public WaitForRoundView(GameService gameService, TestDataProvider testDataProvider) {
+        testId(this, "player/wait-for-round");
         setSpacing(false);
         setPadding(false);
         setSizeFull();

@@ -6,9 +6,12 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
+
 public class ProgressBar extends HorizontalLayout {
 
     public ProgressBar(String what, long step, long of, String color) {
+        testId(this, "big-screen/progress-bar/" + what);
         getStyle().setColor(Palette.WHITE);
         getStyle().setBorder("solid 2px #ffffffbb");
         getStyle().setBorderRadius("0.3em");
