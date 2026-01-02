@@ -21,7 +21,7 @@ jobs:
         cache: maven
 
     - name: Install Playwright Browsers
-      run: mvn exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install --with-deps"
+      run: mvn -B -ntp exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install --with-deps"
 
     - name: Run Integration Tests
-      run: mvn verify -Pit
+      run: mvn -B -ntp verify -Pit
