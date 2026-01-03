@@ -38,7 +38,7 @@ public class PlayView extends VerticalLayout implements PlayerRoute {
 
         caption = new Span();
         caption.getStyle().setFontSize("10vw").setColor(Palette.WHITE);
-        theButton = new Button(caption);
+        theButton = testId(new Button(caption), "player/play/button");
         theButton.setSizeFull();
         theButton.addClassName("magic-button");
         theButton.addClickListener(_ ->

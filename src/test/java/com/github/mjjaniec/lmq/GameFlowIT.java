@@ -1,6 +1,7 @@
 package com.github.mjjaniec.lmq;
 
 import com.github.mjjaniec.lmq.model.Constants;
+import com.github.mjjaniec.lmq.util.Palette;
 import com.microsoft.playwright.*;
 import com.microsoft.playwright.options.AriaRole;
 import lombok.extern.slf4j.Slf4j;
@@ -392,6 +393,59 @@ public class GameFlowIT {
             // 4. On big screen info about that round is displayed
             log.info("first: Verifying round info on Big Screen");
             assertThat(bigScreenPage.getByTestId("big-screen/progress-bar/Runda")).containsText("Runda:  2 /");
+
+            // 5. Maestro selects the first piece
+            log.info("first: Selecting first piece");
+            var info = expandPiece(maestroPage, 2, 1);
+            maestroPage.getByTestId("maestro/dj/piece-PLAY-2-1").click();
+
+            // 6. Proper info is displayed on big screen
+            log.info("first: Verifying big screen has call to action");
+            assertThat(bigScreenPage.getByText("No i zgłoś się!")).isVisible();
+
+            // 7. A player volunteer to answer by clicking a button
+            log.info("first: P1 volunteering to answer");
+            assertThat(p1Page.getByTestId("player/play")).isVisible();
+            Locator p1Button = getButtonByTestId(p1Page, "player/play/button");
+            assertThat(p1Button).hasCSS("background-color", Palette.BLUE);
+            p1Button.click();
+
+            // 8. After that their name is displayed on the big screen and other players see their buttons disabled.
+            log.info("first: Verifying P1 is the responder");
+            assertThat(bigScreenPage.getByText("Odpowiada:")).isVisible();
+            assertThat(bigScreenPage.getByText("P1")).isVisible();
+
+            // Check if others are disabled
+            assertThat(getButtonByTestId(p2Page, "player/play/button")).hasCSS("background-color", Palette.GRAY);
+            assertThat(getButtonByTestId(p3Page, "player/play/button")).hasCSS("background-color", Palette.GRAY);
+
+            // And P1 should see "Odpowiadasz"
+            assertThat(getButtonByTestId(p1Page, "player/play/button")).hasCSS("background-color", Palette.GREEN);
+
+            // 9. Players do not answer in application but tell their answers to maestro.
+            // Let's assume that this player answered correctly.
+            log.info("first: Maestro reporting correct answer for P1");
+            // Wait for Maestro to show PlayTimeComponent.
+            assertThat(maestroPage.getByText("Odpowiada: P1")).isVisible();
+
+            maestroPage.getByTestId("maestro/dj/play/artist-checkbox-2-1").click();
+            maestroPage.getByTestId("maestro/dj/play/title-checkbox-2-1").click();
+            maestroPage.getByTestId("maestro/dj/play/confirm").click();
+
+            // 10. After that the piece is immediately revealed on big screen and players see their points
+            log.info("first: Verifying big screen reveal");
+            // RevealView uses different text than "No i zgłoś się!"
+            assertThat(bigScreenPage.getByText(info.artist)).isVisible();
+            assertThat(bigScreenPage.getByText(info.title)).isVisible();
+
+            log.info("first: Verifying player points");
+            // FIRST mode points: artist 12, title 16. Total 28.
+            // Wait for players to be redirected to PieceResultView
+            assertThat(p1Page.getByTestId("player/piece-result/points")).hasText("28");
+
+            assertThat(p2Page.getByTestId("player/piece-result/points")).hasText("0");
+
+            assertThat(p3Page.getByTestId("player/piece-result/points")).hasText("0");
         }
     }
 
@@ -576,5 +630,9 @@ public class GameFlowIT {
         page.getByTestId("player/join/button").click();
         // Should navigate to WaitForOthersView (since game just started)
         assertThat(page.getByText("poczekaj na pozostałych graczy")).isVisible();
+    }
+
+    private Locator getButtonByTestId(Page page, String testId) {
+        return page.getByTestId(testId);
     }
 }
