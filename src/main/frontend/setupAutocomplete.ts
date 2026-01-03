@@ -53,7 +53,7 @@ function computeQueryLength(hint?: Hint): number {
 
 function processHints(hints: Hint[]): Hint[] {
     const byPoints = new Map<number, Hint[]>();
-    const simplified = hints.map(hint => ({ ...hint, match: hint.match.replaceAll(/<[/]mark><mark>/g, "") }));
+    const simplified = hints.map(hint => ({ ...hint, match: hint.match.replaceAll(/<[/]mark>( ?)<mark>/g, "$1") }));
     const queryLength = computeQueryLength(simplified[0])
     if (queryLength < 2) {
         return [];
@@ -140,6 +140,7 @@ function setupAutocomplete(elementId: string, placeHolder: string, fetchApiPath:
                 if (true) {
                     const message = document.createElement("li");
                     message.setAttribute("class", "dunno");
+                    message.setAttribute("data-testid", `player/answer/${elementId}-dunno`);
                     message.innerText = dunnoOption;
                     list.prepend(message);
                 }

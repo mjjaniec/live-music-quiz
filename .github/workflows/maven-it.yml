@@ -24,4 +24,4 @@ jobs:
       run: mvn -B -ntp exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install --with-deps"
 
     - name: Run Integration Tests
-      run: mvn -B -ntp verify -Pit
+      run: mvn -B -ntp verify -Pit -Pproduction -DskipTests=false

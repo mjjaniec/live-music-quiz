@@ -354,8 +354,13 @@ public class DjView extends VerticalLayout implements RouterLayout {
     }
 
     private AccordionPanel pieceComponent(GameStage.RoundPiece piece) {
-        Div headerComponent = new Div(new Span("\uD83C\uDFBC " + piece.piece.artist() + " - " + piece.piece.title()));
-        StageHeader header = testId(createPanelHeader(headerComponent, piece), "maestro/dj/piece-header-" + piece.roundNumber + "-" + piece.pieceNumber.number());
+        String pieceNumberSuffix = piece.roundNumber + "-" + piece.pieceNumber.number();
+        Div headerComponent = new Div(
+                new Span("\uD83C\uDFBC "),
+                testId(new Span(piece.piece.artist()), "maestro/dj/piece-artist-" + pieceNumberSuffix),
+                new Span(" - "),
+                testId(new Span(piece.piece.title()), "maestro/dj/piece-title-" + pieceNumberSuffix));
+        StageHeader header = testId(createPanelHeader(headerComponent, piece), "maestro/dj/piece-header-" + pieceNumberSuffix);
         VerticalLayout content = new VerticalLayout();
         content.setWidthFull();
         HorizontalLayout row = new HorizontalLayout();

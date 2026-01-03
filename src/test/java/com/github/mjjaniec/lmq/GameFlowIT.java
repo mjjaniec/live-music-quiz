@@ -1,10 +1,16 @@
 package com.github.mjjaniec.lmq;
 
+import com.github.mjjaniec.lmq.model.Constants;
 import com.microsoft.playwright.*;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.assertj.core.api.Assertions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
@@ -13,13 +19,16 @@ public class GameFlowIT {
     private static final int PORT = Integer.parseInt(System.getProperty("server.port", "8090"));
     private static final String BASE_URL = "http://localhost:" + PORT;
 
+    private record PieceInfo(String artist,String title) {
+    }
+
     static Playwright playwright;
     static Browser browser;
 
     @BeforeAll
     static void launchBrowser() {
         playwright = Playwright.create();
-        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
+        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
     }
 
     @AfterAll
@@ -197,6 +206,7 @@ public class GameFlowIT {
             Page p1Page = p1Context.newPage();
             Page p2Page = p2Context.newPage();
             Page p3Page = p3Context.newPage();
+            List.of(p1Page, p2Page, p3Page).forEach(p -> p.setViewportSize(480, 640));
 
             // 1. Maestro starts the game
             initTheGame(maestroPage, bigScreenPage);
@@ -224,44 +234,69 @@ public class GameFlowIT {
 
             // 6. Then maestro selects first piece
             log.info("everybody: Selecting first piece");
-            maestroPage.getByTestId("maestro/dj/piece-header-1-1").click();
+            var info = expandPiece(maestroPage, 1, 1);
+            log.info(info.toString());
             maestroPage.getByTestId("maestro/dj/piece-LISTEN-1-1").click();
+            validateSlackers(bigScreenPage, List.of("P1", "P2", "P3"));
 
             // TODO continue
 //            // 7. Users provide answers
-//            log.info("everybody: Players providing answers");
-//            provideAnswer(p1Page, "Artist1", "Title1");
-//            provideAnswer(p2Page, "Artist1", "Title1");
-//            provideAnswer(p3Page, "Artist1", "Title1");
-//
-//            // 8. Maestro reveals correct answers and players see their points
-//            log.info("everybody: Maestro revealing answers");
-//            maestroPage.getByTestId("maestro/dj/piece-REVEAL-1-1").click();
-//
-//            log.info("everybody: Verifying points");
-//            assertThat(p1Page.getByTestId("player/piece-result/points")).isVisible();
-//            assertThat(p2Page.getByTestId("player/piece-result/points")).isVisible();
-//            assertThat(p3Page.getByTestId("player/piece-result/points")).isVisible();
+            log.info("everybody: Players providing answers");
+            provideAnswer(p1Page, info, info.artist, info.title);
+            validateSlackers(bigScreenPage, List.of("P2", "P3"));
+            provideAnswer(p2Page, info, info.artist, null);
+            validateSlackers(bigScreenPage, List.of("P3"));
+            provideAnswer(p3Page, info, "Metallica", "Nothing Else Matters");
+            validateSlackers(bigScreenPage, List.of());
+
+            // 8. Maestro reveals correct answers and players see their points
+            log.info("everybody: Maestro revealing answers");
+            maestroPage.getByTestId("maestro/dj/piece-REVEAL-1-1").click();
+
+            log.info("everybody: Verifying points");
+            assertThat(p1Page.getByTestId("player/piece-result/points")).isVisible();
+            assertThat(p2Page.getByTestId("player/piece-result/points")).isVisible();
+            assertThat(p3Page.getByTestId("player/piece-result/points")).isVisible();
+
+            // assrt that
         }
     }
 
-    private void provideAnswer(Page page, String artist, String title) {
+    private void validateSlackers(Page bigScreenPage, List<String> slackers) {
+        if (slackers.isEmpty()) {
+            bigScreenPage.getByTestId("big-screen/listen/slackers-none").isVisible();
+        } else {
+            assertThat(bigScreenPage.locator("span[class='test-class/big-screen/listen/slacker']")).hasCount(slackers.size());
+            var actualSlackers = bigScreenPage.locator("span[class='test-class/big-screen/listen/slacker']").allInnerTexts();
+            Assertions.assertThat(actualSlackers).containsExactlyInAnyOrderElementsOf(slackers);
+        }
+    }
+
+    private PieceInfo expandPiece(Page maestroPage, int round, int piece) {
+        maestroPage.getByTestId("maestro/dj/piece-header-" + round + "-" + piece).click();
+        return new PieceInfo(
+                maestroPage.getByTestId("maestro/dj/piece-artist-" + round + "-" + piece).innerText(),
+                maestroPage.getByTestId("maestro/dj/piece-title-" + round + "-" + piece).innerText()
+        );
+    }
+
+    private void selectValue(Page page, String field, @Nullable String value) {
+        if (value != null) {
+            page.locator("input[data-testid='player/answer/" + field + "']").fill(value);
+            page.locator("li[role='option']").getByText(value).click();
+        } else {
+            page.locator("input[data-testid='player/answer/" + field + "']").click();
+            page.getByTestId("player/answer/" + field + "-input-dunno").click();
+        }
+    }
+
+    private void provideAnswer(Page page, PieceInfo pieceInfo, @Nullable String artistAnswer, @Nullable String titleAnswer) {
         // Wait for AnswerView to appear
         page.waitForURL(url -> url.endsWith("/answer"));
-        page.locator("input[data-testid='player/answer/artist']").fill(artist);
-        //todo it is needed to select hints -
-        page.locator("input[data-testid='player/answer/title']").fill(title);
-        
-        // Manual trigger of setProvided if needed via evaluate, but let's see if it works without.
-        // Actually, the confirm button might not enable.
-        // Let's force it via JS if it's stuck.
-        page.evaluate("() => { " +
-                "const view = document.querySelector('vaadin-vertical-layout'); " +
-                "if (view && view.$server) { " +
-                "  view.$server.setProvided('api/v1/hint/artist', true); " +
-                "  view.$server.setProvided('api/v1/hint/title', true); " +
-                "}" +
-                "}");
+        if (!pieceInfo.artist.equals(Constants.UNKNOWN)) {
+            selectValue(page, "artist", artistAnswer);
+        }
+        selectValue(page, "title", titleAnswer);
 
         page.getByTestId("player/answer/confirm").click();
     }
