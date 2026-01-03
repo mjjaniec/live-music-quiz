@@ -337,6 +337,26 @@ public class GameFlowIT {
             assertThat(p1Page.locator("h1")).hasText("10");
             assertThat(p2Page.locator("h1")).hasText("30");
             assertThat(p3Page.locator("h1")).hasText("6");
+
+            // 11. Verify that big screen displays correct table with results. players should be ordered by their points in descending manner.
+            log.info("everybody: Verifying results table on Big Screen");
+            // P1: 10, P2: 30, P3: 6
+            // Order should be: P2 (1), P1 (2), P3 (3)
+
+            // P2 at position 1
+            assertThat(bigScreenPage.getByTestId("big-screen/results/position-1")).hasText("1");
+            assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-1")).hasText("P2");
+            assertThat(bigScreenPage.getByTestId("big-screen/results/total-1")).hasText("30");
+
+            // P1 at position 2
+            assertThat(bigScreenPage.getByTestId("big-screen/results/position-2")).hasText("2");
+            assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-2")).hasText("P1");
+            assertThat(bigScreenPage.getByTestId("big-screen/results/total-2")).hasText("10");
+
+            // P3 at position 3
+            assertThat(bigScreenPage.getByTestId("big-screen/results/position-3")).hasText("3");
+            assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-3")).hasText("P3");
+            assertThat(bigScreenPage.getByTestId("big-screen/results/total-3")).hasText("6");
         }
     }
 
