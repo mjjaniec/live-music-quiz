@@ -28,7 +28,7 @@ public class GameFlowIT {
     @BeforeAll
     static void launchBrowser() {
         playwright = Playwright.create();
-        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
+        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
     }
 
     @AfterAll
@@ -357,6 +357,126 @@ public class GameFlowIT {
             assertThat(bigScreenPage.getByTestId("big-screen/results/position-3")).hasText("3");
             assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-3")).hasText("P3");
             assertThat(bigScreenPage.getByTestId("big-screen/results/total-3")).hasText("6");
+        }
+    }
+
+    @Test
+    void gameInFirstModeFlow() {
+        try (BrowserContext maestroContext = browser.newContext();
+             BrowserContext bigScreenContext = browser.newContext();
+             BrowserContext p1Context = browser.newContext();
+             BrowserContext p2Context = browser.newContext();
+             BrowserContext p3Context = browser.newContext()) {
+
+            Page maestroPage = maestroContext.newPage();
+            Page bigScreenPage = bigScreenContext.newPage();
+            Page p1Page = p1Context.newPage();
+            Page p2Page = p2Context.newPage();
+            Page p3Page = p3Context.newPage();
+            List.of(p1Page, p2Page, p3Page).forEach(p -> p.setViewportSize(480, 640));
+
+            // 1. Maestro starts the game
+            initTheGame(maestroPage, bigScreenPage);
+
+            // 2. 3 players join
+            log.info("first: Players joining");
+            joinPlayer(p1Page, "P1");
+            joinPlayer(p2Page, "P2");
+            joinPlayer(p3Page, "P3");
+
+            // 3. Maestro starts the second round (FIRST mode)
+            log.info("first: Starting second round");
+            maestroPage.getByTestId("maestro/dj/round-header-2").click();
+            maestroPage.getByTestId("maestro/dj/round-init/activate-2").click();
+
+            // 4. On big screen info about that round is displayed
+            log.info("first: Verifying round info on Big Screen");
+            assertThat(bigScreenPage.getByTestId("big-screen/progress-bar/Runda")).containsText("Runda:  2 /");
+        }
+    }
+
+    @Test
+    void gameInOnionModeFlow() {
+        try (BrowserContext maestroContext = browser.newContext();
+             BrowserContext bigScreenContext = browser.newContext();
+             BrowserContext p1Context = browser.newContext();
+             BrowserContext p2Context = browser.newContext();
+             BrowserContext p3Context = browser.newContext()) {
+
+            Page maestroPage = maestroContext.newPage();
+            Page bigScreenPage = bigScreenContext.newPage();
+            Page p1Page = p1Context.newPage();
+            Page p2Page = p2Context.newPage();
+            Page p3Page = p3Context.newPage();
+            List.of(p1Page, p2Page, p3Page).forEach(p -> p.setViewportSize(480, 640));
+
+            // 1. Maestro starts the game
+            initTheGame(maestroPage, bigScreenPage);
+
+            // 2. 3 players join
+            log.info("onion: Players joining");
+            joinPlayer(p1Page, "P1");
+            joinPlayer(p2Page, "P2");
+            joinPlayer(p3Page, "P3");
+
+            // 3. Maestro starts the third round (ONION mode)
+            log.info("onion: Starting third round");
+            maestroPage.getByTestId("maestro/dj/round-header-3").click();
+            maestroPage.getByTestId("maestro/dj/round-init/activate-3").click();
+
+            // 4. On big screen info about that round is displayed
+            log.info("onion: Verifying round info on Big Screen");
+            assertThat(bigScreenPage.getByTestId("big-screen/progress-bar/Runda")).containsText("Runda:  3 /");
+
+            // 5. Then maestro selects first piece of round 3
+            log.info("onion: Selecting first piece");
+            var info = expandPiece(maestroPage, 3, 1);
+            maestroPage.getByTestId("maestro/dj/piece-ONION_LISTEN-3-1").click();
+
+            // 6. Users provide answers - Order matters for points in ONION mode
+            log.info("onion: Players providing answers (P1 first, P2 second, P3 third)");
+            // Multipliers: 1st correct -> 4x, 2nd -> 3x, 3rd -> 3x
+            // Round 3 mode: ONION (artist 2 pts, title 3 pts)
+
+            provideAnswer(p1Page, info, info.artist, info.title); // 1st: 2*4 + 3*4 = 8 + 12 = 20
+            validateSlackers(bigScreenPage, List.of("P2", "P3"));
+
+            provideAnswer(p2Page, info, info.artist, info.title); // 2nd: 2*3 + 3*3 = 6 + 9 = 15
+            validateSlackers(bigScreenPage, List.of("P3"));
+
+            provideAnswer(p3Page, info, info.artist, info.title); // 3rd: 2*3 + 3*3 = 6 + 9 = 15
+            validateSlackers(bigScreenPage, List.of());
+
+            // 7. Maestro reveals answers and players see points
+            log.info("onion: Maestro revealing answers for 3-1");
+            maestroPage.getByTestId("maestro/dj/piece-REVEAL-3-1").click();
+
+            log.info("onion: Verifying points for 3-1");
+            assertThat(p1Page.getByTestId("player/piece-result/points")).hasText("20");
+            assertThat(p2Page.getByTestId("player/piece-result/points")).hasText("15");
+            assertThat(p3Page.getByTestId("player/piece-result/points")).hasText("15");
+
+            // 8. Second piece of round 3
+            log.info("onion: Selecting second piece");
+            var info2 = expandPiece(maestroPage, 3, 2);
+            maestroPage.getByTestId("maestro/dj/piece-ONION_LISTEN-3-2").click();
+
+            log.info("onion: Players providing answers (P3 first, P2 second, P1 third, P1 wrong artist)");
+            // P3: 1st correct -> 2*4 + 3*4 = 20
+            // P2: 2nd correct -> 2*3 + 3*3 = 15
+            // P1: 3rd artist wrong, title correct -> 2*0 + 3*3 = 9
+
+            provideAnswer(p3Page, info2, info2.artist, info2.title);
+            provideAnswer(p2Page, info2, info2.artist, info2.title);
+            provideAnswer(p1Page, info2, "Blur", info2.title);
+
+            log.info("onion: Maestro revealing answers for 3-2");
+            maestroPage.getByTestId("maestro/dj/piece-REVEAL-3-2").click();
+
+            log.info("onion: Verifying points for 3-2");
+            assertThat(p3Page.getByTestId("player/piece-result/points")).hasText("20");
+            assertThat(p2Page.getByTestId("player/piece-result/points")).hasText("15");
+            assertThat(p1Page.getByTestId("player/piece-result/points")).hasText("9");
         }
     }
 
