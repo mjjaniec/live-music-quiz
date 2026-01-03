@@ -413,7 +413,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
         switch (piece.getCurrentStage()) {
             case LISTEN, ONION_LISTEN -> {
                 if (piece.getCurrentStage() == GameStage.PieceStage.LISTEN) {
-                    Checkbox bonus = new Checkbox("Bonus", piece.isBonus());
+                    Checkbox bonus = testId(new Checkbox("Bonus", piece.isBonus()), "maestro/dj/piece-bonus");
                     bonus.addValueChangeListener(event -> {
                         piece.setBonus(event.getValue());
                         gameService.setStage(piece);

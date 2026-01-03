@@ -28,7 +28,7 @@ public class GameFlowIT {
     @BeforeAll
     static void launchBrowser() {
         playwright = Playwright.create();
-        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
+        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
     }
 
     @AfterAll
@@ -239,8 +239,7 @@ public class GameFlowIT {
             maestroPage.getByTestId("maestro/dj/piece-LISTEN-1-1").click();
             validateSlackers(bigScreenPage, List.of("P1", "P2", "P3"));
 
-            // TODO continue
-//            // 7. Users provide answers
+            // 7. Users provide answers
             log.info("everybody: Players providing answers");
             provideAnswer(p1Page, info, info.artist, info.title);
             validateSlackers(bigScreenPage, List.of("P2", "P3"));
@@ -254,17 +253,84 @@ public class GameFlowIT {
             maestroPage.getByTestId("maestro/dj/piece-REVEAL-1-1").click();
 
             log.info("everybody: Verifying points");
-            assertThat(p1Page.getByTestId("player/piece-result/points")).isVisible();
-            assertThat(p2Page.getByTestId("player/piece-result/points")).isVisible();
-            assertThat(p3Page.getByTestId("player/piece-result/points")).isVisible();
+            assertThat(p1Page.getByTestId("player/piece-result/points")).hasText("10");
+            assertThat(p2Page.getByTestId("player/piece-result/points")).hasText("4");
+            assertThat(p3Page.getByTestId("player/piece-result/points")).hasText("0");
 
-            // assrt that
+            log.info("everybody: Verifying big screen reveal");
+            assertThat(bigScreenPage.getByText(info.artist)).isVisible();
+            assertThat(bigScreenPage.getByText(info.title)).isVisible();
+
+            // 9. Second piece of round 1
+            log.info("everybody: Selecting second piece");
+            var info2 = expandPiece(maestroPage, 1, 2);
+            maestroPage.getByTestId("maestro/dj/piece-LISTEN-1-2").click();
+
+            log.info("maestro: Enabling bonus mode");
+            maestroPage.getByTestId("maestro/dj/piece-bonus").click();
+            assertThat(bigScreenPage.getByText("Słuchaj i zgarnij BONUS!")).isVisible();
+
+            log.info("everybody: Players providing answers (P1 dunno, P2 correct)");
+            provideAnswer(p1Page, info2, null, null);
+            validateSlackers(bigScreenPage, List.of("P2", "P3"));
+            provideAnswer(p2Page, info2, info2.artist, info2.title);
+            validateSlackers(bigScreenPage, List.of("P3"));
+
+            log.info("maestro: Disabling bonus mode");
+            maestroPage.getByTestId("maestro/dj/piece-bonus").click();
+            assertThat(bigScreenPage.getByText("Słuchaj, słuchaj jaj jaj")).isVisible();
+
+            log.info("everybody: P3 providing answers (artist wrong, title correct)");
+            provideAnswer(p3Page, info2, "Metallica", info2.title);
+            validateSlackers(bigScreenPage, List.of());
+
+            log.info("everybody: Maestro revealing answers for 1-2");
+            maestroPage.getByTestId("maestro/dj/piece-REVEAL-1-2").click();
+
+            log.info("everybody: Verifying points for 1-2");
+            // P1: 0 (dunno)
+            // P2: 20 (artist 4*2 + title 6*2) - because bonus was enabled when P2 answered
+            // P3: 6 (artist incorrect, title 6*1) - because bonus was disabled when P3 answered
+            assertThat(p1Page.getByTestId("player/piece-result/points")).hasText("0");
+            assertThat(p2Page.getByTestId("player/piece-result/points")).hasText("20");
+            assertThat(p3Page.getByTestId("player/piece-result/points")).hasText("6");
+
+            log.info("everybody: Verifying big screen reveal for 1-2");
+            assertThat(bigScreenPage.getByText(info2.artist)).isVisible();
+            assertThat(bigScreenPage.getByText(info2.title)).isVisible();
+
+            // 10. Third piece of round 1 (unknown artist)
+            log.info("everybody: Selecting third piece");
+            var info3 = expandPiece(maestroPage, 1, 3);
+            maestroPage.getByTestId("maestro/dj/piece-LISTEN-1-3").click();
+
+            log.info("everybody: Players providing answers (P1 dunno, P2 correct, P3 wrong)");
+            provideAnswer(p1Page, info3, null, null);
+            validateSlackers(bigScreenPage, List.of("P2", "P3"));
+            provideAnswer(p2Page, info3, null, info3.title);
+            validateSlackers(bigScreenPage, List.of("P3"));
+            provideAnswer(p3Page, info3, null, info.title); // Use title from first piece as wrong answer
+            validateSlackers(bigScreenPage, List.of());
+
+            log.info("everybody: Maestro revealing answers for 1-3");
+            maestroPage.getByTestId("maestro/dj/piece-REVEAL-1-3").click();
+
+            log.info("everybody: Verifying points for 1-3");
+            // P1: 0 (dunno)
+            // P2: 6 (title correct)
+            // P3: 0 (title wrong)
+            assertThat(p1Page.getByTestId("player/piece-result/points")).hasText("0");
+            assertThat(p2Page.getByTestId("player/piece-result/points")).hasText("6");
+            assertThat(p3Page.getByTestId("player/piece-result/points")).hasText("0");
+
+            log.info("everybody: Verifying big screen reveal for 1-3");
+            assertThat(bigScreenPage.getByText(info3.title)).isVisible();
         }
     }
 
     private void validateSlackers(Page bigScreenPage, List<String> slackers) {
         if (slackers.isEmpty()) {
-            bigScreenPage.getByTestId("big-screen/listen/slackers-none").isVisible();
+            assertThat(bigScreenPage.getByTestId("big-screen/listen/slackers-none")).isVisible();
         } else {
             assertThat(bigScreenPage.locator("span[class='test-class/big-screen/listen/slacker']")).hasCount(slackers.size());
             var actualSlackers = bigScreenPage.locator("span[class='test-class/big-screen/listen/slacker']").allInnerTexts();
@@ -283,7 +349,7 @@ public class GameFlowIT {
     private void selectValue(Page page, String field, @Nullable String value) {
         if (value != null) {
             page.locator("input[data-testid='player/answer/" + field + "']").fill(value);
-            page.locator("li[role='option']").getByText(value).click();
+            page.locator("li[role='option']").getByText(value, new Locator.GetByTextOptions().setExact(true)).first().click();
         } else {
             page.locator("input[data-testid='player/answer/" + field + "']").click();
             page.getByTestId("player/answer/" + field + "-input-dunno").click();
