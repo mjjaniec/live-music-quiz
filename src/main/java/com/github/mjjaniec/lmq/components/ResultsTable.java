@@ -3,7 +3,9 @@ package com.github.mjjaniec.lmq.components;
 import com.github.mjjaniec.lmq.services.Results;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableFunction;
 
@@ -11,24 +13,32 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
+
 public class ResultsTable extends Grid<Results.Row> {
 
     public ResultsTable(Results results, int showFrom) {
         setSizeFull();
 
-        addColumn("Pozycja", 0, row -> text(String.valueOf(row.position())));
+        addColumn("Pozycja", 0, row -> testId(
+                text(String.valueOf(row.position())),
+                "big-screen/results/position-" + row.position()));
         addColumn("Nagroda", 0, row -> {
             H3 res = new H3(row.award().map(a -> a.symbol).orElse(""));
             res.getStyle().setLineHeight("2.2rem");
-            return res;
+            return testId(res, "big-screen/results/prize-" + row.position());
         });
-        addColumn("Ksywka", 5, row -> boldText(row.player()));
+        addColumn("Ksywka", 5, row -> testId(
+                boldText(row.player()),
+                "big-screen/results/nickname-" + row.position()));
 
         for (int i = 1; i <= results.rounds(); ++i) {
             Function<Results.Row, Component> generator;
             if (i <= results.currentRound()) {
                 int finalI = i;
-                generator = row -> text(String.valueOf(row.rounds().getOrDefault(finalI, 0)));
+                generator = row -> testId(
+                        text(String.valueOf(row.rounds().getOrDefault(finalI, 0))),
+                        "big-screen/results/round-" + finalI + "-" + row.position());
             } else {
                 generator = ignored -> new Span();
             }
@@ -36,15 +46,20 @@ public class ResultsTable extends Grid<Results.Row> {
         }
 
 
-        addColumn("Dogrywka", 1, row -> text(results.rounds() == results.currentRound() ? row.playOff() + " / " + results.targetPlayOff() : ""));
-        addColumn("Razem", 1,row -> boldText(String.valueOf(row.total())));
+        addColumn("Dogrywka", 1, row -> testId(
+                text(results.rounds() == results.currentRound() ? row.playOff() + " / " + results.targetPlayOff() : ""),
+                "big-screen/results/playoff-" + row.position())
+        );
+        addColumn("Razem", 1, row -> testId(
+                boldText(String.valueOf(row.total())),
+                "big-screen/results/total-" + row.position()));
 
 
         setPartNameGenerator(row ->
-            Stream.concat(
-                    row.award().filter(a -> a != Results.Award.PLAY_OFF || showFrom <= 4).map(a -> a.style).stream(),
-                    Stream.of("hidden").filter(ignored -> row.position() < showFrom)
-            ).collect(Collectors.joining(" "))
+                Stream.concat(
+                        row.award().filter(a -> a != Results.Award.PLAY_OFF || showFrom <= 4).map(a -> a.style).stream(),
+                        Stream.of("hidden").filter(ignored -> row.position() < showFrom)
+                ).collect(Collectors.joining(" "))
         );
 
         setItems(results.rows());

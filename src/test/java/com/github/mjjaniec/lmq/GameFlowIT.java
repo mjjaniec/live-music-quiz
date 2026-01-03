@@ -2,6 +2,7 @@ package com.github.mjjaniec.lmq;
 
 import com.github.mjjaniec.lmq.model.Constants;
 import com.microsoft.playwright.*;
+import com.microsoft.playwright.options.AriaRole;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
@@ -9,7 +10,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.assertj.core.api.Assertions;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
@@ -325,6 +325,18 @@ public class GameFlowIT {
 
             log.info("everybody: Verifying big screen reveal for 1-3");
             assertThat(bigScreenPage.getByText(info3.title)).isVisible();
+
+            log.info("everybody: Maestro activating round 1 summary");
+            maestroPage.getByTestId("maestro/dj/round-summary-header-1").click();
+            maestroPage.getByTestId("maestro/dj/round-summary-activate-1").getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Aktywuj")).click();
+
+            log.info("everybody: Verifying player round summary points");
+            // P1: 10 + 0 + 0 = 10
+            // P2: 4 + 20 + 6 = 30
+            // P3: 0 + 6 + 0 = 6
+            assertThat(p1Page.locator("h1")).hasText("10");
+            assertThat(p2Page.locator("h1")).hasText("30");
+            assertThat(p3Page.locator("h1")).hasText("6");
         }
     }
 
