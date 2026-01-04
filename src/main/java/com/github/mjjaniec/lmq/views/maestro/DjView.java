@@ -255,75 +255,79 @@ public class DjView extends VerticalLayout implements RouterLayout {
     }
 
     private void refreshPlayOffContent() {
+        var stageSet = gameService.stageSet();
+        if (stageSet == null) {
+            return;
+        }
         playOffContent.removeAll();
+        PlayOffs playOffs = spreadsheetLoader.loadPlayOffs();
 
-        gameService.playOffStage().ifPresent(playOff -> {
-            PlayOffs playOffs = spreadsheetLoader.loadPlayOffs();
+        GameStage.PlayOff playOff = stageSet.playOff();
+        HorizontalLayout row = new HorizontalLayout();
+        ComboBox<PlayOffs.PlayOff> comboBox = new ComboBox<>("Wybierz dogrywkę", playOffs.playOffs());
+        gameService.playOffTask().ifPresent(comboBox::setValue);
+        comboBox.setWidthFull();
+        testId(comboBox, "maestro/dj/play-off/selection");
+        comboBox.setEnabled(gameService.playOffTask().isEmpty());
 
-            HorizontalLayout row = new HorizontalLayout();
-            ComboBox<PlayOffs.PlayOff> comboBox = new ComboBox<>("Wybierz dogrywkę", playOffs.playOffs());
-            gameService.playOffTask().ifPresent(comboBox::setValue);
-            comboBox.setWidthFull();
-            comboBox.setEnabled(gameService.playOffTask().isEmpty());
+        ActivateComponent activateComponent = new ActivateComponent(playOff, gameService.stage() == playOff, _ -> onActivate(playOff));
+        testId(activateComponent, "maestro/dj/play-off/activate");
+        Button select = testId(new Button("wybierz"), "maestro/dj/play-off/select-task");
+        select.addClickListener(_ -> {
+            gameService.setPlayOffTask(comboBox.getValue());
+            refreshPlayOffContent();
+        });
+        select.setEnabled(comboBox.getValue() != null && gameService.playOffTask().isEmpty());
 
-            ActivateComponent activateComponent = new ActivateComponent(playOff, gameService.stage() == playOff, _ -> onActivate(playOff));
-            Button select = new Button("wybierz");
-            select.addClickListener(_ -> {
-                gameService.setPlayOffTask(comboBox.getValue());
+        activateComponents.put(playOff, activateComponent);
+        activateComponent.setEnabled(comboBox.getValue() != null);
+        comboBox.addValueChangeListener(event -> select.setEnabled(event.getValue() != null));
+        row.add(comboBox, select);
+        row.setAlignItems(Alignment.END);
+        row.setWidthFull();
+        playOffContent.add(activateComponent);
+        playOffContent.add(row);
+
+        if (gameService.stage() == playOff) {
+
+            Checkbox danger = new Checkbox("danger");
+            Button reset = new Button("resetuj dogrywkę");
+            reset.addClickListener(_ -> {
+                gameService.clearPlayOffTask();
+                playOff.setPerformed(false);
+                gameService.setStage(playOff);
                 refreshPlayOffContent();
             });
-            select.setEnabled(comboBox.getValue() != null && gameService.playOffTask().isEmpty());
-
-            activateComponents.put(playOff, activateComponent);
-            activateComponent.setEnabled(comboBox.getValue() != null);
-            comboBox.addValueChangeListener(event -> select.setEnabled(event.getValue() != null));
-            row.add(comboBox, select);
-            row.setAlignItems(Alignment.END);
-            row.setWidthFull();
-            playOffContent.add(activateComponent);
-            playOffContent.add(row);
-
-            if (gameService.stage() == playOff) {
-
-                Checkbox danger = new Checkbox("danger");
-                Button reset = new Button("resetuj dogrywkę");
-                reset.addClickListener(_ -> {
-                    gameService.clearPlayOffTask();
-                    playOff.setPerformed(false);
-                    gameService.setStage(playOff);
-                    refreshPlayOffContent();
-                });
-                reset.setEnabled(false);
-                danger.addValueChangeListener(event -> reset.setEnabled(event.getValue()));
-                Button collectAnswers = new Button("≙ Niech odpowiadajo!");
-                collectAnswers.setEnabled(!playOff.isPerformed() && gameService.playOffTask().isPresent());
-                collectAnswers.addClickListener(_ -> {
-                    playOff.setPerformed(true);
-                    gameService.setStage(playOff);
-                    refreshPlayOffContent();
-                });
-                HorizontalLayout buttons = new HorizontalLayout(danger, reset, collectAnswers);
-                buttons.setPadding(false);
-                playOffContent.add(buttons);
-                if (playOff.isPerformed()) {
-                    var slackers = gameService.getSlackers();
-                    playOffContent.add(new LittleSlackerList(slackers));
-                    if (slackers.isEmpty()) {
-                        notification.play();
-                    }
+            reset.setEnabled(false);
+            danger.addValueChangeListener(event -> reset.setEnabled(event.getValue()));
+            Button collectAnswers = testId(new Button("≙ Niech odpowiadajo!"), "maestro/dj/play-off/collect-answers");
+            collectAnswers.setEnabled(!playOff.isPerformed() && gameService.playOffTask().isPresent());
+            collectAnswers.addClickListener(_ -> {
+                playOff.setPerformed(true);
+                gameService.setStage(playOff);
+                refreshPlayOffContent();
+            });
+            HorizontalLayout buttons = new HorizontalLayout(danger, reset, collectAnswers);
+            buttons.setPadding(false);
+            playOffContent.add(buttons);
+            if (playOff.isPerformed()) {
+                var slackers = gameService.getSlackers();
+                playOffContent.add(new LittleSlackerList(slackers));
+                if (slackers.isEmpty()) {
+                    notification.play();
                 }
             }
-        });
+        }
     }
 
     private AccordionPanel playOffComponent(GameStage.PlayOff playOff) {
-        StageHeader header = createPanelHeader(new Text("\uD83C\uDFB2 Dogrywka"), playOff);
+        StageHeader header = testId(createPanelHeader(new Text("\uD83C\uDFB2 Dogrywka"), playOff), "maestro/dj/play-off/header");
 
         playOffContent.setWidthFull();
         VerticalLayout content = new VerticalLayout();
         content.add(playOffContent);
         refreshPlayOffContent();
-        return new AccordionPanel(header, content);
+        return testId(new AccordionPanel(header, content), "maestro/dj/play-off/panel");
     }
 
     private AccordionPanel roundSummaryComponent(GameStage.RoundSummary roundSummary) {

@@ -29,7 +29,7 @@ public class GameFlowIT {
     @BeforeAll
     static void launchBrowser() {
         playwright = Playwright.create();
-        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
+        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
     }
 
     @AfterAll
@@ -568,6 +568,62 @@ public class GameFlowIT {
             assertThat(bigScreenPage.getByTestId("big-screen/results/position-3")).hasText("3");
             assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-3")).hasText("P2");
             assertThat(bigScreenPage.getByTestId("big-screen/results/total-3")).hasText("0");
+        }
+    }
+
+    @Test
+    void playOffFlow() {
+        try (BrowserContext maestroContext = browser.newContext();
+             BrowserContext bigScreenContext = browser.newContext();
+             BrowserContext p1Context = browser.newContext();
+             BrowserContext p2Context = browser.newContext();
+             BrowserContext p3Context = browser.newContext()) {
+
+            Page maestroPage = maestroContext.newPage();
+            Page bigScreenPage = bigScreenContext.newPage();
+            Page p1Page = p1Context.newPage();
+            Page p2Page = p2Context.newPage();
+            Page p3Page = p3Context.newPage();
+            List.of(p1Page, p2Page, p3Page).forEach(p -> p.setViewportSize(480, 640));
+
+            // 1. Maestro starts the game
+            initTheGame(maestroPage, bigScreenPage);
+
+            // 2. 3 players join
+            log.info("playOff: Players joining");
+            joinPlayer(p1Page, "P1");
+            joinPlayer(p2Page, "P2");
+            joinPlayer(p3Page, "P3");
+
+            // 3. Maestro goes to PlayOff round
+            log.info("playOff: Navigating to PlayOff");
+            // PlayOff round header should be at the end of the accordion, before WrapUp
+            maestroPage.getByTestId("maestro/dj/play-off/header").click();
+
+            // 4. Select a task and activate it
+            log.info("playOff: Selecting task and activating");
+            maestroPage.getByTestId("maestro/dj/play-off/selection").click();
+            maestroPage.locator("vaadin-combo-box-item").first().click();
+            maestroPage.getByTestId("maestro/dj/play-off/select-task").click();
+            maestroPage.getByTestId("maestro/dj/play-off/activate").getByRole(AriaRole.BUTTON).click();
+
+            // 5. Start answer collection
+            log.info("playOff: Starting answer collection");
+            maestroPage.getByTestId("maestro/dj/play-off/collect-answers").click();
+
+            validateSlackers(bigScreenPage, List.of("P1", "P2", "P3"));
+
+            // 6. Players provide answers
+            log.info("playOff: Players providing answers");
+            for (Page p : List.of(p1Page, p2Page, p3Page)) {
+                p.waitForURL(url -> url.endsWith("/play-off"));
+                p.locator("vaadin-integer-field[data-testid='player/play-off/value'] input").fill("7");
+                p.getByTestId("player/play-off/submit").click();
+            }
+
+            // 7. Verify slackers list is empty on Maestro's page
+            log.info("playOff: Verifying no slackers");
+            assertThat(maestroPage.getByText("Wszyscy odpowiedzieli!")).isVisible();
         }
     }
 

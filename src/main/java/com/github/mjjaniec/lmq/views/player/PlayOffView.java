@@ -14,6 +14,7 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import org.jspecify.annotations.Nullable;
+import static com.github.mjjaniec.lmq.util.TestId.testId;
 
 
 @Route(value = "play-off", layout = PlayerView.class)
@@ -40,10 +41,10 @@ public class PlayOffView extends VerticalLayout implements PlayerRoute {
         gameService.playOffStage().ifPresent(playOff -> {
             removeAll();
             if (playOff.isPerformed()) {
-                IntegerField field = new IntegerField("Ile nut?");
+                IntegerField field = testId(new IntegerField("Ile nut?"), "player/play-off/value");
                 field.setWidthFull();
 
-                Button submit = new Button("Zatwierdź!");
+                Button submit = testId(new Button("Zatwierdź!"), "player/play-off/submit");
                 submit.setEnabled(false);
                 submit.addClickListener(_ -> {
                     if (player != null && field.getValue() != null) {
