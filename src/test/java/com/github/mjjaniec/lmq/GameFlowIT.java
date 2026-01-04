@@ -529,7 +529,7 @@ public class GameFlowIT {
             maestroPage.getByTestId("maestro/dj/play/artist-checkbox-2-3").click();
             maestroPage.getByTestId("maestro/dj/play/confirm-2-3").click();
 
-            log.info("the answer is now revealed and palyers see theri points");
+            log.info("the answer is now revealed and players see their points");
 
             assertThat(p1Page.getByTestId("player/piece-result/points")).hasText("32");
             assertThat(p2Page.getByTestId("player/piece-result/points")).hasText("0");
@@ -537,6 +537,37 @@ public class GameFlowIT {
 
             assertThat(bigScreenPage.getByText(info3.artist)).isVisible();
             assertThat(bigScreenPage.getByText(info3.title)).isVisible();
+
+            log.info("first: Maestro activating round 2 summary");
+            maestroPage.getByTestId("maestro/dj/round-summary-header-2").click();
+            maestroPage.getByTestId("maestro/dj/round-summary-activate-2").getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Aktywuj")).click();
+
+            log.info("first: Verifying player round summary points");
+            // P1: 28 (piece 1) + 32 (piece 3) = 60
+            // P2: 0 + 0 + 0 = 0
+            // P3: 0 + 0 + 36 = 36
+            assertThat(p1Page.locator("h1")).hasText("60");
+            assertThat(p3Page.locator("h1")).hasText("36");
+            assertThat(p2Page.locator("h1")).hasText("0");
+
+            log.info("first: Verifying results table on Big Screen");
+            // P1: 60, P3: 36, P2: 0
+            // Order should be: P1 (1), P3 (2), P2 (3)
+
+            // P1 at position 1
+            assertThat(bigScreenPage.getByTestId("big-screen/results/position-1")).hasText("1");
+            assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-1")).hasText("P1");
+            assertThat(bigScreenPage.getByTestId("big-screen/results/total-1")).hasText("60");
+
+            // P3 at position 2
+            assertThat(bigScreenPage.getByTestId("big-screen/results/position-2")).hasText("2");
+            assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-2")).hasText("P3");
+            assertThat(bigScreenPage.getByTestId("big-screen/results/total-2")).hasText("36");
+
+            // P2 at position 3
+            assertThat(bigScreenPage.getByTestId("big-screen/results/position-3")).hasText("3");
+            assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-3")).hasText("P2");
+            assertThat(bigScreenPage.getByTestId("big-screen/results/total-3")).hasText("0");
         }
     }
 
