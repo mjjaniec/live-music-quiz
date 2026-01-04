@@ -36,7 +36,7 @@ public class PlayTimeComponent extends VerticalLayout {
             testId(title, "maestro/dj/play/title-checkbox-" + piece.roundNumber + "-" + piece.pieceNumber.number());
             title.setEnabled(piece.getTitleAnswered() == 0);
             Button confirm = new Button("zatwierdź");
-            testId(confirm, "maestro/dj/play/confirm");
+            testId(confirm, "maestro/dj/play/confirm-" + piece.roundNumber + "-" + piece.pieceNumber.number());
             confirm.addClickListener(_ -> {
                 gameService.reportResult(
                         new Player(responder),

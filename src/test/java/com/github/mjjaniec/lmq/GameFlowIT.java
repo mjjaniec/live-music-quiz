@@ -406,7 +406,7 @@ public class GameFlowIT {
             // 7. A player volunteer to answer by clicking a button
             log.info("first: P1 volunteering to answer");
             assertThat(p1Page.getByTestId("player/play")).isVisible();
-            Locator p1Button = getButtonByTestId(p1Page, "player/play/button");
+            Locator p1Button = p1Page.getByTestId("player/play/button");
             assertThat(p1Button).hasCSS("background-color", Palette.BLUE);
             p1Button.click();
 
@@ -416,11 +416,11 @@ public class GameFlowIT {
             assertThat(bigScreenPage.getByText("P1")).isVisible();
 
             // Check if others are disabled
-            assertThat(getButtonByTestId(p2Page, "player/play/button")).hasCSS("background-color", Palette.GRAY);
-            assertThat(getButtonByTestId(p3Page, "player/play/button")).hasCSS("background-color", Palette.GRAY);
+            assertThat(p2Page.getByTestId("player/play/button")).hasCSS("background-color", Palette.GRAY);
+            assertThat(p3Page.getByTestId("player/play/button")).hasCSS("background-color", Palette.GRAY);
 
             // And P1 should see "Odpowiadasz"
-            assertThat(getButtonByTestId(p1Page, "player/play/button")).hasCSS("background-color", Palette.GREEN);
+            assertThat(p1Page.getByTestId("player/play/button")).hasCSS("background-color", Palette.GREEN);
 
             // 9. Players do not answer in application but tell their answers to maestro.
             // Let's assume that this player answered correctly.
@@ -430,7 +430,7 @@ public class GameFlowIT {
 
             maestroPage.getByTestId("maestro/dj/play/artist-checkbox-2-1").click();
             maestroPage.getByTestId("maestro/dj/play/title-checkbox-2-1").click();
-            maestroPage.getByTestId("maestro/dj/play/confirm").click();
+            maestroPage.getByTestId("maestro/dj/play/confirm-2-1").click();
 
             // 10. After that the piece is immediately revealed on big screen and players see their points
             log.info("first: Verifying big screen reveal");
@@ -442,10 +442,101 @@ public class GameFlowIT {
             // FIRST mode points: artist 12, title 16. Total 28.
             // Wait for players to be redirected to PieceResultView
             assertThat(p1Page.getByTestId("player/piece-result/points")).hasText("28");
-
             assertThat(p2Page.getByTestId("player/piece-result/points")).hasText("0");
-
             assertThat(p3Page.getByTestId("player/piece-result/points")).hasText("0");
+
+            log.info("Big screen revals correct answers");
+            assertThat(bigScreenPage.getByText(info.artist)).isVisible();
+            assertThat(bigScreenPage.getByText(info.title)).isVisible();
+
+            // 11. Maestro selects the second piece
+            log.info("first: Selecting first piece");
+            var info2 = expandPiece(maestroPage, 2, 2);
+            maestroPage.getByTestId("maestro/dj/piece-PLAY-2-2").click();
+
+            for (var playerPage: List.of(p1Page, p2Page, p3Page)) {
+                assertThat(playerPage.getByTestId("player/play")).isVisible();
+                Locator theButton = p1Page.getByTestId("player/play/button");
+                assertThat(theButton).hasCSS("background-color", Palette.BLUE);
+            }
+
+
+            // 12. No one volunteers - maestro reveal the answer
+            log.info("first: revealing second piece");
+            maestroPage.getByTestId("maestro/dj/piece-REVEAL-2-2").click();
+
+            for (var playerPage: List.of(p1Page, p2Page, p3Page)) {
+                assertThat(playerPage.getByTestId("player/piece-result/points")).hasText("0");
+            }
+
+            assertThat(bigScreenPage.getByText(info2.artist)).isVisible();
+            assertThat(bigScreenPage.getByText(info2.title)).isVisible();
+
+            // 13. Maestro selects the third piece
+            log.info("first: Selecting third piece");
+            var info3 = expandPiece(maestroPage, 2, 3);
+            maestroPage.getByTestId("maestro/dj/piece-PLAY-2-3").click();
+
+            for (var playerPage: List.of(p1Page, p2Page, p3Page)) {
+                assertThat(playerPage.getByTestId("player/play")).isVisible();
+                Locator theButton = p1Page.getByTestId("player/play/button");
+                assertThat(theButton).hasCSS("background-color", Palette.BLUE);
+            }
+
+
+            // player2 provides both wrong answers
+            log.info("player2 provides both wrong answers");
+
+            p2Page.getByTestId("player/play/button").click();
+            assertThat(bigScreenPage.getByText("P2")).isVisible();
+            assertThat(p1Page.getByTestId("player/play/button")).hasCSS("background-color", Palette.GRAY);
+            assertThat(p2Page.getByTestId("player/play/button")).hasCSS("background-color", Palette.GREEN);
+            assertThat(p3Page.getByTestId("player/play/button")).hasCSS("background-color", Palette.GRAY);
+            maestroPage.getByTestId("maestro/dj/play/confirm-2-3").click();
+
+
+            assertThat(p1Page.getByTestId("player/play/button")).hasCSS("background-color", Palette.BLUE);
+            assertThat(p2Page.getByTestId("player/play/button")).hasCSS("background-color", Palette.RED);
+            assertThat(p3Page.getByTestId("player/play/button")).hasCSS("background-color", Palette.BLUE);
+            assertThat(bigScreenPage.getByText("No i zgłoś się!")).isVisible();
+
+
+            log.info("player1 provides correct title (only)");
+
+            p1Page.getByTestId("player/play/button").click();
+            assertThat(bigScreenPage.getByText("P1")).isVisible();
+            assertThat(p1Page.getByTestId("player/play/button")).hasCSS("background-color", Palette.GREEN);
+            assertThat(p2Page.getByTestId("player/play/button")).hasCSS("background-color", Palette.RED);
+            assertThat(p3Page.getByTestId("player/play/button")).hasCSS("background-color", Palette.GRAY);
+
+            maestroPage.getByTestId("maestro/dj/play/title-checkbox-2-3").click();
+            maestroPage.getByTestId("maestro/dj/play/confirm-2-3").click();
+
+            assertThat(p1Page.getByTestId("player/play/button")).hasCSS("background-color", Palette.AMBER);
+            assertThat(p2Page.getByTestId("player/play/button")).hasCSS("background-color", Palette.RED);
+            assertThat(p3Page.getByTestId("player/play/button")).hasCSS("background-color", Palette.BLUE);
+            assertThat(bigScreenPage.getByText("No i zgłoś się!")).isVisible();
+
+            log.info("player3 provides correct artist");
+
+            p3Page.getByTestId("player/play/button").click();
+
+            assertThat(p1Page.getByTestId("player/play/button")).hasCSS("background-color", Palette.AMBER);
+            assertThat(p2Page.getByTestId("player/play/button")).hasCSS("background-color", Palette.RED);
+            assertThat(p3Page.getByTestId("player/play/button")).hasCSS("background-color", Palette.GREEN);
+
+            assertThat(maestroPage.getByTestId("maestro/dj/play/title-checkbox-2-3")).hasAttribute("disabled", "");
+            maestroPage.getByTestId("maestro/dj/play/artist-checkbox-2-3").click();
+            maestroPage.getByTestId("maestro/dj/play/confirm-2-3").click();
+
+            log.info("the answer is now revealed and palyers see theri points");
+
+            assertThat(p1Page.getByTestId("player/piece-result/points")).hasText("32");
+            assertThat(p2Page.getByTestId("player/piece-result/points")).hasText("0");
+            assertThat(p3Page.getByTestId("player/piece-result/points")).hasText("36");
+
+            assertThat(bigScreenPage.getByText(info3.artist)).isVisible();
+            assertThat(bigScreenPage.getByText(info3.title)).isVisible();
         }
     }
 
@@ -531,6 +622,34 @@ public class GameFlowIT {
             assertThat(p3Page.getByTestId("player/piece-result/points")).hasText("20");
             assertThat(p2Page.getByTestId("player/piece-result/points")).hasText("15");
             assertThat(p1Page.getByTestId("player/piece-result/points")).hasText("9");
+
+            // 8. third piece of round 3
+            // the third piece have alternative title, and alternative artist
+            log.info("onion: Selecting third piece");
+            var info3 = expandPiece(maestroPage, 3, 3);
+            maestroPage.getByTestId("maestro/dj/piece-ONION_LISTEN-3-3").click();
+
+
+            provideAnswer(p3Page, info2, null, info3.title);
+            provideAnswer(p2Page, info2, info3.artist, null);
+            // p1 provides alternative correct answers
+            provideAnswer(p1Page, info2, "SunStroke", "Run Away");
+
+            log.info("onion: Maestro revealing answers for 3-3");
+            maestroPage.getByTestId("maestro/dj/piece-REVEAL-3-3").click();
+
+            log.info("onion: Verifying points for 3-3");
+            assertThat(p3Page.getByTestId("player/piece-result/points")).hasText("12");
+            assertThat(p2Page.getByTestId("player/piece-result/points")).hasText("8");
+            assertThat(p1Page.getByTestId("player/piece-result/points")).hasText("15");
+
+
+            // big screen displays both, base answers and alternative answers
+            assertThat(bigScreenPage.getByText(info3.artist)).isVisible();
+            assertThat(bigScreenPage.getByText("SunStroke")).isVisible();
+
+            assertThat(bigScreenPage.getByText(info3.title)).isVisible();
+            assertThat(bigScreenPage.getByText("Run Away")).isVisible();
         }
     }
 
@@ -630,9 +749,5 @@ public class GameFlowIT {
         page.getByTestId("player/join/button").click();
         // Should navigate to WaitForOthersView (since game just started)
         assertThat(page.getByText("poczekaj na pozostałych graczy")).isVisible();
-    }
-
-    private Locator getButtonByTestId(Page page, String testId) {
-        return page.getByTestId(testId);
     }
 }

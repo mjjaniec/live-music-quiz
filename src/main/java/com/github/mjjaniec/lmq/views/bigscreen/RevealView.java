@@ -25,12 +25,13 @@ public class RevealView extends VerticalLayout implements BigScreenRoute {
         gameService.pieceStage().or(testDataProvider::piece)
                 .ifPresent(piece -> {
                     String artist = piece.piece.artist() + (Optional.ofNullable(piece.piece.artistAlternative()).map(a -> " / " + a).orElse(""));
+                    String title = piece.piece.title() + (Optional.ofNullable(piece.piece.titleAlternative()).map(a -> " / " + a).orElse(""));
                     add(new VerticalLayout());
                     add(new H4("artysta:"));
                     add(new H1(artist));
                     add(new VerticalLayout());
                     add(new H4("tytuł:"));
-                    add(new H1(piece.piece.title()));
+                    add(new H1(title));
                     add(new VerticalLayout());
                     add(new VerticalLayout());
                 });
