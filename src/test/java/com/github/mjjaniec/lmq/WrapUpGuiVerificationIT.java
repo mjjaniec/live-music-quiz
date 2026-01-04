@@ -2,8 +2,10 @@ package com.github.mjjaniec.lmq;
 
 import com.github.mjjaniec.lmq.model.*;
 import com.github.mjjaniec.lmq.services.MaestroInterface;
+import com.github.mjjaniec.lmq.services.Results;
 import com.github.mjjaniec.lmq.stores.*;
 import com.microsoft.playwright.*;
+import com.microsoft.playwright.options.AriaRole;
 import com.vaadin.copilot.shaded.guava.collect.Streams;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
@@ -78,7 +80,7 @@ public class WrapUpGuiVerificationIT {
     @BeforeAll
     static void launchBrowser() {
         playwright = Playwright.create();
-        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
+        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
     }
 
     @AfterAll
@@ -168,12 +170,99 @@ public class WrapUpGuiVerificationIT {
 
             maestroPage.navigate(baseUrl + "/maestro/dj");
             maestroPage.getByTestId("maestro/dj/round-header-1").click();
+            maestroPage.getByTestId("maestro/dj/wrapup-header").click();
 
             bigScreenPage.navigate(baseUrl + "/big-screen");
             assertThat(bigScreenPage.getByTestId("big-screen/top")).isVisible();
 
 
-            // TODO verify table data here
+            record Expected(String name, List<Integer> rounds, int total, int playoff, int diff) {}
+            var expected = List.of(
+                    new Expected(p07, List.of(12, 32, 0, 8, 0, 20), 72, 264, 23),
+                    new Expected(p04, List.of(0, 0, 15, 6, 32, 15), 68, 150, 91),
+                    new Expected(p03, List.of(6, 36, 20, 4, 0, 0), 66, 204, 37),
+                    new Expected(p09, List.of(10, 0, 6, 0, 36, 0), 52, 351, 110),
+                    new Expected(p11, List.of(6, 0, 10, 10, 0, 15), 41, 112, 129),
+                    new Expected(p06, List.of(8, 0, 15, 12, 0, 0), 35, 81, 160),
+                    new Expected(p05, List.of(20, 0, 10, 0, 0, 4), 34, 400, 159),
+                    new Expected(p08, List.of(0, 0, 0, 20, 0, 6), 26, 177, 64),
+                    new Expected(p02, List.of(4, 0, 0, 10, 0, 10), 24, 71, 170),
+                    new Expected(p12, List.of(0, 0, 5, 4, 0, 10), 19, 451, 210),
+                    new Expected(p10, List.of(4, 0, 6, 4, 0, 5), 19, 471, 230),
+                    new Expected(p01, List.of(10, 0, 0, 0, 0, 0), 10, 213, 28)
+            );
+
+
+            for (int i = 0; i < expected.size(); i++) {
+                var exp = expected.get(i);
+                int pos = i + 1;
+                log.info("Verifying position {}: {}", pos, exp.name);
+
+                assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos)).hasText(exp.name);
+                assertThat(bigScreenPage.getByTestId("big-screen/results/total-" + pos)).hasText(String.valueOf(exp.total));
+                assertThat(bigScreenPage.getByTestId("big-screen/results/playoff-" + pos)).hasText(exp.playoff + " / " + playOff.value());
+
+                for (int r = 0; r < exp.rounds.size(); r++) {
+                    assertThat(bigScreenPage.getByTestId("big-screen/results/round-" + (r + 1) + "-" + pos))
+                            .hasText(String.valueOf(exp.rounds.get(r)));
+                }
+
+                if (pos == 1) {
+                    assertThat(bigScreenPage.getByTestId("big-screen/results/prize-" + pos)).hasText(Results.Award.FIRST.symbol);
+                } else if (pos == 2) {
+                    assertThat(bigScreenPage.getByTestId("big-screen/results/prize-" + pos)).hasText(Results.Award.SECOND.symbol);
+                } else if (pos == 3) {
+                    assertThat(bigScreenPage.getByTestId("big-screen/results/prize-" + pos)).hasText(Results.Award.THIRD.symbol);
+                }
+            }
+
+            // Verify the PLAY_OFF award for the person with the best playoff result outside of podium
+            // In our case:
+            // 1. Felicjana: 72, diff 23 (FIRST)
+            // 2. Daria: 68, diff 91 (SECOND)
+            // 3. Chromek: 66, diff 37 (THIRD)
+            // 4. Jaro: 52, diff 110
+            // 5. Kududu: 41, diff 129
+            // 6. Eryk: 35, diff 160
+            // 7. Hania: 34, diff 159
+            // 8. Gosia: 26, diff 64
+            // 9. Barnuś: 24, diff 170
+            // 10. Martynka: 19, diff 210
+            // 11. Jaro co się: 19, diff 230
+            // 12. Agnieszka: 10, diff 28  <-- BEST DIFF outside podium
+
+            assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-12")).hasText(p01);
+            assertThat(bigScreenPage.getByTestId("big-screen/results/prize-12")).hasText(Results.Award.PLAY_OFF.symbol);
+
+
+            log.info("Verifying visibility control - SIXTH option");
+            // Switch to SIXTH option via Maestro
+            maestroPage.getByRole(AriaRole.RADIO, new Page.GetByRoleOptions().setName("SIXTH")).click();
+
+            // Rows with position < 6 should be hidden.
+            // Actually, ResultsTable.java: Stream.of("hidden").filter(ignored -> row.position() < showFrom)
+            // If showFrom is 6, then position 1, 2, 3, 4, 5 should be hidden.
+            for (int pos = 1; pos <= 5; pos++) {
+                assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos)).isHidden();
+            }
+            for (int pos = 6; pos <= 12; pos++) {
+                assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos)).isVisible();
+            }
+
+            log.info("Verifying visibility control - FOURTH option");
+            maestroPage.getByRole(AriaRole.RADIO, new Page.GetByRoleOptions().setName("FOURTH")).click();
+            for (int pos = 1; pos <= 3; pos++) {
+                assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos)).isHidden();
+            }
+            for (int pos = 4; pos <= 12; pos++) {
+                assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos)).isVisible();
+            }
+
+            log.info("Verifying visibility control - FULL_TABLE option");
+            maestroPage.getByRole(AriaRole.RADIO, new Page.GetByRoleOptions().setName("FULL_TABLE")).click();
+            for (int pos = 1; pos <= 12; pos++) {
+                assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos)).isVisible();
+            }
         }
     }
 }
