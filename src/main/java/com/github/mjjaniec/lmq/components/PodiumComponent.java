@@ -11,6 +11,8 @@ import com.vaadin.flow.dom.Style;
 
 import java.util.List;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
+
 public class PodiumComponent extends VerticalLayout {
     public PodiumComponent(Results results, int showFrom) {
         setSizeFull();
@@ -43,6 +45,7 @@ public class PodiumComponent extends VerticalLayout {
         result.add(baseSpan(award.symbol));
         HorizontalLayout playOffs = new HorizontalLayout();
         playOffs.setWidthFull();
+        testId(playOffs, "big-screen/podium/playoffs");
         playOffs.setJustifyContentMode(JustifyContentMode.EVENLY);
         findPlayers(results, award).forEach(row -> playOffs.add(baseSpan(row.player() + " (" + row.playOff() + ")")));
         result.add(playOffs);
@@ -60,11 +63,19 @@ public class PodiumComponent extends VerticalLayout {
         result.setSpacing(false);
         result.setPadding(false);
         result.setWidthFull();
-        result.setAlignItems(Alignment.CENTER);
 
-        VerticalLayout podium = new VerticalLayout();
+        VerticalLayout badges = new VerticalLayout();
+        badges.setSpacing(false);
+        badges.setPadding(false);
+        badges.setWidthFull();
+        badges.setAlignItems(Alignment.CENTER);
 
-        podium.setAlignItems(Alignment.CENTER);
+        testId(badges, "big-screen/podium/segment-" + position);
+
+        VerticalLayout segment = new VerticalLayout();
+
+
+        segment.setAlignItems(Alignment.CENTER);
         Div filler = new Div();
         filler.setWidthFull();
         filler.setHeight(switch (position) {
@@ -72,7 +83,7 @@ public class PodiumComponent extends VerticalLayout {
             case 2 -> "4vh";
             default -> "0";
         });
-        podium.add(filler);
+        segment.add(filler);
 
         HorizontalLayout caption = new HorizontalLayout();
         caption.setWidthFull();
@@ -84,8 +95,8 @@ public class PodiumComponent extends VerticalLayout {
         caption.add(new H1(award.symbol));
         caption.setAlignItems(Alignment.BASELINE);
         caption.setJustifyContentMode(JustifyContentMode.EVENLY);
-        podium.add(caption);
-        podium.addClassName(award.style);
+        segment.add(caption);
+        segment.addClassName(award.style);
 
         if (position >= showFrom) {
             List<Results.Row> players = findPlayers(results, award);
@@ -96,11 +107,11 @@ public class PodiumComponent extends VerticalLayout {
             players.forEach(player -> {
                 UserBadge badge = new UserBadge(player.player(), false, true);
                 badge.getStyle().setFontSize("6vh");
-                result.add(badge);
+                badges.add(badge);
             });
         }
 
-        result.add(podium);
+        result.add(badges, segment);
         return result;
     }
 

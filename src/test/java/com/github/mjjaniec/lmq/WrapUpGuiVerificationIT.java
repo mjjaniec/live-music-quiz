@@ -263,6 +263,31 @@ public class WrapUpGuiVerificationIT {
             for (int pos = 1; pos <= 12; pos++) {
                 assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos)).isVisible();
             }
+
+            log.info("Verifying podium");
+            maestroPage.getByRole(AriaRole.RADIO, new Page.GetByRoleOptions().setName("EMPTY_PODIUM")).click();
+            assertThat(bigScreenPage.getByTestId("big-screen/podium/playoffs")).containsText(p01);
+            assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-3")).isEmpty();
+            assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-2")).isEmpty();
+            assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-1")).isEmpty();
+
+            maestroPage.getByRole(AriaRole.RADIO, new Page.GetByRoleOptions().setName("THIRD_PODIUM")).click();
+            assertThat(bigScreenPage.getByTestId("big-screen/podium/playoffs")).containsText(p01);
+            assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-3")).containsText(p03);
+            assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-2")).isEmpty();
+            assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-1")).isEmpty();
+
+            maestroPage.getByRole(AriaRole.RADIO, new Page.GetByRoleOptions().setName("SECOND_PODIUM")).click();
+            assertThat(bigScreenPage.getByTestId("big-screen/podium/playoffs")).containsText(p01);
+            assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-3")).containsText(p03);
+            assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-2")).containsText(p04);
+            assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-1")).isEmpty();
+
+            maestroPage.getByRole(AriaRole.RADIO, new Page.GetByRoleOptions().setName("FULL_PODIUM")).click();
+            assertThat(bigScreenPage.getByTestId("big-screen/podium/playoffs")).containsText(p01);
+            assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-3")).containsText(p03);
+            assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-2")).containsText(p04);
+            assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-1")).containsText(p07);
         }
     }
 }
