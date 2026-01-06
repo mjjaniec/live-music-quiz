@@ -246,6 +246,7 @@ public class WrapUpGuiVerificationIT {
             for (int pos = 6; pos <= 12; pos++) {
                 assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos)).isVisible();
             }
+            maestroPage.getByRole(AriaRole.RADIO, new Page.GetByRoleOptions().setName("SIXTH")).click();
             for (int pos = 1; pos <= 5; pos++) {
                 assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos)).isHidden(new LocatorAssertions.IsHiddenOptions().setTimeout(15000));
             }
