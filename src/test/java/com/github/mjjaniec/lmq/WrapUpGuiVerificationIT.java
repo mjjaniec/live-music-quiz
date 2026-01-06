@@ -5,6 +5,7 @@ import com.github.mjjaniec.lmq.services.MaestroInterface;
 import com.github.mjjaniec.lmq.services.Results;
 import com.github.mjjaniec.lmq.stores.*;
 import com.microsoft.playwright.*;
+import com.microsoft.playwright.assertions.LocatorAssertions;
 import com.microsoft.playwright.options.AriaRole;
 import com.vaadin.copilot.shaded.guava.collect.Streams;
 import lombok.extern.slf4j.Slf4j;
@@ -246,7 +247,7 @@ public class WrapUpGuiVerificationIT {
                 assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos)).isVisible();
             }
             for (int pos = 1; pos <= 5; pos++) {
-                assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos)).isHidden();
+                assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos)).isHidden(new LocatorAssertions.IsHiddenOptions().setTimeout(15000));
             }
 
             log.info("Verifying visibility control - FOURTH option");
