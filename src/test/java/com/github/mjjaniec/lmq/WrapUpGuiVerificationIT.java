@@ -266,6 +266,8 @@ public class WrapUpGuiVerificationIT {
 
             log.info("Verifying podium");
             maestroPage.getByRole(AriaRole.RADIO, new Page.GetByRoleOptions().setName("EMPTY_PODIUM")).click();
+            bigScreenPage.getByTestId("big-screen/podium").isVisible();
+
             assertThat(bigScreenPage.getByTestId("big-screen/podium/playoffs")).containsText(p01);
             assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-3")).isEmpty();
             assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-2")).isEmpty();

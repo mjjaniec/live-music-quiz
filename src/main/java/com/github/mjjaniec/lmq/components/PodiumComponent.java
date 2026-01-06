@@ -18,6 +18,7 @@ public class PodiumComponent extends VerticalLayout {
         setSizeFull();
         setSpacing(false);
         setPadding(true);
+        testId(this, "big-screen/podium");
         HorizontalLayout podium = new HorizontalLayout();
         podium.setSizeFull();
         podium.setPadding(false);
