@@ -261,11 +261,12 @@ public class GameServiceImpl implements GameService, MaestroInterface {
             }
             navigator.refreshPlayOff();
         });
-        wrapUpStage().ifPresent(ignored -> navigator.refreshWrapUp());
 
         navigator.navigatePlayers(gameStage.playerView());
         navigator.navigateBigScreen(gameStage.bigScreenView());
         navigator.refreshProgressBar();
+
+        wrapUpStage().ifPresent(ignored -> navigator.refreshWrapUp());
     }
 
     @Override
