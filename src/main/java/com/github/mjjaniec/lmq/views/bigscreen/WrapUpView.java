@@ -34,7 +34,7 @@ public class WrapUpView extends VerticalLayout implements BigScreenRoute {
                 .ifPresent(display -> {
                     removeAll();
                     if (display.table) {
-                        add(new ResultsTable(results, display.showFrom));
+                        add(new ResultsTable(results, display.showFrom, true));
                     } else {
                         add(new PodiumComponent(results, display.showFrom));
                     }

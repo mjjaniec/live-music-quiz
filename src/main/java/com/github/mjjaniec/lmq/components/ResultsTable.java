@@ -3,6 +3,7 @@ package com.github.mjjaniec.lmq.components;
 import com.github.mjjaniec.lmq.services.Results;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
@@ -17,14 +18,22 @@ import static com.github.mjjaniec.lmq.util.TestId.testId;
 
 public class ResultsTable extends Grid<Results.Row> {
 
-    public ResultsTable(Results results, int showFrom) {
+    public ResultsTable(Results results, int showFrom, boolean showAwards) {
         setSizeFull();
 
-        addColumn("Pozycja", 0, row -> testId(
-                text(String.valueOf(row.position())),
-                "big-screen/results/position-" + row.position()));
+        boolean showPlayoff = showFrom <= 4;
+        addThemeVariants(GridVariant.LUMO_NO_ROW_BORDERS);
+        addThemeVariants(GridVariant.LUMO_NO_BORDER);
+        addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+
+        addColumn("", 0, row -> new Span());
+        addColumn("Pozycja", 0, row -> {
+            var res = text(String.valueOf(row.position()));
+            res.getStyle().setLineHeight("2.2rem");
+            return testId(res, "big-screen/results/position-" + row.position());
+        });
         addColumn("Nagroda", 0, row -> {
-            H3 res = new H3(row.award().map(a -> a.symbol).orElse(""));
+            H3 res = new H3(row.award().filter(_ -> showPlayoff && showAwards).map(a -> a.symbol).orElse(""));
             res.getStyle().setLineHeight("2.2rem");
             return testId(res, "big-screen/results/prize-" + row.position());
         });
@@ -57,11 +66,12 @@ public class ResultsTable extends Grid<Results.Row> {
 
         setPartNameGenerator(row ->
                 Stream.concat(
-                        row.award().filter(a -> a != Results.Award.PLAY_OFF || showFrom <= 4).map(a -> a.style).stream(),
-                        Stream.of("hidden").filter(ignored -> row.position() < showFrom)
+                        row.award().filter(_ -> showPlayoff && showAwards).map(a -> a.style).stream(),
+                        Stream.of("invisible").filter(ignored -> row.position() < showFrom)
                 ).collect(Collectors.joining(" "))
         );
 
+        setAllRowsVisible(true);
         setItems(results.rows());
     }
 

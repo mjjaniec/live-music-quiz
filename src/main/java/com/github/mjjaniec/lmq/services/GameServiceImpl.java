@@ -3,12 +3,14 @@ package com.github.mjjaniec.lmq.services;
 import com.github.mjjaniec.lmq.model.*;
 import com.github.mjjaniec.lmq.stores.*;
 import com.github.mjjaniec.lmq.views.bigscreen.InviteView;
+import com.vaadin.copilot.shaded.guava.collect.Streams;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
@@ -60,6 +62,51 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         stageStore.readStage(stageSet).ifPresentOrElse(this::setStage, () -> {
             if (quiz != null && stageSet != null) setStage(stageSet.initStage());
         });
+
+        init();
+    }
+
+    private  void init (){
+
+        playOffTaskStore.savePlayOffTask(new PlayOffs.PlayOff("the name", 2, 241));
+
+        String p01 = "Agnieszka";
+        String p02 = "Barnuś :\uD83D\uDC15";
+        String p03 = "Chromek";
+        String p04 = "Daria da da da";
+        String p05 = "Eryk I król Norwegii";
+        String p06 = "Felicjana \uD83C\uDF55";
+        String p07 = "Gosia";
+        String p08 = "Hania";
+        String p09 = "Jaro co się nie staro";
+        String p10 = "Kududu dudutudu";
+        String p11 = "Kaczabonga";
+        String p12 = "Martynka";
+
+
+        var players = List.of(p01, p02, p03, p04, p05, p06, p07, p08, p09, p10, p11, p12);
+
+        var firstRoundPoints = List.of(10, 4, 6, 0, 20, 8, 12, 0, 10, 4, 6, 0);
+        var secondRoundPoints = List.of(0, 0, 36, 0, 0, 0, 32, 0, 0, 0, 0, 0);
+        var thirdRoundPoints = List.of(0, 0, 20, 15, 10, 15, 0, 0, 6, 6, 10, 5);
+        var fourthRoundPoints = List.of(0, 10, 4, 6, 0, 12, 8, 20, 0, 4, 10, 4);
+        var fifthRoundPoints = List.of(0, 0, 0, 32, 0, 0, 0, 0, 36, 0, 0, 0);
+        var sixthRoundPoints = List.of(0, 10, 0, 15, 4, 0, 20, 6, 0, 5, 15, 10);
+
+        var playOffs = List.of(213, 71, 204, 150, 400, 81, 264, 177, 351, 471, 112, 451);
+
+        players.forEach(playerStore::addPlayer);
+
+        var rounds = List.of(firstRoundPoints, secondRoundPoints, thirdRoundPoints, fourthRoundPoints, fifthRoundPoints, sixthRoundPoints);
+
+        Streams.mapWithIndex(rounds.stream(), Map::entry)
+                .forEach(r -> Streams.zip(players.stream(), r.getKey().stream(), Map::entry)
+                        .forEach(p ->
+                                answerStore.saveAnswer(new Answer(true, true, p.getValue(), p.getKey(), (int) (1 + r.getValue()), 1, null, null))));
+
+        Streams.zip(players.stream(), playOffs.stream(), Map::entry)
+                .forEach(entry -> playOffStore.savePlayOff(new Player(entry.getKey()), entry.getValue()));
+
     }
 
     @Override

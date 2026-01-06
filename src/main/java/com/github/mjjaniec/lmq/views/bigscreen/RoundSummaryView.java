@@ -13,6 +13,6 @@ public class RoundSummaryView extends VerticalLayout implements BigScreenRoute {
         setPadding(false);
         setSpacing(false);
 
-        add(new ResultsTable(gameService.results(), 0));
+        add(new ResultsTable(gameService.results(), 0, false));
     }
 }
