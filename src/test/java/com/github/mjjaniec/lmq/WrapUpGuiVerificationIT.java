@@ -242,20 +242,20 @@ public class WrapUpGuiVerificationIT {
             // Rows with position < 6 should be hidden.
             // Actually, ResultsTable.java: Stream.of("hidden").filter(ignored -> row.position() < showFrom)
             // If showFrom is 6, then position 1, 2, 3, 4, 5 should be hidden.
-            for (int pos = 1; pos <= 5; pos++) {
-                assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos)).isHidden();
-            }
             for (int pos = 6; pos <= 12; pos++) {
                 assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos)).isVisible();
+            }
+            for (int pos = 1; pos <= 5; pos++) {
+                assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos)).isHidden();
             }
 
             log.info("Verifying visibility control - FOURTH option");
             maestroPage.getByRole(AriaRole.RADIO, new Page.GetByRoleOptions().setName("FOURTH")).click();
-            for (int pos = 1; pos <= 3; pos++) {
-                assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos)).isHidden();
-            }
             for (int pos = 4; pos <= 12; pos++) {
                 assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos)).isVisible();
+            }
+            for (int pos = 1; pos <= 3; pos++) {
+                assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos)).isHidden();
             }
 
             log.info("Verifying visibility control - FULL_TABLE option");
