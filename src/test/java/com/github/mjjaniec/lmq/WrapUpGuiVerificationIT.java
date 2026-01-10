@@ -227,21 +227,6 @@ public class WrapUpGuiVerificationIT {
                 }
             }
 
-            // Verify the PLAY_OFF award for the person with the best playoff result outside of podium
-            // In our case:
-            // 1. Felicjana: 72, diff 23 (FIRST)
-            // 2. Daria: 68, diff 91 (SECOND)
-            // 3. Chromek: 66, diff 37 (THIRD)
-            // 4. Jaro: 52, diff 110
-            // 5. Kududu: 41, diff 129
-            // 6. Eryk: 35, diff 160
-            // 7. Hania: 34, diff 159
-            // 8. Gosia: 26, diff 64
-            // 9. Barnuś: 24, diff 170
-            // 10. Martynka: 19, diff 210
-            // 11. Jaro co się: 19, diff 230
-            // 12. Agnieszka: 10, diff 28  <-- BEST DIFF outside podium
-
             assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-12")).hasText(p01);
             assertThat(bigScreenPage.getByTestId("big-screen/results/prize-12")).hasText(Results.Award.PLAY_OFF.symbol);
         }
@@ -264,7 +249,7 @@ public class WrapUpGuiVerificationIT {
             var locator = bigScreenPage.getByTestId("big-screen/results/nickname-" + pos);
             assertThat(locator).hasText(expects.get(pos - 1).name);
             if (pos <= visibleFrom) {
-                assertThat(locator).not().isVisible();
+                assertThat(locator).isHidden();
             } else {
                 assertThat(locator).isVisible();
             }
