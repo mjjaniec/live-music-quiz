@@ -30,13 +30,13 @@ public class WrapUpView extends VerticalLayout implements BigScreenRoute {
 
     void refresh() {
         gameService.wrapUpStage()
-                .flatMap(w -> Optional.ofNullable(w.getDisplay()))
-                .ifPresent(display -> {
+                .flatMap(w -> Optional.ofNullable(w.getShowFrom()))
+                .ifPresent(showFrom -> {
                     removeAll();
-                    if (display.table) {
-                        add(new ResultsTable(results, display.showFrom, true));
+                    if (1 <= showFrom && showFrom <= 3) {
+                        add(new PodiumComponent(results, showFrom));
                     } else {
-                        add(new PodiumComponent(results, display.showFrom));
+                        add(new ResultsTable(results, showFrom, true));
                     }
                 });
     }

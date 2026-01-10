@@ -27,8 +27,6 @@ public interface MaestroInterface extends GameService {
 
     List<String> getFeedbacks();
 
-    GameStage.Display minimalDisplay();
-
     Optional<PlayOffs.PlayOff> playOffTask();
 
     void setPlayOffTask(PlayOffs.PlayOff playOff);

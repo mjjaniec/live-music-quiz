@@ -3,7 +3,6 @@ package com.github.mjjaniec.lmq.model;
 import com.github.mjjaniec.lmq.views.bigscreen.*;
 import com.github.mjjaniec.lmq.views.player.*;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
@@ -150,20 +149,6 @@ public sealed interface GameStage {
 
     }
 
-    @RequiredArgsConstructor
-    enum Display {
-        SIXTH(true, 6),
-        FIFTIETH(true, 5),
-        FOURTH(true, 4),
-        EMPTY_PODIUM(false, 4),
-        THIRD_PODIUM(false, 3),
-        SECOND_PODIUM(false, 2),
-        FULL_PODIUM(false, 1),
-        FULL_TABLE(true, 1);
-        public final boolean table;
-        public final int showFrom;
-    }
-
     @Getter
     @Setter
     final class PlayOff implements GameStage {
@@ -185,7 +170,7 @@ public sealed interface GameStage {
     @Getter
     final class WrapUp implements GameStage {
         @Nullable
-        private Display display = Display.SIXTH;
+        private Integer showFrom;
 
         @Override
         public Class<FeedbackView> playerView() {

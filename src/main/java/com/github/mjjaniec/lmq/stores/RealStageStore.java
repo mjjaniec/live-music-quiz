@@ -85,17 +85,13 @@ public class RealStageStore implements StageStore {
 
     @SneakyThrows
     private GameStage.WrapUp setUpAdditions(GameStage.WrapUp wrapUp, String additions) {
-        try {
-            wrapUp.setDisplay(GameStage.Display.valueOf(additions));
-        } catch (Exception e) {
-            wrapUp.setDisplay(null);
-        }
+        wrapUp.setShowFrom(Optional.ofNullable(additions).filter(a -> a.matches("\\d+")).map(Integer::parseInt).orElse(null));
         return wrapUp;
     }
 
     @SneakyThrows
     private String toAdditions(GameStage.WrapUp wrapUp) {
-        return wrapUp.getDisplay() != null ? wrapUp.getDisplay().name() : null;
+        return Optional.ofNullable(wrapUp.getShowFrom()).map(String::valueOf).orElse(null);
     }
 
     @SneakyThrows

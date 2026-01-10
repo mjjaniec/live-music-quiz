@@ -3,14 +3,12 @@ package com.github.mjjaniec.lmq.services;
 import com.github.mjjaniec.lmq.model.*;
 import com.github.mjjaniec.lmq.stores.*;
 import com.github.mjjaniec.lmq.views.bigscreen.InviteView;
-import com.vaadin.copilot.shaded.guava.collect.Streams;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
@@ -265,20 +263,6 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         navigator.refreshProgressBar();
 
         wrapUpStage().ifPresent(ignored -> navigator.refreshWrapUp());
-    }
-
-    @Override
-    public GameStage.Display minimalDisplay() {
-        int playersCount = playerStore.getPlayers().size();
-        if (playersCount >= 7) {
-            return GameStage.Display.SIXTH;
-        } else if (playersCount >= 4) {
-            return GameStage.Display.FOURTH;
-        } else if (playersCount == 3) {
-            return GameStage.Display.EMPTY_PODIUM;
-        } else {
-            return GameStage.Display.FULL_TABLE;
-        }
     }
 
     @Override

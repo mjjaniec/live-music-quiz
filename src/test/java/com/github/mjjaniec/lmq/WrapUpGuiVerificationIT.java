@@ -5,8 +5,6 @@ import com.github.mjjaniec.lmq.services.MaestroInterface;
 import com.github.mjjaniec.lmq.services.Results;
 import com.github.mjjaniec.lmq.stores.*;
 import com.microsoft.playwright.*;
-import com.microsoft.playwright.assertions.LocatorAssertions;
-import com.microsoft.playwright.options.AriaRole;
 import com.vaadin.copilot.shaded.guava.collect.Streams;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
@@ -34,6 +32,9 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 @ActiveProfiles("integration-test")
 @Slf4j
 public class WrapUpGuiVerificationIT {
+
+    record Expected(String name, List<Integer> rounds, int total, int playoff, int diff) {
+    }
 
     @LocalServerPort
     private int port;
@@ -158,7 +159,6 @@ public class WrapUpGuiVerificationIT {
 
         StageSet stageSet = Objects.requireNonNull(gameService.stageSet());
         GameStage.WrapUp wrapUp = stageSet.wrapUpStage();
-        wrapUp.setDisplay(GameStage.Display.FULL_TABLE);
         gameService.setStage(wrapUp);
 
 
@@ -171,13 +171,12 @@ public class WrapUpGuiVerificationIT {
 
             maestroPage.navigate(baseUrl + "/maestro/dj");
             maestroPage.getByTestId("maestro/dj/round-header-1").click();
-            maestroPage.getByTestId("maestro/dj/wrapup-header").click();
+            maestroPage.getByTestId("maestro/dj/wrapup/header").click();
 
             bigScreenPage.navigate(baseUrl + "/big-screen");
             assertThat(bigScreenPage.getByTestId("big-screen/top")).isVisible();
 
 
-            record Expected(String name, List<Integer> rounds, int total, int playoff, int diff) {}
             var expected = List.of(
                     new Expected(p07, List.of(12, 32, 0, 8, 0, 20), 72, 264, 23),
                     new Expected(p04, List.of(0, 0, 15, 6, 32, 15), 68, 150, 91),
@@ -193,7 +192,18 @@ public class WrapUpGuiVerificationIT {
                     new Expected(p01, List.of(10, 0, 0, 0, 0, 0), 10, 213, 28)
             );
 
+            log.info("At the start table should have all rows hidden");
+            for (int i = expected.size(); i >= 0; --i) {
+                if (i < 3) {
+                    checkPodium(bigScreenPage, i, p01, expected);
+                } else {
+                    checkTableVisibility(bigScreenPage, i, expected);
+                }
+                maestroPage.getByTestId("maestro/wrapup/show-more").click();
+            }
 
+
+            log.info("At the start table should have all rows hidden");
             for (int i = 0; i < expected.size(); i++) {
                 var exp = expected.get(i);
                 int pos = i + 1;
@@ -234,64 +244,30 @@ public class WrapUpGuiVerificationIT {
 
             assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-12")).hasText(p01);
             assertThat(bigScreenPage.getByTestId("big-screen/results/prize-12")).hasText(Results.Award.PLAY_OFF.symbol);
+        }
+    }
 
-
-            log.info("Verifying visibility control - SIXTH option");
-            // Switch to SIXTH option via Maestro
-            maestroPage.getByRole(AriaRole.RADIO, new Page.GetByRoleOptions().setName("SIXTH")).click();
-
-            // Rows with position < 6 should be hidden.
-            // Actually, ResultsTable.java: Stream.of("hidden").filter(ignored -> row.position() < showFrom)
-            // If showFrom is 6, then position 1, 2, 3, 4, 5 should be hidden.
-            for (int pos = 6; pos <= 12; pos++) {
-                assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos)).isVisible();
+    private void checkPodium(Page bigScreenPage, int visibleFrom, String playOffWinner, List<Expected> expects) {
+        assertThat(bigScreenPage.getByTestId("big-screen/podium/playoffs")).containsText(playOffWinner);
+        for (int i = 1; i <= 3; ++i) {
+            var locator = bigScreenPage.getByTestId("big-screen/podium/segment-" + i);
+            if (i <= visibleFrom) {
+                assertThat(locator).isEmpty();
+            } else {
+                assertThat(locator).containsText(expects.get(i - 1).name);
             }
-            maestroPage.getByRole(AriaRole.RADIO, new Page.GetByRoleOptions().setName("SIXTH")).click();
-            for (int pos = 1; pos <= 5; pos++) {
-                assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos)).isHidden(new LocatorAssertions.IsHiddenOptions().setTimeout(15000));
+        }
+    }
+
+    private void checkTableVisibility(Page bigScreenPage, int visibleFrom, List<Expected> expects) {
+        for (int pos = 1; pos <= expects.size(); ++pos) {
+            var locator = bigScreenPage.getByTestId("big-screen/results/nickname-" + pos);
+            assertThat(locator).hasText(expects.get(pos - 1).name);
+            if (pos <= visibleFrom) {
+                assertThat(locator).not().isVisible();
+            } else {
+                assertThat(locator).isVisible();
             }
-
-            log.info("Verifying visibility control - FOURTH option");
-            maestroPage.getByRole(AriaRole.RADIO, new Page.GetByRoleOptions().setName("FOURTH")).click();
-            for (int pos = 4; pos <= 12; pos++) {
-                assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos)).isVisible();
-            }
-            for (int pos = 1; pos <= 3; pos++) {
-                assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos)).isHidden();
-            }
-
-            log.info("Verifying visibility control - FULL_TABLE option");
-            maestroPage.getByRole(AriaRole.RADIO, new Page.GetByRoleOptions().setName("FULL_TABLE")).click();
-            for (int pos = 1; pos <= 12; pos++) {
-                assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos)).isVisible();
-            }
-
-            log.info("Verifying podium");
-            maestroPage.getByRole(AriaRole.RADIO, new Page.GetByRoleOptions().setName("EMPTY_PODIUM")).click();
-            bigScreenPage.getByTestId("big-screen/podium").isVisible();
-
-            assertThat(bigScreenPage.getByTestId("big-screen/podium/playoffs")).containsText(p01);
-            assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-3")).isEmpty();
-            assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-2")).isEmpty();
-            assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-1")).isEmpty();
-
-            maestroPage.getByRole(AriaRole.RADIO, new Page.GetByRoleOptions().setName("THIRD_PODIUM")).click();
-            assertThat(bigScreenPage.getByTestId("big-screen/podium/playoffs")).containsText(p01);
-            assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-3")).containsText(p03);
-            assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-2")).isEmpty();
-            assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-1")).isEmpty();
-
-            maestroPage.getByRole(AriaRole.RADIO, new Page.GetByRoleOptions().setName("SECOND_PODIUM")).click();
-            assertThat(bigScreenPage.getByTestId("big-screen/podium/playoffs")).containsText(p01);
-            assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-3")).containsText(p03);
-            assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-2")).containsText(p04);
-            assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-1")).isEmpty();
-
-            maestroPage.getByRole(AriaRole.RADIO, new Page.GetByRoleOptions().setName("FULL_PODIUM")).click();
-            assertThat(bigScreenPage.getByTestId("big-screen/podium/playoffs")).containsText(p01);
-            assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-3")).containsText(p03);
-            assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-2")).containsText(p04);
-            assertThat(bigScreenPage.getByTestId("big-screen/podium/segment-1")).containsText(p07);
         }
     }
 }

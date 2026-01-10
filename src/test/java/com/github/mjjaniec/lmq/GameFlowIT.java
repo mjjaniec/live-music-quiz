@@ -820,7 +820,7 @@ public class GameFlowIT {
             // If the reset button is not visible, it might be inside a collapsed accordion
             if (!maestroPage.getByTestId("maestro/reset/button").isVisible()) {
                 log.info("Reset button not visible, expanding wrap-up");
-                maestroPage.getByTestId("maestro/dj/wrapup-header").click();
+                maestroPage.getByTestId("maestro/dj/wrapup/header").click();
             }
             maestroPage.getByTestId("maestro/reset/danger").click();
             maestroPage.getByTestId("maestro/reset/button").click();

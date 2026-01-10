@@ -22,8 +22,6 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
-import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -34,7 +32,7 @@ import com.vaadin.flow.router.RouterLink;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.mjjaniec.lmq.util.TestId.testId;
 
@@ -191,40 +189,33 @@ public class DjView extends VerticalLayout implements RouterLayout {
 
     private void refreshWrapUpContent() {
         wrapUpContent.removeAll();
-        if (gameService.stage() instanceof GameStage.WrapUp wrapUp) {
-
-            GameStage.Display minimalDisplay = gameService.minimalDisplay();
-            if (wrapUp.getDisplay() == null) {
-                wrapUp.setDisplay(minimalDisplay);
+        gameService.wrapUpStage().ifPresent(wrapUp -> {
+            int maxShowFrom = gameService.getPlayers().size() + 1;
+            if (wrapUp.getShowFrom() == null) {
+                wrapUp.setShowFrom(maxShowFrom);
             }
+            int showFrom = Optional.ofNullable(wrapUp.getShowFrom()).orElse(maxShowFrom);
+            AtomicInteger value = new AtomicInteger(showFrom);
 
-            Map<Boolean, List<GameStage.Display>> collect = Arrays.stream(GameStage.Display.values())
-                    .collect(Collectors.partitioningBy(d -> d.ordinal() < minimalDisplay.ordinal()));
-            List<GameStage.Display> inactives = collect.getOrDefault(true, List.of());
-            List<GameStage.Display> actives = collect.getOrDefault(false, List.of());
-
-            if (!inactives.isEmpty()) {
-                RadioButtonGroup<String> inactive = new RadioButtonGroup<>();
-                inactive.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
-                inactive.setLabel("Niedostępne");
-                inactive.setItems(inactives.stream().map(GameStage.Display::name).toList());
-                inactive.setEnabled(false);
-                wrapUpContent.add(inactive);
-            }
-
-            RadioButtonGroup<String> active = new RadioButtonGroup<>();
-            active.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
-            active.setLabel("Co pokazać");
-            active.setItems(actives.stream().map(GameStage.Display::name).toList());
-            active.setValue(wrapUp.getDisplay().name());
-            active.addValueChangeListener(event -> {
-                if (event.getValue() != null) {
-                    wrapUp.setDisplay(GameStage.Display.valueOf(event.getValue()));
-                    gameService.setStage(wrapUp);
-                }
+            var showMore = testId(new Button("poka wincyj"), "maestro/wrapup/show-more");
+            var showLess = testId(new Button("poka mnij"), "maestro/wrapup/show-less");
+            showMore.setEnabled(value.get() > 0);
+            showLess.setEnabled(value.get() < maxShowFrom);
+            showMore.addClickListener(_ -> {
+                wrapUp.setShowFrom(value.decrementAndGet());
+                showMore.setEnabled(value.get() > 0);
+                showLess.setEnabled(value.get() < maxShowFrom);
+                gameService.setStage(wrapUp);
             });
-            wrapUpContent.add(active);
-        }
+            showLess.addClickListener(_ -> {
+                wrapUp.setShowFrom(value.incrementAndGet());
+                showMore.setEnabled(value.get() > 0);
+                showLess.setEnabled(value.get() < maxShowFrom);
+                gameService.setStage(wrapUp);
+            });
+
+            wrapUpContent.add(showMore, showLess);
+        });
     }
 
     private AccordionPanel wrapUpComponent(GameStage.WrapUp wrapUp) {
@@ -242,7 +233,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
         refreshWrapUpContent();
 
         var header = createPanelHeader(new Text("\uD83C\uDFC6 Podsumowanie"), wrapUp);
-        testId(header, "maestro/dj/wrapup-header");
+        testId(header, "maestro/dj/wrapup/header");
         return new AccordionPanel(header, content);
     }
 
