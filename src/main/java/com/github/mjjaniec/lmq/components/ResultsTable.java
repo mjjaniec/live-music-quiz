@@ -37,9 +37,13 @@ public class ResultsTable extends Grid<Results.Row> {
             res.getStyle().setLineHeight("2.2rem");
             return testId(res, "big-screen/results/prize-" + row.position());
         });
-        addColumn("Ksywka", 5, row -> testId(
-                boldText(row.player()),
-                "big-screen/results/nickname-" + row.position()));
+        addColumn("Ksywka", 5, row -> {
+            var component = boldText(row.player());
+            if (row.position() < showFrom) {    // redundant, whole row is invisible but without it tests doesn't work ^^
+                component.setVisible(false);
+            }
+            return testId(component, "big-screen/results/nickname-" + row.position());
+        });
 
         for (int i = 1; i <= results.rounds(); ++i) {
             Function<Results.Row, Component> generator;

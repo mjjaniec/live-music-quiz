@@ -82,7 +82,7 @@ public class WrapUpGuiVerificationIT {
     @BeforeAll
     static void launchBrowser() {
         playwright = Playwright.create();
-        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
+        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
     }
 
     @AfterAll
@@ -203,7 +203,6 @@ public class WrapUpGuiVerificationIT {
             }
 
 
-            log.info("At the start table should have all rows hidden");
             for (int i = 0; i < expected.size(); i++) {
                 var exp = expected.get(i);
                 int pos = i + 1;
@@ -247,10 +246,10 @@ public class WrapUpGuiVerificationIT {
     private void checkTableVisibility(Page bigScreenPage, int visibleFrom, List<Expected> expects) {
         for (int pos = 1; pos <= expects.size(); ++pos) {
             var locator = bigScreenPage.getByTestId("big-screen/results/nickname-" + pos);
-            assertThat(locator).hasText(expects.get(pos - 1).name);
             if (pos <= visibleFrom) {
-                assertThat(locator).isHidden();
+                assertThat(locator).hasCount(0);
             } else {
+                assertThat(locator).hasText(expects.get(pos - 1).name);
                 assertThat(locator).isVisible();
             }
         }
