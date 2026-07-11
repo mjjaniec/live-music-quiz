@@ -12,6 +12,19 @@ Flow:
  * players login to game
  * maestro is the master of the game
 
+## Prerequisit
+
+ * application requires PostgresSQL database.
+ * setup it localy, or remotely, then either create a spring profile file with `application-local.properties` 
+  with the following contnent:
+
+  ```
+spring.datasource.url=jdbc:postgresql://localhost:5432/<dbname>
+spring.datasource.username=<username>
+spring.datasource.password=<pass>
+  ```
+  make sure to ignore this file
+
 ## Building the app
 
 ```shell
@@ -21,21 +34,9 @@ Flow:
 then running:
 
 ```shell
-java -jar target/live-music-quiz-1.0-SNAPSHOT.jar
+java -Dspring.profiles.active=local -jar target/live-music-quiz-1.0-SNAPSHOT.jar
 ```
 
-build a docker image 
-```shell
-docker build -t lmq:latest .
-```
-run image:
-```shell
-docker run -p8887:8080 lmq:latest
-```
-
-## DB
-
-Postgres is used
 
 ## Production
 
