@@ -12,7 +12,7 @@ Flow:
  * players login to game
  * maestro is the master of the game
 
-## Prerequisit
+## Prerequisite
 
  * application requires PostgresSQL database.
  * setup it localy, or remotely, then either create a spring profile file with `application-local.properties` 

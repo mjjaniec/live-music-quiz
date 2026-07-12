@@ -5,6 +5,8 @@
 .project
 .classpath
 
+.claude/skills/10x-*
+
 *.iml
 .DS_Store
 *.pem
