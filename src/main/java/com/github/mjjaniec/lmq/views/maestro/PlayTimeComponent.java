@@ -1,5 +1,7 @@
 package com.github.mjjaniec.lmq.views.maestro;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
+
 import com.github.mjjaniec.lmq.components.Audio;
 import com.github.mjjaniec.lmq.model.Constants;
 import com.github.mjjaniec.lmq.model.GameStage;
@@ -11,10 +13,9 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
-import static com.github.mjjaniec.lmq.util.TestId.testId;
-
 public class PlayTimeComponent extends VerticalLayout {
-    public PlayTimeComponent(GameStage.RoundPiece piece, MaestroInterface gameService, Audio notification, Runnable refreshPlay) {
+    public PlayTimeComponent(
+            GameStage.RoundPiece piece, MaestroInterface gameService, Audio notification, Runnable refreshPlay) {
         add(new Paragraph("play time!"));
         String responder = piece.getCurrentResponder();
         if (piece.isCompleted()) {
@@ -38,12 +39,7 @@ public class PlayTimeComponent extends VerticalLayout {
             Button confirm = new Button("zatwierdź");
             testId(confirm, "maestro/dj/play/confirm-" + piece.roundNumber + "-" + piece.pieceNumber.number());
             confirm.addClickListener(_ -> {
-                gameService.reportResult(
-                        new Player(responder),
-                        artist.getValue(),
-                        title.getValue(),
-                        null,
-                        null);
+                gameService.reportResult(new Player(responder), artist.getValue(), title.getValue(), null, null);
                 refreshPlay.run();
             });
             add(artist, title, confirm);

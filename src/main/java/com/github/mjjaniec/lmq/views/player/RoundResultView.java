@@ -33,7 +33,6 @@ public class RoundResultView extends VerticalLayout implements PlayerRoute {
         add(pointsCaptionHolder);
     }
 
-
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);

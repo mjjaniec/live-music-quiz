@@ -26,4 +26,3 @@ public class LiveMusicQuizApp implements AppShellConfigurator {
         SpringApplication.run(LiveMusicQuizApp.class, args);
     }
 }
-

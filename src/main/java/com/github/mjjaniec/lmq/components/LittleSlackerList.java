@@ -3,7 +3,6 @@ package com.github.mjjaniec.lmq.components;
 import com.github.mjjaniec.lmq.model.Player;
 import com.github.mjjaniec.lmq.util.Palette;
 import com.vaadin.flow.component.html.Paragraph;
-
 import java.util.List;
 import java.util.stream.Collectors;
 

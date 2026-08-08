@@ -1,5 +1,7 @@
 package com.github.mjjaniec.lmq.views.maestro;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
+
 import com.github.mjjaniec.lmq.components.*;
 import com.github.mjjaniec.lmq.model.*;
 import com.github.mjjaniec.lmq.services.BroadcastAttach;
@@ -29,12 +31,9 @@ import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RouterLink;
-import org.jspecify.annotations.Nullable;
-
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static com.github.mjjaniec.lmq.util.TestId.testId;
+import org.jspecify.annotations.Nullable;
 
 @Route(value = "dj", layout = MaestroView.class)
 public class DjView extends VerticalLayout implements RouterLayout {
@@ -54,7 +53,6 @@ public class DjView extends VerticalLayout implements RouterLayout {
 
     private final Audio notification = new Audio("themes/live-music-quiz/notification.mp3");
 
-
     DjView(MaestroInterface gameService, BroadcastAttach broadcastAttach, SpreadsheetLoader spreadsheetLoader) {
         this.gameService = gameService;
         this.broadcastAttach = broadcastAttach;
@@ -73,7 +71,9 @@ public class DjView extends VerticalLayout implements RouterLayout {
         if (gameService.isGameStarted()) {
             Accordion main = new Accordion();
             main.setSizeFull();
-            Objects.requireNonNull(gameService.stageSet()).topLevelStages().stream().map(this::createStagePanel).forEach(main::add);
+            Objects.requireNonNull(gameService.stageSet()).topLevelStages().stream()
+                    .map(this::createStagePanel)
+                    .forEach(main::add);
             add(customMessageComponent());
             add(main);
             add(notification);
@@ -85,7 +85,8 @@ public class DjView extends VerticalLayout implements RouterLayout {
     private Component customMessageComponent() {
         HorizontalLayout layout = new HorizontalLayout();
         layout.setWidthFull();
-        TextField message = new TextField("Wiadomość do publiczności", "jeśli ustawiona, zastępuje logo na dużym ekranie");
+        TextField message =
+                new TextField("Wiadomość do publiczności", "jeśli ustawiona, zastępuje logo na dużym ekranie");
         testId(message, "maestro/dj/message-field");
         Button button = new Button("Wyczyść");
         testId(button, "maestro/dj/message-button");
@@ -129,8 +130,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
         HorizontalLayout buttons = new HorizontalLayout(
                 createActivateComponent(invite),
                 new RouterLink("BigScreen", InviteView.class),
-                new RouterLink("Player Join", JoinView.class)
-        );
+                new RouterLink("Player Join", JoinView.class));
         buttons.setAlignItems(Alignment.CENTER);
         main.add(buttons);
         main.add(playersList());
@@ -154,7 +154,6 @@ public class DjView extends VerticalLayout implements RouterLayout {
         refreshPlayOffContent();
     }
 
-
     private StageHeader createPanelHeader(Component content, @Nullable GameStage stage) {
         StageHeader result = new StageHeader(content, gameService.stage() == stage, currentParentHeader);
         if (stage != null) {
@@ -166,18 +165,20 @@ public class DjView extends VerticalLayout implements RouterLayout {
     private Component playersList() {
         testId(playersGrid, "maestro/players-grid");
         playersGrid.addColumn(Player::name).setHeader("Ksywka");
-        playersGrid.addColumn(new ComponentRenderer<>((SerializableFunction<Player, Component>) player -> {
-            Div result = new Div();
-            Checkbox danger = new Checkbox("danger", false);
-            testId(danger, "mastero/players-grid/danger/" + player.name());
-            Button bumpOut = new Button("Wyrzuć", _ -> gameService.removePlayer(player));
-            bumpOut.addThemeVariants(ButtonVariant.LUMO_ERROR);
-            bumpOut.setEnabled(false);
-            testId(bumpOut, "mastero/players-grid/bump-out/" + player.name());
-            danger.addValueChangeListener(event -> bumpOut.setEnabled(event.getValue()));
-            result.add(danger, bumpOut);
-            return result;
-        })).setHeader("Akcje");
+        playersGrid
+                .addColumn(new ComponentRenderer<>((SerializableFunction<Player, Component>) player -> {
+                    Div result = new Div();
+                    Checkbox danger = new Checkbox("danger", false);
+                    testId(danger, "mastero/players-grid/danger/" + player.name());
+                    Button bumpOut = new Button("Wyrzuć", _ -> gameService.removePlayer(player));
+                    bumpOut.addThemeVariants(ButtonVariant.LUMO_ERROR);
+                    bumpOut.setEnabled(false);
+                    testId(bumpOut, "mastero/players-grid/bump-out/" + player.name());
+                    danger.addValueChangeListener(event -> bumpOut.setEnabled(event.getValue()));
+                    result.add(danger, bumpOut);
+                    return result;
+                }))
+                .setHeader("Akcje");
         playersGrid.setItems(gameService.getPlayers());
         playersGrid.getStyle().setMarginRight("1em");
         return playersGrid;
@@ -239,9 +240,12 @@ public class DjView extends VerticalLayout implements RouterLayout {
 
     private AccordionPanel roundInitComponent(GameStage.RoundInit roundInit) {
         HorizontalLayout content = new HorizontalLayout();
-        content.add(testId(createActivateComponent(roundInit), "maestro/dj/round-init/activate-" + roundInit.roundNumber().number()));
+        content.add(testId(
+                createActivateComponent(roundInit),
+                "maestro/dj/round-init/activate-" + roundInit.roundNumber().number()));
         MainSet.RoundMode roundMode = roundInit.roundMode();
-        content.add(new Span("typ: " + roundMode + ", za-artystę: " + roundMode.artistPoints + ", za-tytuł: " + roundMode.titlePoints));
+        content.add(new Span("typ: " + roundMode + ", za-artystę: " + roundMode.artistPoints + ", za-tytuł: "
+                + roundMode.titlePoints));
         return new AccordionPanel(createPanelHeader(new Text("▶️ Rozpoczęcie rundy"), roundInit), content);
     }
 
@@ -261,14 +265,16 @@ public class DjView extends VerticalLayout implements RouterLayout {
         testId(comboBox, "maestro/dj/play-off/selection");
         comboBox.setEnabled(gameService.playOffTask().isEmpty());
 
-        ActivateComponent activateComponent = new ActivateComponent(playOff, gameService.stage() == playOff, _ -> onActivate(playOff));
+        ActivateComponent activateComponent =
+                new ActivateComponent(playOff, gameService.stage() == playOff, _ -> onActivate(playOff));
         testId(activateComponent, "maestro/dj/play-off/activate");
         Button select = testId(new Button("wybierz"), "maestro/dj/play-off/select-task");
         select.addClickListener(_ -> {
             gameService.setPlayOffTask(comboBox.getValue());
             refreshPlayOffContent();
         });
-        select.setEnabled(comboBox.getValue() != null && gameService.playOffTask().isEmpty());
+        select.setEnabled(
+                comboBox.getValue() != null && gameService.playOffTask().isEmpty());
 
         activateComponents.put(playOff, activateComponent);
         activateComponent.setEnabled(comboBox.getValue() != null);
@@ -292,7 +298,8 @@ public class DjView extends VerticalLayout implements RouterLayout {
             reset.setEnabled(false);
             danger.addValueChangeListener(event -> reset.setEnabled(event.getValue()));
             Button collectAnswers = testId(new Button("≙ Niech odpowiadajo!"), "maestro/dj/play-off/collect-answers");
-            collectAnswers.setEnabled(!playOff.isPerformed() && gameService.playOffTask().isPresent());
+            collectAnswers.setEnabled(
+                    !playOff.isPerformed() && gameService.playOffTask().isPresent());
             collectAnswers.addClickListener(_ -> {
                 playOff.setPerformed(true);
                 gameService.setStage(playOff);
@@ -312,7 +319,8 @@ public class DjView extends VerticalLayout implements RouterLayout {
     }
 
     private AccordionPanel playOffComponent(GameStage.PlayOff playOff) {
-        StageHeader header = testId(createPanelHeader(new Text("\uD83C\uDFB2 Dogrywka"), playOff), "maestro/dj/play-off/header");
+        StageHeader header =
+                testId(createPanelHeader(new Text("\uD83C\uDFB2 Dogrywka"), playOff), "maestro/dj/play-off/header");
 
         playOffContent.setWidthFull();
         VerticalLayout content = new VerticalLayout();
@@ -322,19 +330,26 @@ public class DjView extends VerticalLayout implements RouterLayout {
     }
 
     private AccordionPanel roundSummaryComponent(GameStage.RoundSummary roundSummary) {
-        StageHeader header = testId(createPanelHeader(new Text("\uD83D\uDCC8 podsumowanie rundy"), roundSummary), "maestro/dj/round-summary-header-" + roundSummary.roundNumber().number());
+        StageHeader header = testId(
+                createPanelHeader(new Text("\uD83D\uDCC8 podsumowanie rundy"), roundSummary),
+                "maestro/dj/round-summary-header-" + roundSummary.roundNumber().number());
         Component content;
         if (roundSummary.roundNumber().number() == roundSummary.roundNumber().of()) {
             content = new Paragraph("Użyj globalnego podsumowania");
         } else {
-            content = testId(createActivateComponent(roundSummary), "maestro/dj/round-summary-activate-" + roundSummary.roundNumber().number());
+            content = testId(
+                    createActivateComponent(roundSummary),
+                    "maestro/dj/round-summary-activate-"
+                            + roundSummary.roundNumber().number());
         }
         return new AccordionPanel(header, content);
     }
 
-
     private AccordionPanel roundComponent(GameStage.RoundInit roundInit) {
-        StageHeader header = testId(createPanelHeader(new Text("\uD83C\uDFAF Runda " + roundInit.roundNumber().number()), null), "maestro/dj/round-header-" + roundInit.roundNumber().number());
+        StageHeader header = testId(
+                createPanelHeader(
+                        new Text("\uD83C\uDFAF Runda " + roundInit.roundNumber().number()), null),
+                "maestro/dj/round-header-" + roundInit.roundNumber().number());
         currentParentHeader = Optional.of(header);
         Accordion content = new Accordion();
         content.getStyle().setMarginLeft("3em");
@@ -343,8 +358,10 @@ public class DjView extends VerticalLayout implements RouterLayout {
         content.add(createStagePanel(roundInit.roundSummary()));
         currentParentHeader = Optional.empty();
         GameStage stage = gameService.stage();
-        header.setActive(stage == roundInit || stage == roundInit.roundSummary() ||
-                         (stage instanceof GameStage.RoundPiece rp && roundInit.pieces().contains(rp)));
+        header.setActive(stage == roundInit
+                || stage == roundInit.roundSummary()
+                || (stage instanceof GameStage.RoundPiece rp
+                        && roundInit.pieces().contains(rp)));
         return new AccordionPanel(header, content);
     }
 
@@ -355,14 +372,16 @@ public class DjView extends VerticalLayout implements RouterLayout {
                 testId(new Span(piece.piece.artist()), "maestro/dj/piece-artist-" + pieceNumberSuffix),
                 new Span(" - "),
                 testId(new Span(piece.piece.title()), "maestro/dj/piece-title-" + pieceNumberSuffix));
-        StageHeader header = testId(createPanelHeader(headerComponent, piece), "maestro/dj/piece-header-" + pieceNumberSuffix);
+        StageHeader header =
+                testId(createPanelHeader(headerComponent, piece), "maestro/dj/piece-header-" + pieceNumberSuffix);
         VerticalLayout content = new VerticalLayout();
         content.setWidthFull();
         HorizontalLayout row = new HorizontalLayout();
         row.setPadding(false);
         row.setWidthFull();
         row.getStyle().setMarginLeft("2em");
-        Span tempo = new Span("\uD83E\uDD41 " + Optional.ofNullable(piece.piece.tempo()).map(Object::toString).orElse("zmienne"));
+        Span tempo = new Span("\uD83E\uDD41 "
+                + Optional.ofNullable(piece.piece.tempo()).map(Object::toString).orElse("zmienne"));
         tempo.setWidth("10%");
         Span hint = new Span(piece.piece.hint());
         content.add(row);
@@ -386,7 +405,8 @@ public class DjView extends VerticalLayout implements RouterLayout {
 
     private void refreshSlackers() {
         if (gameService.stage() instanceof GameStage.RoundPiece piece) {
-            if (piece.getCurrentStage() == GameStage.PieceStage.LISTEN || piece.getCurrentStage() == GameStage.PieceStage.ONION_LISTEN) {
+            if (piece.getCurrentStage() == GameStage.PieceStage.LISTEN
+                    || piece.getCurrentStage() == GameStage.PieceStage.ONION_LISTEN) {
                 refreshPieceContent(piece);
             }
         } else if (gameService.stage() instanceof GameStage.PlayOff) {
@@ -401,7 +421,6 @@ public class DjView extends VerticalLayout implements RouterLayout {
             }
         }
     }
-
 
     private void refreshPieceContent(GameStage.RoundPiece piece) {
         pieceContent.removeAll();
@@ -424,7 +443,6 @@ public class DjView extends VerticalLayout implements RouterLayout {
             case REVEAL -> pieceContent.add(new LittleSlackerList(gameService.getSlackers()));
             case PLAY -> pieceContent.add(new PlayTimeComponent(piece, gameService, notification, this::refreshPlay));
         }
-
     }
 
     @Override

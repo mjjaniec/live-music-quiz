@@ -1,5 +1,7 @@
 package com.github.mjjaniec.lmq.views.player;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
+
 import com.github.mjjaniec.lmq.model.Constants;
 import com.github.mjjaniec.lmq.model.GameStage;
 import com.github.mjjaniec.lmq.services.GameService;
@@ -9,8 +11,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-
-import static com.github.mjjaniec.lmq.util.TestId.testId;
 
 @Route(value = "piece-result", layout = PlayerView.class)
 public class PieceResultView extends VerticalLayout implements PlayerRoute {
@@ -30,8 +30,10 @@ public class PieceResultView extends VerticalLayout implements PlayerRoute {
 
     public PieceResultView(GameService gameService) {
         this.gameService = gameService;
-        withAutocomplete = gameService.pieceStage()
-                .filter(p -> !p.innerStages.contains(GameStage.PieceStage.PLAY)).isPresent();
+        withAutocomplete = gameService
+                .pieceStage()
+                .filter(p -> !p.innerStages.contains(GameStage.PieceStage.PLAY))
+                .isPresent();
         setSpacing(true);
         setPadding(true);
 
@@ -61,7 +63,8 @@ public class PieceResultView extends VerticalLayout implements PlayerRoute {
         forPlayer(attachEvent.getUI(), player -> {
             if (withAutocomplete) {
                 gameService.getCurrentAnswer(player).ifPresent(answer -> {
-                    fakeArtist.set(answer.actualArtist(), answer.artist(), Constants.UNKNOWN.equals(answer.actualArtist()));
+                    fakeArtist.set(
+                            answer.actualArtist(), answer.artist(), Constants.UNKNOWN.equals(answer.actualArtist()));
                     fakeTitle.set(answer.actualTitle(), answer.title(), false);
                 });
             }
@@ -70,7 +73,6 @@ public class PieceResultView extends VerticalLayout implements PlayerRoute {
             pointsCaptionHolder.setText(Plural.points(points));
         });
     }
-
 
     private FakeAutocomplete fakeAutocomplete() {
         Input input = new Input();

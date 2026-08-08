@@ -53,7 +53,6 @@ public class BigScreenPlayView extends VerticalLayout implements BigScreenRoute 
         });
     }
 
-
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);

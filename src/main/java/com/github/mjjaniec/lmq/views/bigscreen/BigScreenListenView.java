@@ -2,7 +2,6 @@ package com.github.mjjaniec.lmq.views.bigscreen;
 
 import com.github.mjjaniec.lmq.components.NotesAnimation;
 import com.github.mjjaniec.lmq.model.GameStage;
-import com.github.mjjaniec.lmq.model.MainSet;
 import com.github.mjjaniec.lmq.services.BroadcastAttach;
 import com.github.mjjaniec.lmq.services.GameService;
 import com.vaadin.flow.component.AttachEvent;

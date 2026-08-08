@@ -1,10 +1,10 @@
 package com.github.mjjaniec.lmq;
 
-import com.microsoft.playwright.*;
-import org.junit.jupiter.api.*;
-
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.microsoft.playwright.*;
+import org.junit.jupiter.api.*;
 
 public class SmokeIT {
     private static final int PORT = Integer.parseInt(System.getProperty("server.port", "8090"));

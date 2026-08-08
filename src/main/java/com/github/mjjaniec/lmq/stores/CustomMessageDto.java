@@ -10,5 +10,6 @@ public class CustomMessageDto {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     private String message;
 }

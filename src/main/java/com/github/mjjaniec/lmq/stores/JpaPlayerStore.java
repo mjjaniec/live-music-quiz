@@ -3,10 +3,9 @@ package com.github.mjjaniec.lmq.stores;
 import com.github.mjjaniec.lmq.model.Player;
 import com.google.common.collect.Streams;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public interface JpaPlayerStore extends CrudRepository<PlayerDto, String>, PlayerStore {

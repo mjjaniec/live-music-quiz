@@ -2,7 +2,6 @@ package com.github.mjjaniec.lmq.model;
 
 import com.github.mjjaniec.lmq.model.MainSet.RoundMode;
 import com.google.common.collect.Streams;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -14,11 +13,12 @@ public class StageSet {
 
     public StageSet(MainSet quiz) {
         mainStages = Stream.<Stream<GameStage>>of(
-                Stream.of(new GameStage.Invite()),
-                Streams.mapWithIndex(quiz.levels().stream(), (level, index) -> roundStages(level, index, quiz)),
-                Stream.of(new GameStage.PlayOff()),
-                Stream.of(new GameStage.WrapUp())
-        ).flatMap(Function.identity()).toList();
+                        Stream.of(new GameStage.Invite()),
+                        Streams.mapWithIndex(quiz.levels().stream(), (level, index) -> roundStages(level, index, quiz)),
+                        Stream.of(new GameStage.PlayOff()),
+                        Stream.of(new GameStage.WrapUp()))
+                .flatMap(Function.identity())
+                .toList();
     }
 
     public GameStage initStage() {
@@ -55,18 +55,23 @@ public class StageSet {
         return new GameStage.RoundInit(
                 new GameStage.RoundNumber((int) roundIndex + 1, quiz.levels().size()),
                 level.level(),
-                Streams.mapWithIndex(level.pieces().stream(), (piece, index) ->
-                        new GameStage.RoundPiece(
-                                (int) roundIndex + 1,
-                                new GameStage.PieceNumber((int) index + 1, level.pieces().size()),
-                                piece,
-                                switch (level.level()) {
-                                    case RoundMode.FIRST -> List.of(GameStage.PieceStage.PLAY, GameStage.PieceStage.REVEAL);
-                                    case RoundMode.ONION -> List.of(GameStage.PieceStage.ONION_LISTEN, GameStage.PieceStage.REVEAL);
-                                    case RoundMode.EVERYBODY ->  List.of(GameStage.PieceStage.LISTEN, GameStage.PieceStage.REVEAL);
-                                })
-                ).toList(),
-                new GameStage.RoundSummary(new GameStage.RoundNumber((int) roundIndex + 1, quiz.levels().size()))
-        );
+                Streams.mapWithIndex(
+                                level.pieces().stream(),
+                                (piece, index) -> new GameStage.RoundPiece(
+                                        (int) roundIndex + 1,
+                                        new GameStage.PieceNumber(
+                                                (int) index + 1, level.pieces().size()),
+                                        piece,
+                                        switch (level.level()) {
+                                            case RoundMode.FIRST ->
+                                                List.of(GameStage.PieceStage.PLAY, GameStage.PieceStage.REVEAL);
+                                            case RoundMode.ONION ->
+                                                List.of(GameStage.PieceStage.ONION_LISTEN, GameStage.PieceStage.REVEAL);
+                                            case RoundMode.EVERYBODY ->
+                                                List.of(GameStage.PieceStage.LISTEN, GameStage.PieceStage.REVEAL);
+                                        }))
+                        .toList(),
+                new GameStage.RoundSummary(new GameStage.RoundNumber(
+                        (int) roundIndex + 1, quiz.levels().size())));
     }
 }

@@ -1,12 +1,12 @@
 package com.github.mjjaniec.lmq.components;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
+
 import com.github.mjjaniec.lmq.util.Palette;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-
-import static com.github.mjjaniec.lmq.util.TestId.testId;
 
 public class ProgressBar extends HorizontalLayout {
 
@@ -29,7 +29,6 @@ public class ProgressBar extends HorizontalLayout {
         Div right = new Div();
         left.getStyle().setBackgroundColor(color);
         right.setWidth((100 - leftW) + "%");
-
 
         add(left, right);
     }

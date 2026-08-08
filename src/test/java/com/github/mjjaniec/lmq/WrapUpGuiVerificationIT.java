@@ -1,11 +1,17 @@
 package com.github.mjjaniec.lmq;
 
+import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+
 import com.github.mjjaniec.lmq.model.*;
 import com.github.mjjaniec.lmq.services.MaestroInterface;
 import com.github.mjjaniec.lmq.services.Results;
 import com.github.mjjaniec.lmq.stores.*;
 import com.microsoft.playwright.*;
 import com.vaadin.copilot.shaded.guava.collect.Streams;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -21,20 +27,12 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
-import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
-
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("integration-test")
 @Slf4j
 public class WrapUpGuiVerificationIT {
 
-    record Expected(String name, List<Integer> rounds, int total, int playoff, int diff) {
-    }
+    record Expected(String name, List<Integer> rounds, int total, int playoff, int diff) {}
 
     @LocalServerPort
     private int port;
@@ -132,7 +130,6 @@ public class WrapUpGuiVerificationIT {
         String p11 = "Kaczabonga";
         String p12 = "Martynka";
 
-
         var players = List.of(p01, p02, p03, p04, p05, p06, p07, p08, p09, p10, p11, p12);
 
         var firstRoundPoints = List.of(10, 4, 6, 0, 20, 8, 12, 0, 10, 4, 6, 0);
@@ -146,25 +143,29 @@ public class WrapUpGuiVerificationIT {
 
         players.forEach(playerStore::addPlayer);
 
-        var rounds = List.of(firstRoundPoints, secondRoundPoints, thirdRoundPoints, fourthRoundPoints, fifthRoundPoints, sixthRoundPoints);
+        var rounds = List.of(
+                firstRoundPoints,
+                secondRoundPoints,
+                thirdRoundPoints,
+                fourthRoundPoints,
+                fifthRoundPoints,
+                sixthRoundPoints);
 
         Streams.mapWithIndex(rounds.stream(), Map::entry)
                 .forEach(r -> Streams.zip(players.stream(), r.getKey().stream(), Map::entry)
-                        .forEach(p ->
-                                answerStore.saveAnswer(new Answer(true, true, p.getValue(), p.getKey(), (int) (1 + r.getValue()), 1, null, null))));
+                        .forEach(p -> answerStore.saveAnswer(new Answer(
+                                true, true, p.getValue(), p.getKey(), (int) (1 + r.getValue()), 1, null, null))));
 
         Streams.zip(players.stream(), playOffs.stream(), Map::entry)
                 .forEach(entry -> playOffStore.savePlayOff(new Player(entry.getKey()), entry.getValue()));
-
 
         StageSet stageSet = Objects.requireNonNull(gameService.stageSet());
         GameStage.WrapUp wrapUp = stageSet.wrapUpStage();
         gameService.setStage(wrapUp);
 
-
         // 4. Open Browsers and establish session first
         try (BrowserContext maestroContext = browser.newContext();
-             BrowserContext bigScreenContext = browser.newContext()) {
+                BrowserContext bigScreenContext = browser.newContext()) {
 
             Page bigScreenPage = bigScreenContext.newPage();
             Page maestroPage = maestroContext.newPage();
@@ -175,7 +176,6 @@ public class WrapUpGuiVerificationIT {
 
             bigScreenPage.navigate(baseUrl + "/big-screen");
             assertThat(bigScreenPage.getByTestId("big-screen/top")).isVisible();
-
 
             var expected = List.of(
                     new Expected(p07, List.of(12, 32, 0, 8, 0, 20), 72, 264, 23),
@@ -189,8 +189,7 @@ public class WrapUpGuiVerificationIT {
                     new Expected(p02, List.of(4, 0, 0, 10, 0, 10), 24, 71, 170),
                     new Expected(p12, List.of(0, 0, 5, 4, 0, 10), 19, 451, 210),
                     new Expected(p10, List.of(4, 0, 6, 4, 0, 5), 19, 471, 230),
-                    new Expected(p01, List.of(10, 0, 0, 0, 0, 0), 10, 213, 28)
-            );
+                    new Expected(p01, List.of(10, 0, 0, 0, 0, 0), 10, 213, 28));
 
             log.info("At the start table should have all rows hidden");
             for (int i = expected.size(); i >= 0; --i) {
@@ -202,15 +201,17 @@ public class WrapUpGuiVerificationIT {
                 maestroPage.getByTestId("maestro/wrapup/show-more").click();
             }
 
-
             for (int i = 0; i < expected.size(); i++) {
                 var exp = expected.get(i);
                 int pos = i + 1;
                 log.info("Verifying position {}: {}", pos, exp.name);
 
-                assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos)).hasText(exp.name);
-                assertThat(bigScreenPage.getByTestId("big-screen/results/total-" + pos)).hasText(String.valueOf(exp.total));
-                assertThat(bigScreenPage.getByTestId("big-screen/results/playoff-" + pos)).hasText(exp.playoff + " / " + playOff.value());
+                assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-" + pos))
+                        .hasText(exp.name);
+                assertThat(bigScreenPage.getByTestId("big-screen/results/total-" + pos))
+                        .hasText(String.valueOf(exp.total));
+                assertThat(bigScreenPage.getByTestId("big-screen/results/playoff-" + pos))
+                        .hasText(exp.playoff + " / " + playOff.value());
 
                 for (int r = 0; r < exp.rounds.size(); r++) {
                     assertThat(bigScreenPage.getByTestId("big-screen/results/round-" + (r + 1) + "-" + pos))
@@ -218,15 +219,19 @@ public class WrapUpGuiVerificationIT {
                 }
 
                 if (pos == 1) {
-                    assertThat(bigScreenPage.getByTestId("big-screen/results/prize-" + pos)).hasText(Results.Award.FIRST.symbol);
+                    assertThat(bigScreenPage.getByTestId("big-screen/results/prize-" + pos))
+                            .hasText(Results.Award.FIRST.symbol);
                 } else if (pos == 2) {
-                    assertThat(bigScreenPage.getByTestId("big-screen/results/prize-" + pos)).hasText(Results.Award.SECOND.symbol);
+                    assertThat(bigScreenPage.getByTestId("big-screen/results/prize-" + pos))
+                            .hasText(Results.Award.SECOND.symbol);
                 } else if (pos == 3) {
-                    assertThat(bigScreenPage.getByTestId("big-screen/results/prize-" + pos)).hasText(Results.Award.THIRD.symbol);
+                    assertThat(bigScreenPage.getByTestId("big-screen/results/prize-" + pos))
+                            .hasText(Results.Award.THIRD.symbol);
                 }
             }
 
-            assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-12")).hasText(p01);
+            assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-12"))
+                    .hasText(p01);
             assertThat(bigScreenPage.getByTestId("big-screen/results/prize-12")).hasText(Results.Award.PLAY_OFF.symbol);
         }
     }

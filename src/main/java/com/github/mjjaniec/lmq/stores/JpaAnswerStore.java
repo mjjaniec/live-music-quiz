@@ -2,12 +2,11 @@ package com.github.mjjaniec.lmq.stores;
 
 import com.github.mjjaniec.lmq.model.Answer;
 import com.google.common.collect.Streams;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Component;
 
 @Component
 public interface JpaAnswerStore extends CrudRepository<AnswerDto, String>, AnswerStore {
@@ -44,7 +43,15 @@ public interface JpaAnswerStore extends CrudRepository<AnswerDto, String>, Answe
     List<AnswerDto> findByPlayerAndRound(String player, int round);
 
     private Answer mapFromDto(AnswerDto dto) {
-        return new Answer(dto.isArtist(), dto.isTitle(), dto.getPoints(), dto.getPlayer(), dto.getRound(), dto.getPiece(), dto.getActualArtist(), dto.getActualTitle());
+        return new Answer(
+                dto.isArtist(),
+                dto.isTitle(),
+                dto.getPoints(),
+                dto.getPlayer(),
+                dto.getRound(),
+                dto.getPiece(),
+                dto.getActualArtist(),
+                dto.getActualTitle());
     }
 
     private AnswerDto mapToDto(Answer answer) {
@@ -64,5 +71,4 @@ public interface JpaAnswerStore extends CrudRepository<AnswerDto, String>, Answe
     private String id(String player, int round, int piece) {
         return round + ":" + piece + ":" + player;
     }
-
 }

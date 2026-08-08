@@ -1,12 +1,11 @@
 package com.github.mjjaniec.lmq.stores;
 
 import com.github.mjjaniec.lmq.model.MainSet;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Component;
-
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Component;
 
 @Component
 public interface JpaQuizStore extends CrudRepository<QuizDto, Long>, QuizStore {
@@ -61,8 +60,7 @@ public interface JpaQuizStore extends CrudRepository<QuizDto, Long>, QuizStore {
     private MainSet.LevelPieces mapFromDto(QuizDto.Level level) {
         return new MainSet.LevelPieces(
                 MainSet.RoundMode.valueOf(level.getRoundMode()),
-                level.getPieces().stream().map(this::mapFromDto).toList()
-        );
+                level.getPieces().stream().map(this::mapFromDto).toList());
     }
 
     private MainSet.Piece mapFromDto(QuizDto.Piece piece) {
@@ -73,7 +71,6 @@ public interface JpaQuizStore extends CrudRepository<QuizDto, Long>, QuizStore {
                 piece.getTitleAlternative(),
                 piece.getTempo(),
                 piece.getHint(),
-                Set.of()
-        );
+                Set.of());
     }
 }

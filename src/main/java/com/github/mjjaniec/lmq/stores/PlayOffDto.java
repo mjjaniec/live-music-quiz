@@ -9,5 +9,6 @@ import lombok.Data;
 public class PlayOffDto {
     @Id
     private String player;
+
     private int answer;
 }

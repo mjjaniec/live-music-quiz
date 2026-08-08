@@ -1,10 +1,9 @@
 package com.github.mjjaniec.lmq.stores;
 
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Component;
-
 import java.util.Iterator;
 import java.util.Optional;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Component;
 
 @Component
 public interface JpaCustomMessageStore extends CrudRepository<CustomMessageDto, Long>, CustomMessageStore {

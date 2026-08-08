@@ -1,10 +1,9 @@
 package com.github.mjjaniec.lmq.stores;
 
+import java.util.List;
 import org.apache.commons.lang3.stream.Streams;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public interface JpaFeedbackStore extends CrudRepository<FeedbackDto, Long>, FeedbackStore {

@@ -2,7 +2,6 @@ package com.github.mjjaniec.lmq.services;
 
 import com.vaadin.flow.component.UI;
 
-
 public interface BroadcastAttach {
     void attachPlayerUI(UI ui);
 

@@ -8,7 +8,8 @@ import com.vaadin.flow.component.Tag;
 @Tag("audio")
 public class Audio extends HtmlContainer {
 
-    private static final PropertyDescriptor<String, String> srcDescriptor = PropertyDescriptors.attributeWithDefault("src", "");
+    private static final PropertyDescriptor<String, String> srcDescriptor =
+            PropertyDescriptors.attributeWithDefault("src", "");
 
     public Audio(String src) {
         set(srcDescriptor, src);
@@ -17,5 +18,4 @@ public class Audio extends HtmlContainer {
     public void play() {
         getElement().executeJs("this.play()");
     }
-
 }

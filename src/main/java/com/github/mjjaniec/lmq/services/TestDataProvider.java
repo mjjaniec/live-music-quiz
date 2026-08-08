@@ -3,11 +3,10 @@ package com.github.mjjaniec.lmq.services;
 import com.github.mjjaniec.lmq.config.ApplicationConfig;
 import com.github.mjjaniec.lmq.model.GameStage;
 import com.github.mjjaniec.lmq.model.MainSet;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.springframework.stereotype.Component;
 
 @Component
 public class TestDataProvider {
@@ -20,19 +19,20 @@ public class TestDataProvider {
 
     public Optional<GameStage.RoundPiece> piece() {
         return Optional.of(new GameStage.RoundPiece(
-                4,
-                new GameStage.PieceNumber(3, 10),
-                new MainSet.Piece("Red Hot Chilli Pepper", null,"Callifornication", null,null, null, Set.of()),
-                List.of(GameStage.PieceStage.LISTEN, GameStage.PieceStage.REVEAL)
-        )).filter(_ -> config.testData());
-
+                        4,
+                        new GameStage.PieceNumber(3, 10),
+                        new MainSet.Piece(
+                                "Red Hot Chilli Pepper", null, "Callifornication", null, null, null, Set.of()),
+                        List.of(GameStage.PieceStage.LISTEN, GameStage.PieceStage.REVEAL)))
+                .filter(_ -> config.testData());
     }
 
     public Optional<GameStage.RoundInit> init() {
-        return Optional.of(new GameStage.RoundInit(new GameStage.RoundNumber(1, 3),
-                MainSet.RoundMode.EVERYBODY,
-                List.of(),
-                new GameStage.RoundSummary(new GameStage.RoundNumber(1, 3))
-        )).filter(_ -> config.testData());
+        return Optional.of(new GameStage.RoundInit(
+                        new GameStage.RoundNumber(1, 3),
+                        MainSet.RoundMode.EVERYBODY,
+                        List.of(),
+                        new GameStage.RoundSummary(new GameStage.RoundNumber(1, 3))))
+                .filter(_ -> config.testData());
     }
 }

@@ -2,14 +2,13 @@ package com.github.mjjaniec.lmq.views.bigscreen;
 
 import com.github.mjjaniec.lmq.components.PodiumComponent;
 import com.github.mjjaniec.lmq.components.ResultsTable;
-import com.github.mjjaniec.lmq.services.Results;
 import com.github.mjjaniec.lmq.services.BroadcastAttach;
 import com.github.mjjaniec.lmq.services.GameService;
+import com.github.mjjaniec.lmq.services.Results;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-
 import java.util.Optional;
 
 @Route(value = "wrap-up", layout = BigScreenView.class)
@@ -29,7 +28,8 @@ public class WrapUpView extends VerticalLayout implements BigScreenRoute {
     }
 
     void refresh() {
-        gameService.wrapUpStage()
+        gameService
+                .wrapUpStage()
                 .flatMap(w -> Optional.ofNullable(w.getShowFrom()))
                 .ifPresent(showFrom -> {
                     removeAll();

@@ -22,17 +22,17 @@ public class RootView extends HorizontalLayout implements RouterLayout {
         super.onAttach(attachEvent);
         if (config.enableFrontRouting()) {
             UI ui = attachEvent.getUI();
-            LocalStorage.readPlayer(ui).thenAccept(playerOpt -> playerOpt.ifPresentOrElse(
-                    player -> {
-                        if (!gameService.hasPlayer(player)) {
-                            LocalStorage.removePlayer(ui);
-                            ui.access(() -> ui.navigate(JoinView.class));
-                        } else {
-                            attachEvent.getUI().navigate(PlayerView.class);
-                        }
-                    },
-                    () -> ui.access(() -> ui.navigate(JoinView.class))
-            ));
+            LocalStorage.readPlayer(ui)
+                    .thenAccept(playerOpt -> playerOpt.ifPresentOrElse(
+                            player -> {
+                                if (!gameService.hasPlayer(player)) {
+                                    LocalStorage.removePlayer(ui);
+                                    ui.access(() -> ui.navigate(JoinView.class));
+                                } else {
+                                    attachEvent.getUI().navigate(PlayerView.class);
+                                }
+                            },
+                            () -> ui.access(() -> ui.navigate(JoinView.class))));
         }
     }
 }

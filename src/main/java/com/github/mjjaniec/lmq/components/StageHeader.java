@@ -5,7 +5,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.dom.Style;
-
 import java.util.Optional;
 
 public class StageHeader extends Div {
@@ -19,7 +18,6 @@ public class StageHeader extends Div {
         setWidthFull();
         setActive(active);
     }
-
 
     public void setActive(boolean active) {
         removeAll();

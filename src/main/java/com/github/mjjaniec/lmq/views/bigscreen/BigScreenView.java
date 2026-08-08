@@ -1,5 +1,7 @@
 package com.github.mjjaniec.lmq.views.bigscreen;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
+
 import com.github.mjjaniec.lmq.components.BannerBand;
 import com.github.mjjaniec.lmq.components.FooterBand;
 import com.github.mjjaniec.lmq.components.ProgressBar;
@@ -17,11 +19,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RoutePrefix;
-
 import java.util.Optional;
-
-import static com.github.mjjaniec.lmq.util.TestId.testId;
-
 
 @Route("")
 @RoutePrefix("big-screen")
@@ -53,9 +51,8 @@ public class BigScreenView extends VerticalLayout implements RouterLayoutWithOut
         progressBarsOutlet.setWidthFull();
         progressBarsOutlet.getStyle().setBackgroundColor(Palette.GREEN);
 
-        Component topComponent = gameService.customMessage()
-                .map(this::customMessageComponent)
-                .orElse(new BannerBand(Palette.GREEN));
+        Component topComponent =
+                gameService.customMessage().map(this::customMessageComponent).orElse(new BannerBand(Palette.GREEN));
         testId(topComponent, "big-screen/top");
         add(topComponent);
         add(progressBarsOutlet);
@@ -83,11 +80,16 @@ public class BigScreenView extends VerticalLayout implements RouterLayoutWithOut
     private void refreshProgressBars() {
         progressBarsOutlet.removeAll();
 
-        var roundP = gameService.roundInitStage().or(testDataProvider::init)
-                .map(init ->
-                        new ProgressBar("Runda", init.roundNumber().number(), init.roundNumber().of(), Palette.DARKER));
-        var pieceP = gameService.pieceStage().or(testDataProvider::piece).map(piece ->
-                new ProgressBar("Utwór", piece.pieceNumber.number(), piece.pieceNumber.of(), Palette.DARKER));
+        var roundP = gameService
+                .roundInitStage()
+                .or(testDataProvider::init)
+                .map(init -> new ProgressBar(
+                        "Runda", init.roundNumber().number(), init.roundNumber().of(), Palette.DARKER));
+        var pieceP = gameService
+                .pieceStage()
+                .or(testDataProvider::piece)
+                .map(piece ->
+                        new ProgressBar("Utwór", piece.pieceNumber.number(), piece.pieceNumber.of(), Palette.DARKER));
 
         roundP.ifPresent(round -> pieceP.ifPresent(piece -> {
             round.getStyle().setBorderBottom("None");
@@ -109,10 +111,10 @@ public class BigScreenView extends VerticalLayout implements RouterLayoutWithOut
         super.onAttach(attachEvent);
         broadcaster.attachBigScreenUI(attachEvent.getUI());
         broadcaster.attachProgressBar(attachEvent.getUI(), this::refreshProgressBars);
-        Optional.ofNullable(gameService.stage()).ifPresentOrElse(
-                stage -> attachEvent.getUI().navigate((Class<? extends Component>) stage.bigScreenView()),
-                () -> attachEvent.getUI().navigate(InviteView.class)
-        );
+        Optional.ofNullable(gameService.stage())
+                .ifPresentOrElse(
+                        stage -> attachEvent.getUI().navigate((Class<? extends Component>) stage.bigScreenView()),
+                        () -> attachEvent.getUI().navigate(InviteView.class));
     }
 
     @Override

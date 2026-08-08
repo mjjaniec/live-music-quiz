@@ -11,7 +11,6 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
-
 @Route(value = "play-off", layout = BigScreenView.class)
 public class BigScreenPlayOffView extends VerticalLayout implements BigScreenRoute {
 

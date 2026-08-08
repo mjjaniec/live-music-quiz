@@ -20,6 +20,9 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
+    - name: Check code formatting (Spotless)
+      run: mvn -B -ntp spotless:check
+
     - name: Install Playwright Browsers
       run: mvn -B -ntp exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install --with-deps"
 

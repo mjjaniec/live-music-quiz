@@ -2,11 +2,10 @@ package com.github.mjjaniec.lmq.stores;
 
 import com.github.mjjaniec.lmq.model.Player;
 import com.google.common.collect.ImmutableMap;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Component;
 
 @Component
 public interface JpaPlayOffStore extends CrudRepository<PlayOffDto, String>, PlayOffStore {
@@ -30,5 +29,4 @@ public interface JpaPlayOffStore extends CrudRepository<PlayOffDto, String>, Pla
         dto.setAnswer(answer);
         save(dto);
     }
-
 }

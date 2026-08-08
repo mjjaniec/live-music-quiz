@@ -2,11 +2,10 @@ package com.github.mjjaniec.lmq.services;
 
 import com.github.mjjaniec.lmq.model.*;
 import com.google.common.collect.Streams;
-import org.springframework.stereotype.Component;
-
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.springframework.stereotype.Component;
 
 @Component
 public class PointsCounter {
@@ -14,15 +13,22 @@ public class PointsCounter {
     public int points(boolean artist, boolean title, GameStage.RoundInit round, GameStage.RoundPiece piece) {
         var mode = round.roundMode();
         return switch (mode) {
-            case EVERYBODY -> b2i(artist) * mode.artistPoints * (1 + b2i(piece.isBonus())) +
-                              b2i(title) * mode.titlePoints * (1 + b2i(piece.isBonus()));
-            case ONION -> b2i(artist) * mode.artistPoints * onionBonus(piece.getArtistAnswered()) +
-                          b2i(title) * mode.titlePoints * onionBonus(piece.getTitleAnswered());
-            case FIRST -> b2i(artist) * mode.artistPoints * (1 + piece.getFailedResponders().size()) +
-                          b2i(title) * mode.titlePoints * (1 + piece.getFailedResponders().size());
+            case EVERYBODY ->
+                b2i(artist) * mode.artistPoints * (1 + b2i(piece.isBonus()))
+                        + b2i(title) * mode.titlePoints * (1 + b2i(piece.isBonus()));
+            case ONION ->
+                b2i(artist) * mode.artistPoints * onionBonus(piece.getArtistAnswered())
+                        + b2i(title) * mode.titlePoints * onionBonus(piece.getTitleAnswered());
+            case FIRST ->
+                b2i(artist)
+                                * mode.artistPoints
+                                * (1 + piece.getFailedResponders().size())
+                        + b2i(title)
+                                * mode.titlePoints
+                                * (1 + piece.getFailedResponders().size());
         };
     }
-    
+
     private int onionBonus(int answersCount) {
         if (answersCount == 0) {
             return 4;
@@ -35,33 +41,42 @@ public class PointsCounter {
         }
     }
 
-
-    public Results results(GameStage.RoundSummary stage, StageSet stageSet,
-                           List<Player> players, Stream<Answer> allAnswers,
-                           Optional<PlayOffs.PlayOff> playOffTask, Map<String, Integer> playOffsValues) {
+    public Results results(
+            GameStage.RoundSummary stage,
+            StageSet stageSet,
+            List<Player> players,
+            Stream<Answer> allAnswers,
+            Optional<PlayOffs.PlayOff> playOffTask,
+            Map<String, Integer> playOffsValues) {
         Map<String, Map<Integer, Integer>> byRounds = totalPoints(stageSet, allAnswers);
-        Map<String, Integer> altogether = byRounds.entrySet().stream().collect(Collectors.toMap(
-                Map.Entry::getKey,
-                entry -> entry.getValue().values().stream().mapToInt(x -> x).sum()
-        ));
+        Map<String, Integer> altogether = byRounds.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().values().stream()
+                                .mapToInt(x -> x)
+                                .sum()));
         int playOffTarget = playOffTask.map(PlayOffs.PlayOff::value).orElse(0);
         Map<String, Integer> playOffsDiffs = new HashMap<>();
-        playOffTask.ifPresent(_ -> playOffsValues.forEach((key, value) -> playOffsDiffs.put(key, Math.abs(value - playOffTarget))));
+        playOffTask.ifPresent(
+                _ -> playOffsValues.forEach((key, value) -> playOffsDiffs.put(key, Math.abs(value - playOffTarget))));
 
-        List<String> order = players.stream().map(Player::name).sorted((a, b) -> {
-            int aPoints = altogether.getOrDefault(a, 0);
-            int bPoints = altogether.getOrDefault(b, 0);
-            int aDiff = playOffsDiffs.getOrDefault(a, 0);
-            int bDiff = playOffsDiffs.getOrDefault(b, 0);
-            if (aPoints != bPoints) {
-                return bPoints - aPoints;
-            }
-            if (aDiff != bDiff) {
-                return aDiff - bDiff;
-            } else {
-                return a.compareTo(b);
-            }
-        }).toList();
+        List<String> order = players.stream()
+                .map(Player::name)
+                .sorted((a, b) -> {
+                    int aPoints = altogether.getOrDefault(a, 0);
+                    int bPoints = altogether.getOrDefault(b, 0);
+                    int aDiff = playOffsDiffs.getOrDefault(a, 0);
+                    int bDiff = playOffsDiffs.getOrDefault(b, 0);
+                    if (aPoints != bPoints) {
+                        return bPoints - aPoints;
+                    }
+                    if (aDiff != bDiff) {
+                        return aDiff - bDiff;
+                    } else {
+                        return a.compareTo(b);
+                    }
+                })
+                .toList();
 
         int rounds = stage.roundNumber().of();
         int currentRound = stage.roundNumber().number();
@@ -79,7 +94,7 @@ public class PointsCounter {
         for (String p : order) {
             if (p.equals(previous)) continue;
             if (Objects.equals(altogether.getOrDefault(p, 0), altogether.getOrDefault(previous, 0))
-                && Objects.equals(playOffsDiffs.getOrDefault(p, 0), playOffsDiffs.getOrDefault(previous, 0))) {
+                    && Objects.equals(playOffsDiffs.getOrDefault(p, 0), playOffsDiffs.getOrDefault(previous, 0))) {
                 positions.put(p, positions.get(previous));
                 count += 1;
             } else {
@@ -95,29 +110,43 @@ public class PointsCounter {
 
         int finalBestDiff = bestDiff;
 
-        return new Results(rounds, currentRound, playOffTarget, Streams.mapWithIndex(order.stream(), (name, index) -> {
-            int pos = positions.get(name);
-            int ordinal = (int) index + 1;
-            Optional<Results.Award> award = switch (pos) {
-                case 1 -> Optional.of(Results.Award.FIRST);
-                case 2 -> Optional.of(Results.Award.SECOND);
-                case 3 -> Optional.of(Results.Award.THIRD);
-                default ->
-                        Optional.of(Results.Award.PLAY_OFF).filter(ignored -> playOffsDiffs.getOrDefault(name, -1) == finalBestDiff);
-            };
-            return new Results.Row(name, ordinal, pos, award, byRounds.getOrDefault(name, Map.of()), playOffsValues.getOrDefault(name, -1), altogether.getOrDefault(name, 0));
-        }).toList());
+        return new Results(
+                rounds,
+                currentRound,
+                playOffTarget,
+                Streams.mapWithIndex(order.stream(), (name, index) -> {
+                            int pos = positions.get(name);
+                            int ordinal = (int) index + 1;
+                            Optional<Results.Award> award =
+                                    switch (pos) {
+                                        case 1 -> Optional.of(Results.Award.FIRST);
+                                        case 2 -> Optional.of(Results.Award.SECOND);
+                                        case 3 -> Optional.of(Results.Award.THIRD);
+                                        default ->
+                                            Optional.of(Results.Award.PLAY_OFF)
+                                                    .filter(ignored ->
+                                                            playOffsDiffs.getOrDefault(name, -1) == finalBestDiff);
+                                    };
+                            return new Results.Row(
+                                    name,
+                                    ordinal,
+                                    pos,
+                                    award,
+                                    byRounds.getOrDefault(name, Map.of()),
+                                    playOffsValues.getOrDefault(name, -1),
+                                    altogether.getOrDefault(name, 0));
+                        })
+                        .toList());
     }
 
     private Map<String, Map<Integer, Integer>> totalPoints(StageSet set, Stream<Answer> allAnswers) {
         Map<String, Map<Integer, Integer>> result = new HashMap<>();
-        allAnswers.forEach(answer ->
-                set.roundInit(answer.round()).map(GameStage.RoundInit::roundMode).ifPresent(mode -> {
-                            var players = result.computeIfAbsent(answer.player(), _ -> new HashMap<>());
-                            players.put(answer.round(), players.getOrDefault(answer.round(), 0) + answer.points());
-                        }
-                )
-        );
+        allAnswers.forEach(answer -> set.roundInit(answer.round())
+                .map(GameStage.RoundInit::roundMode)
+                .ifPresent(mode -> {
+                    var players = result.computeIfAbsent(answer.player(), _ -> new HashMap<>());
+                    players.put(answer.round(), players.getOrDefault(answer.round(), 0) + answer.points());
+                }));
         return result;
     }
 

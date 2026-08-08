@@ -1,5 +1,7 @@
 package com.github.mjjaniec.lmq.views.player;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
+
 import com.github.mjjaniec.lmq.services.GameService;
 import com.github.mjjaniec.lmq.services.TestDataProvider;
 import com.github.mjjaniec.lmq.util.Palette;
@@ -10,11 +12,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
 
-import static com.github.mjjaniec.lmq.util.TestId.testId;
-
 @Route(value = "wait-for-round", layout = PlayerView.class)
 public class WaitForRoundView extends HorizontalLayout implements PlayerRoute {
-
 
     public WaitForRoundView(GameService gameService, TestDataProvider testDataProvider) {
         testId(this, "player/wait-for-round");
@@ -23,10 +22,15 @@ public class WaitForRoundView extends HorizontalLayout implements PlayerRoute {
         setSizeFull();
         getStyle().setColor(Palette.WHITE).setFontSize("1.6em");
         Div outlet = new Div();
-        gameService.roundInitStage().or(testDataProvider::init)
+        gameService
+                .roundInitStage()
+                .or(testDataProvider::init)
                 .map(round -> String.valueOf(round.roundNumber().number()))
                 .ifPresent(outlet::setText);
-        outlet.getStyle().setFontSize("7em").setFontWeight(Style.FontWeight.BOLD).setLineHeight("1.5");
+        outlet.getStyle()
+                .setFontSize("7em")
+                .setFontWeight(Style.FontWeight.BOLD)
+                .setLineHeight("1.5");
         outlet.setClassName("pulse");
         getStyle().setBackground(Palette.BLUE);
         setAlignItems(Alignment.CENTER);

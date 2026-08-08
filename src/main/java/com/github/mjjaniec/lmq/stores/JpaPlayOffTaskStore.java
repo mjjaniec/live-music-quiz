@@ -1,15 +1,13 @@
 package com.github.mjjaniec.lmq.stores;
 
 import com.github.mjjaniec.lmq.model.PlayOffs;
+import java.util.Iterator;
+import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
 
-import java.util.Iterator;
-import java.util.Optional;
-
 @Component
 public interface JpaPlayOffTaskStore extends CrudRepository<PlayOffTaskDto, Integer>, PlayOffTaskStore {
-
 
     @Override
     default void clearPlayOffTask() {
@@ -21,7 +19,8 @@ public interface JpaPlayOffTaskStore extends CrudRepository<PlayOffTaskDto, Inte
         Iterator<PlayOffTaskDto> result = findAll().iterator();
         if (result.hasNext()) {
             return Optional.of(result.next())
-                    .flatMap(dto -> playOffs.playOffs().stream().filter(p -> p.id() == dto.getId())
+                    .flatMap(dto -> playOffs.playOffs().stream()
+                            .filter(p -> p.id() == dto.getId())
                             .findFirst());
         } else {
             return Optional.empty();

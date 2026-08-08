@@ -3,14 +3,13 @@ package com.github.mjjaniec.lmq.services;
 import com.github.mjjaniec.lmq.model.*;
 import com.github.mjjaniec.lmq.stores.*;
 import com.github.mjjaniec.lmq.views.bigscreen.InviteView;
-import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.Nullable;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
@@ -33,17 +32,18 @@ public class GameServiceImpl implements GameService, MaestroInterface {
 
     private final List<Player> slackers = new ArrayList<>();
 
-    public GameServiceImpl(Navigator navigator,
-                           SpreadsheetLoader spreadsheetLoader,
-                           PlayerStore playerStore,
-                           QuizStore quizStore,
-                           CustomMessageStore messageStore,
-                           StageStore stageStore,
-                           AnswerStore answerStore,
-                           FeedbackStore feedbackStore,
-                           PlayOffStore playOffStore,
-                           PlayOffTaskStore playOffTaskStore,
-                           PointsCounter pointsCounter) {
+    public GameServiceImpl(
+            Navigator navigator,
+            SpreadsheetLoader spreadsheetLoader,
+            PlayerStore playerStore,
+            QuizStore quizStore,
+            CustomMessageStore messageStore,
+            StageStore stageStore,
+            AnswerStore answerStore,
+            FeedbackStore feedbackStore,
+            PlayOffStore playOffStore,
+            PlayOffTaskStore playOffTaskStore,
+            PointsCounter pointsCounter) {
         this.navigator = navigator;
         this.spreadsheetLoader = spreadsheetLoader;
         this.playerStore = playerStore;
@@ -62,54 +62,55 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         });
     }
 
-//    private  void seed (){
-//
-//        playOffTaskStore.savePlayOffTask(new PlayOffs.PlayOff("the name", 2, 241));
-//
-//        String p01 = "Agnieszka";
-//        String p02 = "Barnuś :\uD83D\uDC15";
-//        String p03 = "Chromek";
-//        String p04 = "Daria da da da";
-//        String p05 = "Eryk I król Norwegii";
-//        String p06 = "Felicjana \uD83C\uDF55";
-//        String p07 = "Gosia";
-//        String p08 = "Hania";
-//        String p09 = "Jaro co się nie staro";
-//        String p10 = "Kududu dudutudu";
-//        String p11 = "Kaczabonga";
-//        String p12 = "Martynka";
-//
-//
-//        var players = List.of(p01, p02, p03, p04, p05, p06, p07, p08, p09, p10, p11, p12);
-//
-//        var firstRoundPoints = List.of(10, 4, 6, 0, 20, 8, 12, 0, 10, 4, 6, 0);
-//        var secondRoundPoints = List.of(0, 0, 36, 0, 0, 0, 32, 0, 0, 0, 0, 0);
-//        var thirdRoundPoints = List.of(0, 0, 20, 15, 10, 15, 0, 0, 6, 6, 10, 5);
-//        var fourthRoundPoints = List.of(0, 10, 4, 6, 0, 12, 8, 20, 0, 4, 10, 4);
-//        var fifthRoundPoints = List.of(0, 0, 0, 32, 0, 0, 0, 0, 36, 0, 0, 0);
-//        var sixthRoundPoints = List.of(0, 10, 0, 15, 4, 0, 20, 6, 0, 5, 15, 10);
-//
-//        var playOffs = List.of(213, 71, 204, 150, 400, 81, 264, 177, 351, 471, 112, 451);
-//
-//        players.forEach(playerStore::addPlayer);
-//
-//        var rounds = List.of(firstRoundPoints, secondRoundPoints, thirdRoundPoints, fourthRoundPoints, fifthRoundPoints, sixthRoundPoints);
-//
-//        Streams.mapWithIndex(rounds.stream(), Map::entry)
-//                .forEach(r -> Streams.zip(players.stream(), r.getKey().stream(), Map::entry)
-//                        .forEach(p ->
-//                                answerStore.saveAnswer(new Answer(true, true, p.getValue(), p.getKey(), (int) (1 + r.getValue()), 1, null, null))));
-//
-//        Streams.zip(players.stream(), playOffs.stream(), Map::entry)
-//                .forEach(entry -> playOffStore.savePlayOff(new Player(entry.getKey()), entry.getValue()));
-//
-//    }
+    //    private  void seed (){
+    //
+    //        playOffTaskStore.savePlayOffTask(new PlayOffs.PlayOff("the name", 2, 241));
+    //
+    //        String p01 = "Agnieszka";
+    //        String p02 = "Barnuś :\uD83D\uDC15";
+    //        String p03 = "Chromek";
+    //        String p04 = "Daria da da da";
+    //        String p05 = "Eryk I król Norwegii";
+    //        String p06 = "Felicjana \uD83C\uDF55";
+    //        String p07 = "Gosia";
+    //        String p08 = "Hania";
+    //        String p09 = "Jaro co się nie staro";
+    //        String p10 = "Kududu dudutudu";
+    //        String p11 = "Kaczabonga";
+    //        String p12 = "Martynka";
+    //
+    //
+    //        var players = List.of(p01, p02, p03, p04, p05, p06, p07, p08, p09, p10, p11, p12);
+    //
+    //        var firstRoundPoints = List.of(10, 4, 6, 0, 20, 8, 12, 0, 10, 4, 6, 0);
+    //        var secondRoundPoints = List.of(0, 0, 36, 0, 0, 0, 32, 0, 0, 0, 0, 0);
+    //        var thirdRoundPoints = List.of(0, 0, 20, 15, 10, 15, 0, 0, 6, 6, 10, 5);
+    //        var fourthRoundPoints = List.of(0, 10, 4, 6, 0, 12, 8, 20, 0, 4, 10, 4);
+    //        var fifthRoundPoints = List.of(0, 0, 0, 32, 0, 0, 0, 0, 36, 0, 0, 0);
+    //        var sixthRoundPoints = List.of(0, 10, 0, 15, 4, 0, 20, 6, 0, 5, 15, 10);
+    //
+    //        var playOffs = List.of(213, 71, 204, 150, 400, 81, 264, 177, 351, 471, 112, 451);
+    //
+    //        players.forEach(playerStore::addPlayer);
+    //
+    //        var rounds = List.of(firstRoundPoints, secondRoundPoints, thirdRoundPoints, fourthRoundPoints,
+    // fifthRoundPoints, sixthRoundPoints);
+    //
+    //        Streams.mapWithIndex(rounds.stream(), Map::entry)
+    //                .forEach(r -> Streams.zip(players.stream(), r.getKey().stream(), Map::entry)
+    //                        .forEach(p ->
+    //                                answerStore.saveAnswer(new Answer(true, true, p.getValue(), p.getKey(), (int) (1 +
+    // r.getValue()), 1, null, null))));
+    //
+    //        Streams.zip(players.stream(), playOffs.stream(), Map::entry)
+    //                .forEach(entry -> playOffStore.savePlayOff(new Player(entry.getKey()), entry.getValue()));
+    //
+    //    }
 
     @Override
     public boolean hasPlayer(Player player) {
         return playerStore.hasPlayer(player);
     }
-
 
     @Override
     public boolean isGameStarted() {
@@ -169,23 +170,26 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     private void initSlackers(GameStage.RoundPiece piece) {
         slackers.clear();
         playerStore.getPlayers().stream()
-                .filter(player -> answerStore.playerAnswer(player.name(), piece.roundNumber, piece.pieceNumber.number()).isEmpty())
+                .filter(player -> answerStore
+                        .playerAnswer(player.name(), piece.roundNumber, piece.pieceNumber.number())
+                        .isEmpty())
                 .forEach(slackers::add);
     }
-
 
     @Override
     public Optional<GameStage.RoundInit> roundInitStage() {
         return forStageAndSet((stage, set) -> switch (stage) {
             case GameStage.RoundInit roundInit -> Optional.of(roundInit);
             case GameStage.RoundPiece roundPiece -> set.roundInit(roundPiece.roundNumber);
-            case GameStage.RoundSummary roundSummary -> set.roundInit(roundSummary.roundNumber().number());
+            case GameStage.RoundSummary roundSummary ->
+                set.roundInit(roundSummary.roundNumber().number());
             default -> Optional.empty();
         });
     }
 
     private <T> Optional<T> forStageAndSet(BiFunction<GameStage, StageSet, Optional<T>> function) {
-        return Optional.ofNullable(stageSet).flatMap(set -> Optional.ofNullable(stage).flatMap(stage -> function.apply(stage, set)));
+        return Optional.ofNullable(stageSet)
+                .flatMap(set -> Optional.ofNullable(stage).flatMap(stage -> function.apply(stage, set)));
     }
 
     @Override
@@ -246,8 +250,7 @@ public class GameServiceImpl implements GameService, MaestroInterface {
                         navigator.refreshPlay();
                     }
                 }
-                default -> {
-                }
+                default -> {}
             }
         });
         playOffStage().ifPresent(playOff -> {
@@ -273,41 +276,55 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     @Override
     public Optional<Answer> getCurrentAnswer(Player player) {
         return pieceStage()
-                .flatMap(piece -> answerStore.playerAnswer(player.name(), piece.roundNumber, piece.pieceNumber.number()));
+                .flatMap(piece ->
+                        answerStore.playerAnswer(player.name(), piece.roundNumber, piece.pieceNumber.number()));
     }
 
-
     @Override
-    public synchronized void reportResult(Player player, boolean artist, boolean title, @Nullable String actualArtist, @Nullable String actualTitle) {
+    public synchronized void reportResult(
+            Player player, boolean artist, boolean title, @Nullable String actualArtist, @Nullable String actualTitle) {
         if (stage == null || stageSet == null) {
             log.error("reportResult called when stage or stageSet is not set");
         } else {
-            pieceStage().ifPresentOrElse(piece -> {
-                GameStage.RoundInit roundInit = stageSet.roundInit(piece.roundNumber).orElseThrow();
-                int points = pointsCounter.points(artist, title, roundInit, piece);
+            pieceStage()
+                    .ifPresentOrElse(
+                            piece -> {
+                                GameStage.RoundInit roundInit =
+                                        stageSet.roundInit(piece.roundNumber).orElseThrow();
+                                int points = pointsCounter.points(artist, title, roundInit, piece);
 
-                if (title) {
-                    piece.incrementTitleAnswered();
-                }
-                if (artist) {
-                    piece.incrementArtistAnswered();
-                }
-                if (!artist || !title) {
-                    piece.addFailedResponder(player.name());
-                } else {
-                    piece.setCurrentResponder(null);
-                }
-                
-                if (roundInit.roundMode() == MainSet.RoundMode.FIRST && piece.isCompleted()) {
-                    piece.setCurrentStage(GameStage.PieceStage.REVEAL);
-                }
+                                if (title) {
+                                    piece.incrementTitleAnswered();
+                                }
+                                if (artist) {
+                                    piece.incrementArtistAnswered();
+                                }
+                                if (!artist || !title) {
+                                    piece.addFailedResponder(player.name());
+                                } else {
+                                    piece.setCurrentResponder(null);
+                                }
 
-                answerStore.saveAnswer(new Answer(artist, title, points, player.name(), piece.roundNumber, piece.pieceNumber.number(), actualArtist, actualTitle));
-                setStage(piece);
+                                if (roundInit.roundMode() == MainSet.RoundMode.FIRST && piece.isCompleted()) {
+                                    piece.setCurrentStage(GameStage.PieceStage.REVEAL);
+                                }
 
-                slackers.remove(player);
-                navigator.refreshSlackersList();
-            }, () -> log.error("Report result called in wrong state (expected Piece but it is: {}", stage));
+                                answerStore.saveAnswer(new Answer(
+                                        artist,
+                                        title,
+                                        points,
+                                        player.name(),
+                                        piece.roundNumber,
+                                        piece.pieceNumber.number(),
+                                        actualArtist,
+                                        actualTitle));
+                                setStage(piece);
+
+                                slackers.remove(player);
+                                navigator.refreshSlackersList();
+                            },
+                            () -> log.error(
+                                    "Report result called in wrong state (expected Piece but it is: {}", stage));
         }
     }
 
@@ -347,15 +364,16 @@ public class GameServiceImpl implements GameService, MaestroInterface {
         }
 
         return pieceStage()
-                .map(piece ->
-                        answerStore
-                                .playerAnswer(player.name(), piece.roundNumber, piece.pieceNumber.number())
-                                .map(Answer::points).orElse(0))
-                .or(() -> roundSummaryStage().map(summary ->
-                        answerStore
-                                .playerAnswers(player.name(), summary.roundNumber().number())
-                                .mapToInt(Answer::points).sum()
-                ))
+                .map(piece -> answerStore
+                        .playerAnswer(player.name(), piece.roundNumber, piece.pieceNumber.number())
+                        .map(Answer::points)
+                        .orElse(0))
+                .or(() -> roundSummaryStage()
+                        .map(summary -> answerStore
+                                .playerAnswers(
+                                        player.name(), summary.roundNumber().number())
+                                .mapToInt(Answer::points)
+                                .sum()))
                 .orElse(0);
     }
 
@@ -413,6 +431,8 @@ public class GameServiceImpl implements GameService, MaestroInterface {
     }
 
     private void clearCurrentPoints(GameStage.RoundPiece piece) {
-        getPlayers().forEach(player -> answerStore.deleteAnswer(player.name(), piece.roundNumber, piece.pieceNumber.number()));
+        getPlayers()
+                .forEach(player ->
+                        answerStore.deleteAnswer(player.name(), piece.roundNumber, piece.pieceNumber.number()));
     }
 }

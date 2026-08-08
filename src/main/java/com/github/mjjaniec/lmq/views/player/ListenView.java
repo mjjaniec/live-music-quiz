@@ -5,10 +5,8 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
-
 @Route(value = "listen", layout = PlayerView.class)
 public class ListenView extends VerticalLayout implements PlayerRoute {
-
 
     public ListenView() {
         setSpacing(true);

@@ -15,4 +15,3 @@ public class FeedbackDto {
     @Column(length = 8192)
     private String message;
 }
-

@@ -1,7 +1,7 @@
 package com.github.mjjaniec.lmq.api;
 
-import java.util.List;
 import com.github.mjjaniec.lmq.model.SpreadsheetLoader;
+import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,7 +18,7 @@ public class HintController {
 
     @GetMapping("api/v1/hint/artist")
     public List<String> artist() {
-       return artists;
+        return artists;
     }
 
     @GetMapping("api/v1/hint/title")

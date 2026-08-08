@@ -1,7 +1,6 @@
 package com.github.mjjaniec.lmq.stores;
 
 import com.github.mjjaniec.lmq.model.Player;
-
 import java.util.List;
 
 public interface PlayerStore {

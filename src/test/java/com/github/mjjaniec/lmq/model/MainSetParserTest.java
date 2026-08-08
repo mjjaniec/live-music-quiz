@@ -1,14 +1,13 @@
 package com.github.mjjaniec.lmq.model;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class MainSetParserTest {
 
@@ -27,11 +26,11 @@ class MainSetParserTest {
     void testParseValidRows() {
         List<String[]> rows = new ArrayList<>();
         // Round header
-        rows.add(new String[]{"", "", "", "", "", "", "EVERYBODY"});
+        rows.add(new String[] {"", "", "", "", "", "", "EVERYBODY"});
         // Piece 1
-        rows.add(new String[]{"Artist 1", "Artist 2", "Title 1", "Title 2", "120", "Hint 1", "SetA, SetB"});
+        rows.add(new String[] {"Artist 1", "Artist 2", "Title 1", "Title 2", "120", "Hint 1", "SetA, SetB"});
         // Piece 2
-        rows.add(new String[]{"Artist 2", "", "Title 2", "", "", "", "SetA"});
+        rows.add(new String[] {"Artist 2", "", "Title 2", "", "", "", "SetA"});
 
         MainSet mainSet = parser.parse(rows, artists, titles);
 
@@ -63,10 +62,10 @@ class MainSetParserTest {
     @Test
     void testParseMultipleLevels() {
         List<String[]> rows = new ArrayList<>();
-        rows.add(new String[]{"", "", "", "", "", "", "EVERYBODY"});
-        rows.add(new String[]{"Artist 1", "", "Title 1", "", "", "", "SetA"});
-        rows.add(new String[]{"", "", "", "", "", "", "ONION"});
-        rows.add(new String[]{"Artist 2", "", "Title 2", "", "", "", "SetA"});
+        rows.add(new String[] {"", "", "", "", "", "", "EVERYBODY"});
+        rows.add(new String[] {"Artist 1", "", "Title 1", "", "", "", "SetA"});
+        rows.add(new String[] {"", "", "", "", "", "", "ONION"});
+        rows.add(new String[] {"Artist 2", "", "Title 2", "", "", "", "SetA"});
 
         MainSet mainSet = parser.parse(rows, artists, titles);
 
@@ -78,8 +77,8 @@ class MainSetParserTest {
     @Test
     void testValidationFailsForUnknownArtist() {
         List<String[]> rows = new ArrayList<>();
-        rows.add(new String[]{"", "", "", "", "", "", "EVERYBODY"});
-        rows.add(new String[]{"Invalid Artist", "", "Title 1", "", "", "", "SetA"});
+        rows.add(new String[] {"", "", "", "", "", "", "EVERYBODY"});
+        rows.add(new String[] {"Invalid Artist", "", "Title 1", "", "", "", "SetA"});
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> parser.parse(rows, artists, titles));
         assertTrue(exception.getMessage().contains("artist: Invalid Artist"));
@@ -88,8 +87,8 @@ class MainSetParserTest {
     @Test
     void testValidationFailsForUnknownTitle() {
         List<String[]> rows = new ArrayList<>();
-        rows.add(new String[]{"", "", "", "", "", "", "EVERYBODY"});
-        rows.add(new String[]{"Artist 1", "", "Invalid Title", "", "", "", "SetA"});
+        rows.add(new String[] {"", "", "", "", "", "", "EVERYBODY"});
+        rows.add(new String[] {"Artist 1", "", "Invalid Title", "", "", "", "SetA"});
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> parser.parse(rows, artists, titles));
         assertTrue(exception.getMessage().contains("title: Invalid Title"));
@@ -98,8 +97,8 @@ class MainSetParserTest {
     @Test
     void testValidationPassesForUnknownConstant() {
         List<String[]> rows = new ArrayList<>();
-        rows.add(new String[]{"", "", "", "", "", "", "EVERYBODY"});
-        rows.add(new String[]{Constants.UNKNOWN, "", "Title 1", "", "", "", "SetA"});
+        rows.add(new String[] {"", "", "", "", "", "", "EVERYBODY"});
+        rows.add(new String[] {Constants.UNKNOWN, "", "Title 1", "", "", "", "SetA"});
 
         assertDoesNotThrow(() -> parser.parse(rows, artists, titles));
     }

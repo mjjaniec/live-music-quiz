@@ -1,5 +1,7 @@
 package com.github.mjjaniec.lmq.views.maestro;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
+
 import com.github.mjjaniec.lmq.model.MainSet;
 import com.github.mjjaniec.lmq.model.SpreadsheetLoader;
 import com.github.mjjaniec.lmq.services.MaestroInterface;
@@ -11,13 +13,10 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import static com.github.mjjaniec.lmq.util.TestId.testId;
 
 @Route(value = "start", layout = MaestroView.class)
 public class StartGameView extends VerticalLayout implements RouterLayout {
@@ -37,7 +36,7 @@ public class StartGameView extends VerticalLayout implements RouterLayout {
             games.addValueChangeListener(_ -> start.setEnabled(true));
 
             start.addClickListener(_ -> {
-                MainSet set = ALL.equals(games.getValue()) ? mainSet :mainSet.asSet(games.getValue());
+                MainSet set = ALL.equals(games.getValue()) ? mainSet : mainSet.asSet(games.getValue());
                 gameService.initGame(set);
                 UI.getCurrent().navigate(DjView.class);
             });
