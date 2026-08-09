@@ -21,10 +21,10 @@ jobs:
         cache: maven
 
     - name: Check code formatting (Spotless)
-      run: mvn -B -ntp spotless:check
+      run: ./mvnw -B -ntp spotless:check
 
     - name: Resolve dependencies for security scan
-      run: mvn -B -ntp dependency:copy-dependencies -DoutputDirectory=target/dependency
+      run: ./mvnw -B -ntp dependency:copy-dependencies -DoutputDirectory=target/dependency
 
     - name: Scan dependencies for vulnerabilities (Trivy)
       uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
@@ -36,7 +36,7 @@ jobs:
         exit-code: '1'
 
     - name: Install Playwright Browsers
-      run: mvn -B -ntp exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install --with-deps"
+      run: ./mvnw -B -ntp exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install --with-deps"
 
     - name: Run Integration Tests
-      run: mvn -B -ntp verify -Pit -Pproduction -DskipTests=false
+      run: ./mvnw -B -ntp verify -Pit -Pproduction -DskipTests=false
