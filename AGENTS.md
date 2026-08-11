@@ -31,6 +31,12 @@ java -Dspring.profiles.active=local -jar target/live-music-quiz-1.0-SNAPSHOT.jar
 
 ## Architecture
 
+**Cross-view live sync — server push, not polling:** all three surfaces are kept in sync via Vaadin server push (`@Push` on `LiveMusicQuizApp`). Views register themselves with `BroadcastAttach` on attach and deregister on detach; `Navigator`/`BroadcastAttachImpl` then fan out `ui.access(() -> ...)` calls to every registered UI to navigate or re-run a `refresh` callback. Any state change that should be visible elsewhere must go through this attach/broadcast path — mutating shared state without calling the matching `Navigator`/`BroadcastAttach` method will leave other surfaces stale. Never touch a `UI`/component from outside `ui.access(...)`.
+
+**Game state machine — `GameStage` (`model/GameStage.java`):** a sealed interface (`Invite`, `RoundInit`, `RoundPiece`, `RoundSummary`, `PlayOff`, `WrapUp`) is the single source of truth for "what's happening right now." Each variant declares its own `playerView()`/`bigScreenView()` Vaadin route classes — that mapping is *how* the maestro's stage transitions drive navigation on the other two surfaces. When adding a new stage or sub-stage, add the routing decision inside the `GameStage` variant, not in the views.
+
+**No auth/route security is wired yet.** Routes are plain `@Route`, with no `@AnonymousAllowed`/`@RolesAllowed`/`VaadinWebSecurity`. This is in-progress brownfield work (see `context/foundation/prd.md`); don't assume any tenant/session isolation exists between maestro instances today.
+
 **Package layout is role-segmented and mirrors the three surfaces:**
 - `views/{maestro,bigscreen,player}` — Vaadin `@Route` views, one class per screen. Nested routes attach to a parent layout view (`layout = MaestroView.class`, etc.) via Vaadin's `@Route(value=..., layout=...)`.
 - `services` — game logic and cross-view coordination (`GameService`/`MaestroInterface`, `Navigator`, `BroadcastAttach`).
@@ -39,14 +45,8 @@ java -Dspring.profiles.active=local -jar target/live-music-quiz-1.0-SNAPSHOT.jar
 - `components` — reusable Vaadin UI building blocks shared across views.
 - `util` — `TestId.testId(component, id)` sets `data-testid` for Playwright selectors (`page.getByTestId(...)`); `LocalStorage` persists the player's identity across page loads via browser localStorage.
 
-**Game state machine — `GameStage` (`model/GameStage.java`):** a sealed interface (`Invite`, `RoundInit`, `RoundPiece`, `RoundSummary`, `PlayOff`, `WrapUp`) is the single source of truth for "what's happening right now." Each variant declares its own `playerView()`/`bigScreenView()` Vaadin route classes — that mapping is *how* the maestro's stage transitions drive navigation on the other two surfaces. When adding a new stage or sub-stage, add the routing decision inside the `GameStage` variant, not in the views.
-
-**Cross-view live sync — server push, not polling:** all three surfaces are kept in sync via Vaadin server push (`@Push` on `LiveMusicQuizApp`). Views register themselves with `BroadcastAttach` on attach and deregister on detach; `Navigator`/`BroadcastAttachImpl` then fan out `ui.access(() -> ...)` calls to every registered UI to navigate or re-run a `refresh` callback. Any state change that should be visible elsewhere must go through this attach/broadcast path — mutating shared state without calling the matching `Navigator`/`BroadcastAttach` method will leave other surfaces stale. Never touch a `UI`/component from outside `ui.access(...)`.
-
-**No auth/route security is wired yet.** Routes are plain `@Route`, with no `@AnonymousAllowed`/`@RolesAllowed`/`VaadinWebSecurity`. This is in-progress brownfield work (see `context/foundation/prd.md`); don't assume any tenant/session isolation exists between maestro instances today.
-
 **Content import:** `MainSetParser` + `SpreadsheetLoader` turn a Google Sheets CSV export into a `MainSet` (rounds/pieces with artist/title/alternatives/tempo/hints). `tools/Hot100Parser` is a standalone offline data-prep utility, unrelated to the running app.
 
-**Null-safety:** every package has a `package-info.java` with `@org.jspecify.annotations.NullMarked`
+**Null-safety:** every package has to have a `package-info.java` with `@org.jspecify.annotations.NullMarked`. Avoid using `@Nullable` unless a field is truly optional.
 
 **UI text is Polish** (player-facing strings, e.g. "grają z nami") — match existing copy's language and tone when adding UI text, don't default to English.
