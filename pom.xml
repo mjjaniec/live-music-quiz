@@ -134,6 +134,23 @@
 
     <build>
         <defaultGoal>spring-boot:run</defaultGoal>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <!-- Vaadin's production build has a bundle-reuse optimization that can skip
+                 copying hand-placed theme static assets (images, audio) into the servable
+                 VAADIN/static location on a truly clean build. Copy them explicitly so they
+                 don't depend on that heuristic. -->
+            <resource>
+                <directory>src/main/frontend/themes/live-music-quiz</directory>
+                <targetPath>META-INF/VAADIN/webapp/VAADIN/static/themes/live-music-quiz</targetPath>
+                <excludes>
+                    <exclude>**/*.css</exclude>
+                    <exclude>theme.json</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
