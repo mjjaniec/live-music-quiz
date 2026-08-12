@@ -16,8 +16,6 @@ RUN ./mvnw --no-transfer-progress clean package -Pproduction
 # Stage 2: Create the final Docker image using OpenJDK 25
 FROM eclipse-temurin:25
 
-VOLUME /tmp
-
 # Copy the JAR from the build stage
 COPY --from=build /app/target/*.jar app.jar
 ENTRYPOINT ["java","-jar","/app.jar"]
