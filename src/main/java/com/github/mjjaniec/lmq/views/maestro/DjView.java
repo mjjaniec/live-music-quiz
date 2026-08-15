@@ -133,6 +133,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
         HorizontalLayout buttons = new HorizontalLayout(
                 createActivateComponent(invite),
                 new RouterLink("BigScreen", InviteView.class),
+                new RouterLink("Feedback", FeedbackView.class),
                 new RouterLink("Player Join", JoinView.class));
         buttons.setAlignItems(Alignment.CENTER);
         main.add(buttons);
