@@ -61,6 +61,8 @@ A guest at the event who joins anonymously by scanning a QR code on their phone.
 
 ### Secondary
 - (Nice-to-have, only if time remains) A dedicated performer view, reached anonymously via a link the maestro shares privately.
+- (Nice-to-have, lower priority than the performer view, only if time remains) Maestro-facing views — including the
+  login flow — get a visually cohesive design, and the magic-link login drops its extra post-click confirm step.
 
 ### Guardrails (must not regress)
 - **Live in-event flow & real-time sync** — the maestro-screen ↔ big-screen ↔ player-phone synchronization and in-flight game state must keep working through a live event; scoping must not break the active-game lookup mid-quiz. Real-time updates remain as responsive through a live event as before the change, with no perceptible lag introduced by authentication and scoping.
@@ -122,6 +124,10 @@ _Before this change, there was a single global game and set-list visible to any 
 - **[new] FR-011** — Performer can open a read-only "what to play" view via a link the maestro shares privately. Priority: nice-to-have.
   > Socrates: Confirm out of committed scope. Resolution: fully parked — attempted only if time remains after accounts + scoping + isolation land.
 
+### Maestro UI polish (nice-to-have, lower priority than FR-011)
+- **[new] FR-012** — Maestro-facing views (login flow, control screens) get a visually cohesive design consistent with the rest of the app; the magic-link login flow is streamlined to remove its extra post-click confirm step. Priority: nice-to-have.
+  > Socrates: Maestro screens are never seen by the event audience (players/performers), so look-and-feel was deliberately deprioritized in favor of functional correctness while implementing the auth slice (S-01) — the current login flow works but looks inconsistent with the rest of the app, and Spring Security's built-in one-time-token confirm page adds a click the maestro shouldn't need. Resolution: parked as the lowest-priority optional goal — attempted only if time remains after accounts + scoping + isolation (must-haves) and the performer view (FR-011) are done.
+
 ## Constraints & Compatibility
 
 - **No data migration / backfill / rollback needed.** The app is used occasionally and updates are applied when no quiz is running. Existing global, unowned games/set-lists may be reset rather than preserved and assigned owners.
@@ -162,6 +168,8 @@ Functional non-goals:
 - **No player accounts / cross-event identity.** Players stay anonymous per game; no player login and no tracking a player across events.
 - **No admin / multi-role hierarchy.** Flat model — one maestro role. No admin, no shared/team ownership of games or set-lists.
 - **Performer view is not in committed scope.** It is a nice-to-have (FR-011), attempted only if time remains.
+- **Maestro UI polish is not in committed scope.** It is a nice-to-have (FR-012), lower priority than the performer
+  view (FR-011), attempted only if time remains.
 
 Non-functional non-goals:
 - **No zero-downtime / live-migration guarantee.** Updates land between events; the change does not aim for in-flight upgrade safety.
