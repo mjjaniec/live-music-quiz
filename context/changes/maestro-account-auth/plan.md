@@ -512,16 +512,25 @@ gating (originally planned for this phase) already landed in Phase 2 — see tha
 
 #### 1. Logout
 
-**File**: `src/main/java/com/github/mjjaniec/lmq/views/maestro/MaestroView.java` (or a shared toolbar
-component under `components/`, if one already wraps the maestro layout's header)
+**File**: `src/main/java/com/github/mjjaniec/lmq/views/maestro/MaestroView.java` (no existing shared toolbar
+component wraps the maestro layout's header, so it lands directly in `onAttach`, alongside the existing
+auto-navigate-to-`DjView`/`StartGameView` logic — this only fires once per session since `MaestroView`
+stays attached across nested-route changes within `/maestro/*`)
 
-**Intent**: A visible logout control the maestro can use to end their session. Confirm at implementation
-time whether Spring Security 7's default logout endpoint accepts the same GET-link pattern this app
-otherwise avoids, or requires the same plain-HTML-form-POST treatment as the login request (see Critical
-Implementation Details — CSRF).
+**Intent**: A visible logout control the maestro can use to end their session. Resolved at implementation
+time, simpler than the plan anticipated: Vaadin exposes a Spring-managed `AuthenticationContext` bean
+(`com.vaadin.flow.spring.security.AuthenticationContext`) with a plain no-arg `logout()` method — the
+idiomatic Vaadin-native way to log out, requiring no raw HTML form/CSRF workaround at all (unlike the login
+request form, which genuinely needs one because it's a real external POST). `AuthenticationContext.logout()`
+internally handles the logout handler chain, the success handler, and — per its own source comments —
+switches Vaadin's push transport to avoid the same class of push/redirect gotcha already documented for
+login. Injected as a constructor parameter (Spring-autowired) like any other bean.
 
-**Contract**: A control that triggers Spring Security's logout endpoint and results in the maestro landing
-back on `/maestro/login`, unauthenticated.
+**Contract**: A `Button` (testid `maestro/logout`) whose click listener calls `authenticationContext.logout()`,
+resulting in the maestro landing back on `/maestro/login`, unauthenticated. The landing URL required an
+explicit `VaadinSecurityConfigurer.loginView(LoginView.class, "/maestro/login")` two-arg call in
+`SecurityConfig` — the one-arg overload's default logout-success URL is just the servlet context path
+(effectively `/`), not the login page.
 
 ### Success Criteria:
 
@@ -701,12 +710,12 @@ Hibernate's `ddl-auto=update`; no existing table is altered.
 
 #### Automated
 
-- [ ] 3.1 Formatting passes (spotless:check)
-- [ ] 3.2 Full unit test suite passes
+- [x] 3.1 Formatting passes (spotless:check)
+- [x] 3.2 Full unit test suite passes
 
 #### Manual
 
-- [ ] 3.3 Logout ends the session and re-gates /maestro
+- [x] 3.3 Logout ends the session and re-gates /maestro
 
 ### Phase 4: Integration Test Login Seam
 
