@@ -735,7 +735,7 @@ Hibernate's `ddl-auto=update`; no existing table is altered.
 #### Manual
 
 - [x] 3.3 Logout ends the session and re-gates /maestro — 692ab95
-- [x] 3.4 Logout button starts disabled, enabled only after checking the "danger" checkbox
+- [x] 3.4 Logout button starts disabled, enabled only after checking the "danger" checkbox — 6bfd77d
 
 ### Phase 4: Integration Test Login Seam
 
