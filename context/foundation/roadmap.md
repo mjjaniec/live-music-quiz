@@ -3,7 +3,7 @@ project: "Live Music Quiz"
 version: 1
 status: draft
 created: 2026-08-13
-updated: 2026-08-13
+updated: 2026-08-15
 prd_version: 1
 main_goal: quality
 top_blocker: decisions
@@ -37,7 +37,7 @@ game to another, including mid-quiz.
 
 | ID   | Change ID              | Outcome (user can …)                                                                      | Prerequisites | PRD refs                              | Status   |
 |------|------------------------|-------------------------------------------------------------------------------------------|---------------|---------------------------------------|----------|
-| S-01 | maestro-account-auth   | Register, log in/out; unauthenticated maestro-route hits redirect to sign-in              | —             | FR-001, FR-002, FR-003, US-01         | ready    |
+| S-01 | maestro-account-auth   | Register, log in/out; unauthenticated maestro-route hits redirect to sign-in              | —             | FR-001, FR-002, FR-003, US-01         | in-progress |
 | S-02 | owned-game-and-setlist | Import a set-list from Sheets and create an account-scoped game no other maestro can see  | S-01          | FR-004, FR-005, FR-006, FR-010, US-01 | proposed |
 | S-03 | isolated-live-game-run | Run the owned game live end-to-end; players join by QR; isolation holds through the event | S-02          | FR-006, FR-007, FR-008, FR-009, US-01 | proposed |
 
@@ -92,7 +92,7 @@ S-01/S-02 themselves.
 - **Risk:** Vaadin route-security is the training-data gap the stack assessment flags as the agent's weakest surface on
   this stack. Sequenced first anyway, because every later slice needs a logged-in maestro to scope work to — deferring
   it would leave S-02/S-03 unplannable.
-- **Status:** ready
+- **Status:** in-progress
 
 ### S-02: Maestro can create an owned, isolated game with an imported set-list
 

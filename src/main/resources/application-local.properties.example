@@ -1,3 +1,9 @@
 spring.datasource.url=jdbc:postgresql://localhost:5432/<dbname>
 spring.datasource.username=<username>
 spring.datasource.password=<pass>
+
+# Optional: leave unset to log the magic link instead of sending real email.
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=<dedicated-gmail-address>
+spring.mail.password=<app-password>
