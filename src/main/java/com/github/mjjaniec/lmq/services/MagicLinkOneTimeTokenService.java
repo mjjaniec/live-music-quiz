@@ -3,8 +3,10 @@ package com.github.mjjaniec.lmq.services;
 import com.github.mjjaniec.lmq.stores.JpaMagicLinkTokenStore;
 import com.github.mjjaniec.lmq.stores.MaestroStore;
 import com.github.mjjaniec.lmq.stores.MagicLinkTokenDto;
+import jakarta.transaction.Transactional;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,7 +35,7 @@ public class MagicLinkOneTimeTokenService implements OneTimeTokenService {
 
     @Override
     public OneTimeToken generate(GenerateOneTimeTokenRequest request) {
-        String email = request.getUsername();
+        String email = normalizeEmail(request.getUsername());
         String ip = currentRemoteAddress();
         Instant now = Instant.now();
 
@@ -43,7 +45,6 @@ public class MagicLinkOneTimeTokenService implements OneTimeTokenService {
 
         emailCooldown.put(email, now);
         ipCooldown.put(ip, now);
-        maestroStore.createIfAbsent(email);
 
         String tokenValue = UUID.randomUUID().toString();
         Instant expiresAt = now.plus(TOKEN_TTL);
@@ -57,15 +58,17 @@ public class MagicLinkOneTimeTokenService implements OneTimeTokenService {
     }
 
     @Override
+    @Transactional
     public @Nullable OneTimeToken consume(OneTimeTokenAuthenticationToken authenticationToken) {
         String tokenValue = authenticationToken.getTokenValue();
         return tokenStore
-                .findById(tokenValue)
+                .findByToken(tokenValue)
                 .map(dto -> {
                     tokenStore.deleteById(tokenValue);
                     if (dto.getExpiresAt().isBefore(Instant.now())) {
                         return null;
                     }
+                    maestroStore.createIfAbsent(dto.getEmail());
                     return (OneTimeToken) new MagicLinkToken(dto.getToken(), dto.getEmail(), dto.getExpiresAt(), false);
                 })
                 .orElse(null);
@@ -79,6 +82,21 @@ public class MagicLinkOneTimeTokenService implements OneTimeTokenService {
     private static boolean isCoolingDown(Map<String, Instant> cooldowns, String key, Instant now) {
         Instant last = cooldowns.get(key);
         return last != null && last.plus(COOLDOWN).isAfter(now);
+    }
+
+    /**
+     * Lowercases and strips dots from the local part (dots before {@code @} are optional/ignored by Gmail and
+     * many other providers). Not universally correct for every domain, but this app's expected volume and
+     * userbase make that an acceptable tradeoff over the alternative of splitting one person's login across
+     * two accounts by casing/dot variance alone.
+     */
+    private static String normalizeEmail(String email) {
+        String trimmed = email.strip().toLowerCase(Locale.ROOT);
+        int at = trimmed.indexOf('@');
+        if (at < 0) {
+            return trimmed;
+        }
+        return trimmed.substring(0, at).replace(".", "") + trimmed.substring(at);
     }
 
     private static String currentRemoteAddress() {

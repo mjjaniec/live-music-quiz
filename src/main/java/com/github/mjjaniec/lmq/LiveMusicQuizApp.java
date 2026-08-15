@@ -9,12 +9,14 @@ import com.vaadin.flow.theme.lumo.Lumo;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableConfigurationProperties(ApplicationConfig.class)
 @StyleSheet(Lumo.STYLESHEET)
 @StyleSheet("themes/live-music-quiz/styles.css")
 @Push
+@EnableScheduling
 public class LiveMusicQuizApp implements AppShellConfigurator {
 
     @Override

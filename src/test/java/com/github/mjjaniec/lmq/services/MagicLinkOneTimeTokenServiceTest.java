@@ -54,13 +54,27 @@ class MagicLinkOneTimeTokenServiceTest {
     }
 
     @Test
-    void generateCreatesAccountAndToken() {
+    void generateCreatesTokenWithoutAccount() {
         OneTimeToken token = service.generate(new GenerateOneTimeTokenRequest("new@example.com"));
 
         assertFalse(service.isSuppressed(token));
         assertEquals("new@example.com", token.getUsername());
-        assertTrue(maestroStore.findByEmail("new@example.com").isPresent());
+        assertTrue(
+                maestroStore.findByEmail("new@example.com").isEmpty(),
+                "account must not be created until the token is verified");
         assertTrue(token.getExpiresAt().isAfter(Instant.now().plus(Duration.ofMinutes(29))));
+    }
+
+    @Test
+    void consumeCreatesAccountOnlyOnSuccessfulVerification() {
+        OneTimeToken generated = service.generate(new GenerateOneTimeTokenRequest("verified@example.com"));
+        assertTrue(maestroStore.findByEmail("verified@example.com").isEmpty());
+
+        OneTimeToken consumed =
+                service.consume(OneTimeTokenAuthenticationToken.unauthenticated(generated.getTokenValue()));
+
+        assertNotNull(consumed);
+        assertTrue(maestroStore.findByEmail("verified@example.com").isPresent());
     }
 
     @Test
@@ -78,7 +92,7 @@ class MagicLinkOneTimeTokenServiceTest {
     }
 
     @Test
-    void consumeRejectsExpiredToken() {
+    void consumeRejectsExpiredTokenAndDoesNotCreateAccount() {
         OneTimeToken generated = service.generate(new GenerateOneTimeTokenRequest("expired@example.com"));
         MagicLinkTokenDto dto = tokenStore.findById(generated.getTokenValue()).orElseThrow();
         dto.setExpiresAt(Instant.now().minusSeconds(1));
@@ -87,6 +101,7 @@ class MagicLinkOneTimeTokenServiceTest {
         OneTimeToken consumed =
                 service.consume(OneTimeTokenAuthenticationToken.unauthenticated(generated.getTokenValue()));
         assertNull(consumed);
+        assertTrue(maestroStore.findByEmail("expired@example.com").isEmpty());
     }
 
     @Test
@@ -96,6 +111,17 @@ class MagicLinkOneTimeTokenServiceTest {
 
         assertFalse(service.isSuppressed(first));
         assertTrue(service.isSuppressed(second));
+    }
+
+    @Test
+    void generateNormalizesEmailCasingAndDots() {
+        OneTimeToken generated = service.generate(new GenerateOneTimeTokenRequest("Some.User@Example.com"));
+        assertEquals("someuser@example.com", generated.getUsername());
+
+        OneTimeToken consumed =
+                service.consume(OneTimeTokenAuthenticationToken.unauthenticated(generated.getTokenValue()));
+        assertNotNull(consumed);
+        assertTrue(maestroStore.findByEmail("someuser@example.com").isPresent());
     }
 
     @Test

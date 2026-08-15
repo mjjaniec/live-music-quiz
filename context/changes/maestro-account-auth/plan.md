@@ -106,11 +106,15 @@ each must embed a valid CSRF token as a hidden field. Verify the exact token-att
 against current Spring Security 7 docs when implementing Phase 2 — don't assume an older Spring Security
 CSRF API.
 
-**State sequencing — account creation must precede authentication lookup.** The custom
-`OneTimeTokenService.generate(...)` (Phase 2) is where an unknown email causes `MaestroDto` to be created
-(auto-register-on-request). The `UserDetailsService` used at token-consumption time only needs to *find*
-the account, not create it — by the time a token is consumed, `generate()` has already guaranteed the
-account exists. Do not duplicate account-creation logic in the `UserDetailsService`.
+**State sequencing — account creation happens at consume-time, not generate-time.** Revised during code
+review of Phase 2: `MaestroDto` is created in `OneTimeTokenService.consume(...)`, right after the token is
+confirmed valid (found, unexpired) — not in `generate(...)`. This means an unverified email (someone just
+typing an address into the request form) never creates a `Maestro` row by itself; a row only appears once
+someone actually proves control of that inbox by clicking the link. `generate(...)` only ever creates a
+token. The `UserDetailsService` used at token-consumption time still only *finds* the account, never
+creates it — by the time `loadUserByUsername(...)` runs (immediately after `consume()` in
+`OneTimeTokenAuthenticationProvider.authenticate(...)`), `consume()` has already guaranteed the account
+exists. Do not duplicate account-creation logic in the `UserDetailsService`.
 
 **Push/redirect gotcha.** This app runs `@Push`. There's a known Vaadin/Spring Security interaction where
 the default saved-request redirect-after-login can resolve to the wrong URL (e.g. a push/heartbeat
@@ -257,36 +261,65 @@ than hardcoding `7.0.5` from this plan.
 `src/main/java/com/github/mjjaniec/lmq/stores/JpaMagicLinkTokenStore.java`
 
 **Intent**: A `@Data @Entity` row per outstanding token (token value as `@Id`, owning email, expiry
-instant) and a plain `CrudRepository<MagicLinkTokenDto, String>` for it — no domain-mapping default
-methods needed here since the token itself isn't a domain-facing concept.
+instant) and a `CrudRepository<MagicLinkTokenDto, String>` for it — no domain-mapping default methods
+needed here since the token itself isn't a domain-facing concept. One extra repository method beyond plain
+CRUD: a `@Lock(LockModeType.PESSIMISTIC_WRITE)`-annotated `findByToken(String)`, added during code review
+to close a replay race (see `consume(...)` below) — Spring Data JPA supports adding `@Lock` to a derived
+query method directly, no custom `@Query` needed.
 
 **Contract**: `MagicLinkTokenDto { @Id String token; String email; Instant expiresAt; }`.
+`JpaMagicLinkTokenStore.findByToken(String token) -> Optional<MagicLinkTokenDto>`, holding a
+`PESSIMISTIC_WRITE` row lock for the caller's transaction.
 
 **File**: `src/main/java/com/github/mjjaniec/lmq/services/MagicLinkOneTimeTokenService.java`
 
 **Intent**: A hand-written `@Component implements OneTimeTokenService`, following the `RealStageStore`
-precedent of wrapping a `CrudRepository` with real logic rather than using default methods. `generate(...)`
-first checks two in-memory cooldowns keyed by (a) the requested email and (b) the requesting client IP —
-both a 60-second `ConcurrentHashMap<String, Instant>` last-request-time map, same mechanism, different key.
-The IP is obtained via `((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
+precedent of wrapping a `CrudRepository` with real logic rather than using default methods.
+
+`generate(...)` first normalizes the requested email (lowercase; strip dots from the local part before
+`@`, matching Gmail's dot-insignificance convention — not universally correct for every provider, but an
+accepted tradeoff at this app's expected scale, decided during code review) then checks two in-memory
+cooldowns keyed by (a) the normalized email and (b) the requesting client IP — both a 60-second
+`ConcurrentHashMap<String, Instant>` last-request-time map, same mechanism, different key. The IP is
+obtained via `((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
 .getRequest().getRemoteAddr()` — safe to call here since `generate()` runs synchronously on the same
 request thread as the originating `/ott/generate` POST, so no method-signature change is needed to thread
 the request through. If either cooldown is active, `generate()` returns a token result as if it succeeded
-(same "check your email" UX, no enumeration signal) but skips both `MaestroStore.createIfAbsent(...)` and
-the token/email dispatch — this is what actually blocks abuse: a flooding IP submitting many distinct fake
-emails is stopped before any `Maestro`/token row is created or any email is sent, not just before the send
-(enforcing the cooldown only in the success handler, as the per-email cooldown alone would, still lets an
-attacker grow the `maestro`/`magic_link_token` tables unbounded). Absent both cooldowns, `generate()`
-resolves or auto-creates the `Maestro` via `MaestroStore.createIfAbsent(...)` and persists a token with a
-30-minute expiry. `consume(...)` extracts the token value from the given `OneTimeTokenAuthenticationToken`,
-looks up the token, deletes the row unconditionally (enforcing single-use whether or not it was still
-valid), and returns `null` when expired or absent.
+(same "check your email" UX, no enumeration signal) but skips the token dispatch — this is what actually
+blocks abuse: a flooding IP submitting many distinct fake emails is stopped before any token row is created
+or any email is sent, not just before the send. Absent both cooldowns, `generate()` persists a token with a
+30-minute expiry — it does **not** touch `MaestroStore` at all (see State sequencing, above: account
+creation happens at consume-time, not here).
+
+`consume(...)` extracts the token value from the given `OneTimeTokenAuthenticationToken`, then — inside a
+`@Transactional` method — calls `findByToken(...)` (the pessimistic-write-locked lookup above) rather than
+plain `findById`. This closes a real race found during code review: two concurrent consumptions of the same
+token both calling a plain `findById` before either commits `deleteById` could otherwise both authenticate
+successfully, defeating single-use — the same TOCTOU class that CVE-2026-22751 fixed in Spring's own
+`JdbcOneTimeTokenService`. With the lock, the second concurrent call blocks until the first transaction
+commits (row now deleted), then correctly finds nothing. Once the row is found: delete it unconditionally
+(enforcing single-use whether or not it was still valid), return `null` if expired, otherwise call
+`MaestroStore.createIfAbsent(...)` for the token's email (the account is created here, now that the token is
+confirmed valid) and return the successful token.
 
 **Contract**: Implements `org.springframework.security.authentication.ott.OneTimeTokenService`
 (verified against the Spring Security 7.0.5 source): `generate(GenerateOneTimeTokenRequest) -> OneTimeToken`,
 `consume(OneTimeTokenAuthenticationToken authenticationToken) -> @Nullable OneTimeToken` — note `consume`
 takes the framework's authentication token object (not a raw token string) and returns a nullable
 `OneTimeToken` (not `Authentication`); the token value is obtained via the argument.
+
+**File**: `src/main/java/com/github/mjjaniec/lmq/stores/JpaMaestroStore.java`
+
+**Intent**: Revised during code review to close a second race: the original find-then-save
+`createIfAbsent` could throw an uncaught constraint violation if two concurrent requests created the same
+new email at once. Extends `JpaRepository` (not plain `CrudRepository`) so `saveAndFlush(...)` is
+available — forcing the insert (and any constraint violation) to happen synchronously inside
+`createIfAbsent`, catchable in the same method, rather than deferred to whenever Hibernate would otherwise
+flush. On `DataIntegrityViolationException`, re-reads the row the other concurrent request just committed
+instead of propagating the exception.
+
+**Contract**: `createIfAbsent(String email)` — on the losing side of a create race, returns the winning
+side's row rather than throwing.
 
 **File**: `src/main/resources/application.properties`
 
@@ -633,23 +666,23 @@ Hibernate's `ddl-auto=update`; no existing table is altered.
 
 #### Automated
 
-- [x] 2.1 Unit tests for MagicLinkOneTimeTokenService pass
-- [x] 2.2 Formatting passes (spotless:check)
-- [x] 2.3 Full unit test suite passes
+- [x] 2.1 Unit tests for MagicLinkOneTimeTokenService pass — 6f5f88e
+- [x] 2.2 Formatting passes (spotless:check) — 6f5f88e
+- [x] 2.3 Full unit test suite passes — 6f5f88e
 
 #### Manual
 
-- [x] 2.4 Requesting a link with SMTP unconfigured logs the link instead of failing
-- [x] 2.5 Clicking the logged link authenticates and lands on /maestro
-- [x] 2.6 Re-visiting the same link a second time fails (single-use)
-- [x] 2.7 Visiting an expired (30+ min) link fails
-- [x] 2.8 Requesting a second link within 60s does not send a second email
+- [x] 2.4 Requesting a link with SMTP unconfigured logs the link instead of failing — 6f5f88e
+- [x] 2.5 Clicking the logged link authenticates and lands on /maestro — 6f5f88e
+- [x] 2.6 Re-visiting the same link a second time fails (single-use) — 6f5f88e
+- [x] 2.7 Visiting an expired (30+ min) link fails — 6f5f88e
+- [x] 2.8 Requesting a second link within 60s does not send a second email — 6f5f88e
 - [x] 2.9 Requesting links for two different emails from the same IP within 60s only creates/sends for
-      the first
-- [x] 2.10 With real Gmail SMTP configured, a request delivers an actual email to the target inbox
-- [x] 2.11 Unauthenticated visits to all four maestro routes redirect to /login
-- [x] 2.12 Authenticated maestro can reach all four maestro routes normally
-- [x] 2.13 Big-screen/player/join flow works with zero added friction
+      the first — 6f5f88e
+- [x] 2.10 With real Gmail SMTP configured, a request delivers an actual email to the target inbox — 6f5f88e
+- [x] 2.11 Unauthenticated visits to all four maestro routes redirect to /login — 6f5f88e
+- [x] 2.12 Authenticated maestro can reach all four maestro routes normally — 6f5f88e
+- [x] 2.13 Big-screen/player/join flow works with zero added friction — 6f5f88e
 
 ### Phase 3: Logout
 
