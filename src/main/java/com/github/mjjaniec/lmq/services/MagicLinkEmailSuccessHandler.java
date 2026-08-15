@@ -32,7 +32,7 @@ public class MagicLinkEmailSuccessHandler implements OneTimeTokenGenerationSucce
         if (!tokenService.isSuppressed(oneTimeToken)) {
             dispatch(request, oneTimeToken);
         }
-        response.sendRedirect(request.getContextPath() + "/login?sent=true");
+        response.sendRedirect(request.getContextPath() + "/maestro/login?sent=true");
     }
 
     private void dispatch(HttpServletRequest request, OneTimeToken oneTimeToken) {

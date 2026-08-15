@@ -21,7 +21,7 @@ public class SecurityConfig {
             throws Exception {
         return http.with(VaadinSecurityConfigurer.vaadin(), configurer -> configurer.loginView(LoginView.class))
                 .oneTimeTokenLogin(ott -> ott.loginProcessingUrl("/login/ott")
-                        .loginPage("/login")
+                        .loginPage("/maestro/login")
                         .tokenService(magicLinkOneTimeTokenService)
                         .tokenGenerationSuccessHandler(magicLinkEmailSuccessHandler)
                         .successHandler(redirectToMaestroSuccessHandler()))

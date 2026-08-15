@@ -43,16 +43,16 @@ precondition half of US-01. It does **not** scope games/set-lists to an owner �
 
 ## Desired End State
 
-A maestro can open `/login`, submit their email, receive a magic-link email (or see it logged locally in
-dev when SMTP isn't configured), click it, and land authenticated on `/maestro` with a session that
-persists for 30 days. An unauthenticated visitor hitting any maestro-control route is redirected to
-`/login`. The maestro can log out. Every big-screen, player, and join route remains reachable with zero
-login friction, exactly as today. Playwright IT tests can authenticate a maestro session without sending
-real email.
+A maestro can open `/maestro/login`, submit their email, receive a magic-link email (or see it logged
+locally in dev when SMTP isn't configured), click it, and land authenticated on `/maestro` with a session
+that persists for 30 days. An unauthenticated visitor hitting any maestro-control route is redirected to
+`/maestro/login`. The maestro can log out. Every big-screen, player, and join route remains reachable with
+zero login friction, exactly as today. Playwright IT tests can authenticate a maestro session without
+sending real email.
 
 **Verification:** `./mvnw verify -Pit -Pproduction` passes; manually requesting a link locally (dev mail
 fallback) and clicking it lands on `/maestro`; a second, unrelated browser session hitting `/maestro`
-directly is redirected to `/login`; big-screen/player QR-join flow is unchanged.
+directly is redirected to `/maestro/login`; big-screen/player QR-join flow is unchanged.
 
 ### Key Discoveries
 
@@ -359,7 +359,7 @@ SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     return http.with(VaadinSecurityConfigurer.vaadin(), configurer -> configurer.loginView(LoginView.class))
         .oneTimeTokenLogin(ott -> ott
             .loginProcessingUrl("/login/ott")
-            .loginPage("/login")
+            .loginPage("/maestro/login")
             .tokenService(magicLinkOneTimeTokenService)
             .tokenGenerationSuccessHandler(magicLinkEmailSuccessHandler)
             .successHandler(redirectToMaestroSuccessHandler))
@@ -386,6 +386,14 @@ Discovered during implementation, two chained gotchas — both confirmed against
    with zero server-side exceptions, and the POST's request URL logged as `/login`, not `/login/ott`.
    Explicitly calling `.loginProcessingUrl("/login/ott")` (either before or after `.loginPage(...)`) fixes it
    by giving that field a non-null value before the eager side effect can clobber it.
+
+**Route moved after Phase 2 landed**: `LoginView`'s route (and `.loginPage(...)` above) later moved from
+`/login` to `/maestro/login` — since only maestro routes need auth and auth is only ever for the maestro
+role, keeping the login page under the `/maestro` prefix better reflects that it's a maestro-only surface.
+`loginProcessingUrl`/`defaultSubmitPageUrl` (`/login/ott`) and `tokenGeneratingUrl` (`/ott/generate`) stayed
+at Spring Security's defaults — a deliberate choice, since those are POST/redirect targets embedded in forms
+and the emailed link, not pages a person navigates to directly; moving them would only add bespoke
+divergence from Spring's own defaults with no user-facing benefit.
 
 Exact method names/overloads must be confirmed against Spring Security 7.0.x docs at implementation time.
 Note: `OneTimeTokenLoginConfigurer.authenticationSuccessHandler(...)` still works in 7.0.5 but is deprecated
@@ -417,9 +425,13 @@ Doing."
 
 **File**: `src/main/java/com/github/mjjaniec/lmq/views/maestro/LoginView.java`
 
-**Intent**: A `@Route("login") @AnonymousAllowed` Vaadin view whose email-submission control is a raw
-HTML form posting to `/ott/generate` (see Key Discoveries — Vaadin's RPC model can't drive a real form
-POST), with a normal Vaadin-rendered "check your email" confirmation state around it.
+**Intent**: A `@Route("maestro/login") @AnonymousAllowed` Vaadin view whose email-submission control is a
+raw HTML form posting to `/ott/generate` (see Key Discoveries — Vaadin's RPC model can't drive a real form
+POST), with a normal Vaadin-rendered "check your email" confirmation state around it. The route is a
+literal path string (not nested under `MaestroView`'s `@RoutePrefix`/layout) — mirroring the existing
+`FeedbackView` ("maestro/feedback") bypass pattern — since nesting under `MaestroView` would both require
+the `MAESTRO` role to even reach the login page (via layout-chain access checks) and trigger
+`MaestroView.onAttach`'s auto-navigate-away behavior.
 
 **Contract**: Form field name matches whatever `GenerateOneTimeTokenRequestResolver` expects by default
 (confirm exact parameter name, e.g. `username`, against docs at implementation time); includes the CSRF
@@ -466,7 +478,7 @@ the full route inventory from Current State Analysis before closing this phase.
 
 #### Manual Verification:
 
-- With SMTP unconfigured locally, requesting a link at `/login` logs the link instead of failing
+- With SMTP unconfigured locally, requesting a link at `/maestro/login` logs the link instead of failing
 - Clicking the logged link authenticates the session and lands on `/maestro`
 - Re-visiting the same link a second time fails (single-use enforced)
 - Waiting past 30 minutes then visiting the link fails (expiry enforced)
@@ -479,7 +491,7 @@ the full route inventory from Current State Analysis before closing this phase.
   real request delivers an actual email to the target inbox — not just the dev-log fallback — with the
   content specified in Changes Required #5
 - Unauthenticated visit to `/maestro`, `/maestro/start`, `/maestro/dj`, and `/maestro/feedback` each
-  redirect to `/login`
+  redirect to `/maestro/login`
 - Authenticated maestro can reach all four maestro routes normally
 - Big-screen QR display, player join (`/player/join`), and the full anonymous player flow work with zero
   added steps or visible change
@@ -509,7 +521,7 @@ otherwise avoids, or requires the same plain-HTML-form-POST treatment as the log
 Implementation Details — CSRF).
 
 **Contract**: A control that triggers Spring Security's logout endpoint and results in the maestro landing
-back on `/login`, unauthenticated.
+back on `/maestro/login`, unauthenticated.
 
 ### Success Criteria:
 
@@ -523,7 +535,7 @@ it isn't fixed until Phase 4's backdoor lands. Do not push/merge until then.
 
 #### Manual Verification:
 
-- Logout ends the session and a subsequent visit to `/maestro` redirects to `/login` again
+- Logout ends the session and a subsequent visit to `/maestro` redirects to `/maestro/login` again
 
 **Implementation Note**: After completing this phase and all automated verification passes, pause here
 for manual confirmation before proceeding to Phase 4.
@@ -608,11 +620,12 @@ complete — no further phase follows.
 
 ### Manual Testing Steps:
 
-1. Start locally without SMTP env vars set; request a link at `/login`; confirm the link is logged, not
-   silently dropped
+1. Start locally without SMTP env vars set; request a link at `/maestro/login`; confirm the link is
+   logged, not silently dropped
 2. Click the logged link; confirm landing on `/maestro` authenticated
-3. Restart the browser (new session/cookie jar) and hit `/maestro` directly; confirm redirect to `/login`
-4. Log out; confirm `/maestro` redirects to `/login` again afterward
+3. Restart the browser (new session/cookie jar) and hit `/maestro` directly; confirm redirect to
+   `/maestro/login`
+4. Log out; confirm `/maestro` redirects to `/maestro/login` again afterward
 5. Run the full big-screen QR + player-join + live-round flow end-to-end; confirm no behavior change and
    no perceptible added lag (PRD guardrail)
 
@@ -680,7 +693,7 @@ Hibernate's `ddl-auto=update`; no existing table is altered.
 - [x] 2.9 Requesting links for two different emails from the same IP within 60s only creates/sends for
       the first — 6f5f88e
 - [x] 2.10 With real Gmail SMTP configured, a request delivers an actual email to the target inbox — 6f5f88e
-- [x] 2.11 Unauthenticated visits to all four maestro routes redirect to /login — 6f5f88e
+- [x] 2.11 Unauthenticated visits to all four maestro routes redirect to /maestro/login — 6f5f88e
 - [x] 2.12 Authenticated maestro can reach all four maestro routes normally — 6f5f88e
 - [x] 2.13 Big-screen/player/join flow works with zero added friction — 6f5f88e
 
