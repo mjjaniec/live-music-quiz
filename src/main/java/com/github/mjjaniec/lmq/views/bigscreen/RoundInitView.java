@@ -11,8 +11,10 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @Route(value = "round-init", layout = BigScreenView.class)
+@AnonymousAllowed
 public class RoundInitView extends VerticalLayout implements BigScreenRoute {
 
     public RoundInitView(GameService gameService, TestDataProvider testDataProvider) {

@@ -31,11 +31,13 @@ import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RouterLink;
+import jakarta.annotation.security.RolesAllowed;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.jspecify.annotations.Nullable;
 
 @Route(value = "dj", layout = MaestroView.class)
+@RolesAllowed("MAESTRO")
 public class DjView extends VerticalLayout implements RouterLayout {
 
     private final MaestroInterface gameService;

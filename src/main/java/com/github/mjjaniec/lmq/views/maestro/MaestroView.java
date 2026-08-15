@@ -7,10 +7,12 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RoutePrefix;
 import com.vaadin.flow.router.RouterLayout;
+import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 
 @Route(value = "")
 @RoutePrefix(value = "maestro")
+@RolesAllowed("MAESTRO")
 @RequiredArgsConstructor
 public class MaestroView extends VerticalLayout implements RouterLayout {
 

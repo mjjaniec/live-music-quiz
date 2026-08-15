@@ -16,9 +16,11 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinService;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import java.util.List;
 
 @Route(value = "invite", layout = BigScreenView.class)
+@AnonymousAllowed
 public class InviteView extends HorizontalLayout implements BigScreenRoute {
     private final GameService gameService;
     private final BroadcastAttach broadcastAttach;

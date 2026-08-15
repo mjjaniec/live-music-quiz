@@ -11,8 +11,10 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @Route(value = "listen", layout = BigScreenView.class)
+@AnonymousAllowed
 public class BigScreenListenView extends VerticalLayout implements BigScreenRoute {
     private final SlackersContainer slackersContainer = new SlackersContainer();
     private final GameService gameService;

@@ -11,8 +11,10 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @Route(value = "wait-for-round", layout = PlayerView.class)
+@AnonymousAllowed
 public class WaitForRoundView extends HorizontalLayout implements PlayerRoute {
 
     public WaitForRoundView(GameService gameService, TestDataProvider testDataProvider) {

@@ -215,8 +215,27 @@ for manual confirmation before proceeding to Phase 2.
 
 Wire Spring Security's built-in One-Time Token Login feature end-to-end: a JPA-backed token store, the
 security filter chain, the email-sending success handler with a send-cooldown, and the `LoginView` request
-form. After this phase, a maestro can request a link and authenticate — but no existing route is gated
-yet (that's Phase 3), so this phase is testable purely as "can I log in," independent of route access.
+form.
+
+**Route gating folded in from the original Phase 3 plan.** Discovered during implementation: Vaadin's
+`AccessAnnotationChecker` denies access by default to any route lacking a security annotation
+(`@AnonymousAllowed`/`@RolesAllowed`/etc.), and enabling `VaadinSecurityConfigurer` (this phase's core task)
+also defaults its Spring-Security-level HTTP catch-all rule to `denyAll()`. This means wiring in security at
+all — regardless of phase boundaries — immediately denies every existing route the moment this phase lands,
+not just the maestro-control routes FR-003 targets. Deferring the `@AnonymousAllowed`/`@RolesAllowed`
+annotations to a later phase (as originally planned) would leave the app completely unusable (big-screen,
+player join, everything) between this phase and the next. So this phase now also does what was
+originally Phase 3 §1 (maestro route gating) and §2 (explicit anonymous surfaces) — every phase boundary
+stays a fully working app for real users. Phase 3 is now just logout.
+
+**Known, accepted consequence: the Playwright IT suite goes red until Phase 4.** `SmokeIT`, `GameFlowIT`,
+and `WrapUpGuiVerificationIT` all navigate straight to `/maestro*` with no session — once routes are gated,
+that's exactly the gap Phase 4's `TestAuthController` backdoor exists to close. Real users aren't affected
+(the actual login flow works end-to-end); only headless test runs are, until Phase 4 lands. Do not push/merge
+this branch in that interim state. This phase's own success criteria do NOT include "IT suite passes" for
+that reason — verified by running the suite: `SmokeIT.maestroPageLoads` fails and all `GameFlowIT`/
+`WrapUpGuiVerificationIT` tests time out waiting on `/maestro*`, while `playerPageLoads`/`bigscreenPageLoads`
+(anonymous surfaces) still pass.
 
 ### Changes Required:
 
@@ -306,12 +325,35 @@ unconditionally redirects to `/maestro` (see Critical Implementation Details —
 SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     return http.with(VaadinSecurityConfigurer.vaadin(), configurer -> configurer.loginView(LoginView.class))
         .oneTimeTokenLogin(ott -> ott
+            .loginProcessingUrl("/login/ott")
+            .loginPage("/login")
             .tokenService(magicLinkOneTimeTokenService)
             .tokenGenerationSuccessHandler(magicLinkEmailSuccessHandler)
             .successHandler(redirectToMaestroSuccessHandler))
         .build();
 }
 ```
+Discovered during implementation, two chained gotchas — both confirmed against the real
+`AbstractAuthenticationFilterConfigurer`/`OneTimeTokenLoginConfigurer` 7.0.6 source, not guessed:
+
+1. `VaadinSecurityConfigurer.loginView(...)` only marks the login page as custom for its own
+   `FormLoginConfigurer`. `OneTimeTokenLoginConfigurer` tracks "is this a custom login page" independently —
+   without also calling `.loginPage("/login")` on the `oneTimeTokenLogin(...)` DSL itself, Spring's shared
+   `DefaultLoginPageGeneratingFilter` stays active and serves its own generic OTT request page at `/login`,
+   shadowing `LoginView` entirely (confirmed live: GET `/login` returned Spring's built-in "Request a
+   One-Time Token" form, not the app's Vaadin view).
+2. Calling `.loginPage("/login")` has a side effect: `AbstractAuthenticationFilterConfigurer.loginPage(...)`
+   eagerly runs `updateAuthenticationDefaults()`, which — because this DSL customizer lambda runs *before*
+   `OneTimeTokenLoginConfigurer`'s own `init()` has had a chance to default `loginProcessingUrl` to
+   `/login/ott` — sees `loginProcessingUrl == null` at that moment and sets it to `this.loginPage` ("/login")
+   instead. The confirm-page's form then posts to `/login`, which is silently caught by the *other*
+   `FormLoginConfigurer`'s plain `UsernamePasswordAuthenticationFilter` (no username/password present →
+   `BadCredentialsException` → redirect to `/login?error`), and `MagicLinkOneTimeTokenService.consume(...)` is
+   never even called. Confirmed live via Playwright + a `consume()`-side debug log: authentication failed
+   with zero server-side exceptions, and the POST's request URL logged as `/login`, not `/login/ott`.
+   Explicitly calling `.loginProcessingUrl("/login/ott")` (either before or after `.loginPage(...)`) fixes it
+   by giving that field a non-null value before the eager side effect can clobber it.
+
 Exact method names/overloads must be confirmed against Spring Security 7.0.x docs at implementation time.
 Note: `OneTimeTokenLoginConfigurer.authenticationSuccessHandler(...)` still works in 7.0.5 but is deprecated
 since 6.5 in favor of the shared `AbstractAuthenticationFilterConfigurer.successHandler(...)` shown above —
@@ -350,6 +392,34 @@ POST), with a normal Vaadin-rendered "check your email" confirmation state aroun
 (confirm exact parameter name, e.g. `username`, against docs at implementation time); includes the CSRF
 hidden field per Critical Implementation Details.
 
+#### 7. Maestro route gating
+
+**File**: `src/main/java/com/github/mjjaniec/lmq/views/maestro/MaestroView.java`,
+`StartGameView.java`, `DjView.java`, `FeedbackView.java`
+
+**Intent**: Annotate each with `@RolesAllowed("MAESTRO")` individually — Vaadin route security is
+per-view, not inherited from a layout, so `MaestroView`'s `onAttach` chokepoint does not implicitly cover
+its children, and `FeedbackView`'s literal-path bypass (see Current State Analysis) needs the same
+annotation as the properly-nested views. Folded in from the original Phase 3 plan — see the Overview note
+on why this can't wait.
+
+**Contract**: `@RolesAllowed("MAESTRO")` on all four classes.
+
+#### 8. Explicit anonymous surfaces
+
+**File**: every `@Route`-annotated class under `views/bigscreen` (`BigScreenView` and its 8 nested views)
+and every `@Route`-annotated class under `views/player` (`RootView`, `PlayerView`, `JoinView`, and
+`PlayerView`'s 9 nested views)
+
+**Intent**: Once Spring Security is active, unannotated routes default to requiring authentication —
+every one of these must be explicitly `@AnonymousAllowed` to preserve today's zero-friction anonymous
+access, including the two literal-path routes (`JoinView` at `"player/join"`, and the player package's own
+`FeedbackView` if it doesn't already sit under `PlayerView`'s layout). Folded in from the original Phase 3
+plan — see the Overview note on why this can't wait.
+
+**Contract**: `@AnonymousAllowed` on every class in both packages; verify none was missed by re-running
+the full route inventory from Current State Analysis before closing this phase.
+
 ### Success Criteria:
 
 #### Automated Verification:
@@ -375,48 +445,27 @@ hidden field per Critical Implementation Details.
 - With the dedicated Gmail account's `smtp_user`/`smtp_pass` set (see Human setup gate, Phase 1 §2), a
   real request delivers an actual email to the target inbox — not just the dev-log fallback — with the
   content specified in Changes Required #5
+- Unauthenticated visit to `/maestro`, `/maestro/start`, `/maestro/dj`, and `/maestro/feedback` each
+  redirect to `/login`
+- Authenticated maestro can reach all four maestro routes normally
+- Big-screen QR display, player join (`/player/join`), and the full anonymous player flow work with zero
+  added steps or visible change
 
 **Implementation Note**: After completing this phase and all automated verification passes, pause here
 for manual confirmation before proceeding to Phase 3.
 
 ---
 
-## Phase 3: Route Gating & Logout
+## Phase 3: Logout
 
 ### Overview
 
-Gate every maestro-control view behind the `MAESTRO` role, explicitly mark every anonymous surface, and
-add a logout affordance. This is the phase that actually enforces FR-003.
+Add a logout affordance so the maestro can end their session. This is the last piece of FR-002; route
+gating (originally planned for this phase) already landed in Phase 2 — see that phase's Overview note.
 
 ### Changes Required:
 
-#### 1. Maestro route gating
-
-**File**: `src/main/java/com/github/mjjaniec/lmq/views/maestro/MaestroView.java`,
-`StartGameView.java`, `DjView.java`, `FeedbackView.java`
-
-**Intent**: Annotate each with `@RolesAllowed("MAESTRO")` individually — Vaadin route security is
-per-view, not inherited from a layout, so `MaestroView`'s `onAttach` chokepoint does not implicitly cover
-its children, and `FeedbackView`'s literal-path bypass (see Current State Analysis) needs the same
-annotation as the properly-nested views.
-
-**Contract**: `@RolesAllowed("MAESTRO")` on all four classes.
-
-#### 2. Explicit anonymous surfaces
-
-**File**: every `@Route`-annotated class under `views/bigscreen` (`BigScreenView` and its 8 nested views)
-and every `@Route`-annotated class under `views/player` (`RootView`, `PlayerView`, `JoinView`, and
-`PlayerView`'s 9 nested views)
-
-**Intent**: Once Spring Security is active, unannotated routes default to requiring authentication —
-every one of these must be explicitly `@AnonymousAllowed` to preserve today's zero-friction anonymous
-access, including the two literal-path routes (`JoinView` at `"player/join"`, and the player package's own
-`FeedbackView` if it doesn't already sit under `PlayerView`'s layout).
-
-**Contract**: `@AnonymousAllowed` on every class in both packages; verify none was missed by re-running
-the full route inventory from Current State Analysis before closing this phase.
-
-#### 3. Logout
+#### 1. Logout
 
 **File**: `src/main/java/com/github/mjjaniec/lmq/views/maestro/MaestroView.java` (or a shared toolbar
 component under `components/`, if one already wraps the maestro layout's header)
@@ -433,16 +482,14 @@ back on `/login`, unauthenticated.
 
 #### Automated Verification:
 
-- Existing Playwright IT suite still passes with routes gated: `./mvnw verify -Pit -Pproduction`
 - Formatting passes: `./mvnw spotless:check`
+- Full unit test suite passes: `./mvnw test`
+
+Note: the Playwright IT suite is still expected to fail at this point (per Phase 2's Overview note) —
+it isn't fixed until Phase 4's backdoor lands. Do not push/merge until then.
 
 #### Manual Verification:
 
-- Unauthenticated visit to `/maestro`, `/maestro/start`, `/maestro/dj`, and `/maestro/feedback` each
-  redirect to `/login`
-- Authenticated maestro can reach all four maestro routes normally
-- Big-screen QR display, player join (`/player/join`), and the full anonymous player flow work with zero
-  added steps or visible change
 - Logout ends the session and a subsequent visit to `/maestro` redirects to `/login` again
 
 **Implementation Note**: After completing this phase and all automated verification passes, pause here
@@ -454,7 +501,7 @@ for manual confirmation before proceeding to Phase 4.
 
 ### Overview
 
-Close the gap Phase 3 opens for the Playwright/TestBench IT suite: with routes gated, every existing IT
+Close the gap Phase 2 opens for the Playwright/TestBench IT suite: with routes gated, every existing IT
 test that navigates to `/maestro` needs an authenticated session first, and there's no way to click a real
 emailed link in a headless browser run.
 
@@ -572,48 +619,48 @@ Hibernate's `ddl-auto=update`; no existing table is altered.
 
 #### Automated
 
-- [x] 1.1 Unit test for MaestroStore/JpaMaestroStore passes
-- [x] 1.2 Formatting passes (spotless:check)
-- [x] 1.3 Full unit test suite passes
+- [x] 1.1 Unit test for MaestroStore/JpaMaestroStore passes — 2828d8c
+- [x] 1.2 Formatting passes (spotless:check) — 2828d8c
+- [x] 1.3 Full unit test suite passes — 2828d8c
 
 #### Manual
 
-- [x] 1.4 App still starts locally with the new dependency
+- [x] 1.4 App still starts locally with the new dependency — 2828d8c
 - [x] 1.5 Human setup gate complete: dedicated Gmail account created, 2-Step Verification enabled, App
-      Password generated, IMAP/POP disabled, `smtp_user`/`smtp_pass` set in Railway Variables
+      Password generated, IMAP/POP disabled, `smtp_user`/`smtp_pass` set in Railway Variables — 2828d8c
 
 ### Phase 2: Spring Security One-Time-Token Login Wiring
 
 #### Automated
 
-- [ ] 2.1 Unit tests for MagicLinkOneTimeTokenService pass
-- [ ] 2.2 Formatting passes (spotless:check)
-- [ ] 2.3 Full unit test suite passes
+- [x] 2.1 Unit tests for MagicLinkOneTimeTokenService pass
+- [x] 2.2 Formatting passes (spotless:check)
+- [x] 2.3 Full unit test suite passes
 
 #### Manual
 
-- [ ] 2.4 Requesting a link with SMTP unconfigured logs the link instead of failing
-- [ ] 2.5 Clicking the logged link authenticates and lands on /maestro
-- [ ] 2.6 Re-visiting the same link a second time fails (single-use)
-- [ ] 2.7 Visiting an expired (30+ min) link fails
-- [ ] 2.8 Requesting a second link within 60s does not send a second email
-- [ ] 2.9 Requesting links for two different emails from the same IP within 60s only creates/sends for
+- [x] 2.4 Requesting a link with SMTP unconfigured logs the link instead of failing
+- [x] 2.5 Clicking the logged link authenticates and lands on /maestro
+- [x] 2.6 Re-visiting the same link a second time fails (single-use)
+- [x] 2.7 Visiting an expired (30+ min) link fails
+- [x] 2.8 Requesting a second link within 60s does not send a second email
+- [x] 2.9 Requesting links for two different emails from the same IP within 60s only creates/sends for
       the first
-- [ ] 2.10 With real Gmail SMTP configured, a request delivers an actual email to the target inbox
+- [x] 2.10 With real Gmail SMTP configured, a request delivers an actual email to the target inbox
+- [x] 2.11 Unauthenticated visits to all four maestro routes redirect to /login
+- [x] 2.12 Authenticated maestro can reach all four maestro routes normally
+- [x] 2.13 Big-screen/player/join flow works with zero added friction
 
-### Phase 3: Route Gating & Logout
+### Phase 3: Logout
 
 #### Automated
 
-- [ ] 3.1 Existing Playwright IT suite still passes with routes gated
-- [ ] 3.2 Formatting passes (spotless:check)
+- [ ] 3.1 Formatting passes (spotless:check)
+- [ ] 3.2 Full unit test suite passes
 
 #### Manual
 
-- [ ] 3.3 Unauthenticated visits to all four maestro routes redirect to /login
-- [ ] 3.4 Authenticated maestro can reach all four maestro routes normally
-- [ ] 3.5 Big-screen/player/join flow works with zero added friction
-- [ ] 3.6 Logout ends the session and re-gates /maestro
+- [ ] 3.3 Logout ends the session and re-gates /maestro
 
 ### Phase 4: Integration Test Login Seam
 

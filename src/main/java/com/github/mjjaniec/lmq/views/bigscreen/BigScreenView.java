@@ -19,10 +19,12 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RoutePrefix;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import java.util.Optional;
 
 @Route("")
 @RoutePrefix("big-screen")
+@AnonymousAllowed
 public class BigScreenView extends VerticalLayout implements RouterLayoutWithOutlet<VerticalLayout>, BigScreenRoute {
     private final VerticalLayout outlet = new VerticalLayout();
     private final Div progressBarsOutlet = new Div();

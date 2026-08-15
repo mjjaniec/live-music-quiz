@@ -16,10 +16,12 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RoutePrefix;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import java.util.Optional;
 
 @Route(value = "", layout = RootView.class)
 @RoutePrefix(value = "player")
+@AnonymousAllowed
 public class PlayerView extends VerticalLayout implements RouterLayoutWithOutlet<HorizontalLayout>, PlayerRoute {
 
     private final HorizontalLayout outlet = new HorizontalLayout();

@@ -13,10 +13,12 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 @Route(value = "play", layout = PlayerView.class)
+@AnonymousAllowed
 public class PlayView extends VerticalLayout implements PlayerRoute {
 
     private final GameService gameService;

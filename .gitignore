@@ -4,6 +4,7 @@
 .settings
 .project
 .classpath
+.claude
 
 .claude/skills/10x-*
 

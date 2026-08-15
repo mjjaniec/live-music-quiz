@@ -9,9 +9,11 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import java.util.Optional;
 
 @Route(value = "wrap-up", layout = BigScreenView.class)
+@AnonymousAllowed
 public class WrapUpView extends VerticalLayout implements BigScreenRoute {
 
     private final BroadcastAttach broadcastAttach;

@@ -16,6 +16,9 @@
         <jackson.version>2.20.1</jackson.version>
         <lombok.version>1.18.42</lombok.version>
         <postgresql.version>42.7.8</postgresql.version>
+        <!-- CVE-2026-22751 (TOCTOU race in JdbcOneTimeTokenService, unused here) fixed in 7.0.5;
+             pinned to the latest available patch. -->
+        <spring-security.version>7.0.6</spring-security.version>
     </properties>
 
     <parent>
@@ -90,6 +93,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
         <dependency>

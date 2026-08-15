@@ -8,9 +8,11 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import lombok.RequiredArgsConstructor;
 
 @Route("/")
+@AnonymousAllowed
 @RequiredArgsConstructor
 public class RootView extends HorizontalLayout implements RouterLayout {
 

@@ -13,12 +13,14 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
+import jakarta.annotation.security.RolesAllowed;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Set;
 import java.util.stream.Stream;
 
 @Route(value = "start", layout = MaestroView.class)
+@RolesAllowed("MAESTRO")
 public class StartGameView extends VerticalLayout implements RouterLayout {
 
     StartGameView(MaestroInterface gameService, SpreadsheetLoader loader) {

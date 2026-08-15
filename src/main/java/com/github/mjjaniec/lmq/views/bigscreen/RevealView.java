@@ -6,9 +6,11 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import java.util.Optional;
 
 @Route(value = "reveal", layout = BigScreenView.class)
+@AnonymousAllowed
 public class RevealView extends VerticalLayout implements BigScreenRoute {
 
     public RevealView(GameService gameService, TestDataProvider testDataProvider) {

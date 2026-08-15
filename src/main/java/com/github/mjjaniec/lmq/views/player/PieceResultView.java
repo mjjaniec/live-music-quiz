@@ -11,8 +11,10 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @Route(value = "piece-result", layout = PlayerView.class)
+@AnonymousAllowed
 public class PieceResultView extends VerticalLayout implements PlayerRoute {
 
     private interface FakeAutocomplete {

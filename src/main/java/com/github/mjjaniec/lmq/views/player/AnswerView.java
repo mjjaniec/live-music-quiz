@@ -17,12 +17,14 @@ import com.vaadin.flow.component.html.Input;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import java.util.HashMap;
 import java.util.Map;
 import org.jspecify.annotations.Nullable;
 
 @JsModule(value = "./setupAutocomplete.ts")
 @Route(value = "answer", layout = PlayerView.class)
+@AnonymousAllowed
 public class AnswerView extends VerticalLayout implements PlayerRoute {
     private final Input artist = testId(new Input(), "player/answer/artist");
     private final Input title = testId(new Input(), "player/answer/title");
