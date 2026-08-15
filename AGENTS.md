@@ -50,3 +50,5 @@ java -Dspring.profiles.active=local -jar target/live-music-quiz-1.0-SNAPSHOT.jar
 **Null-safety:** every package has to have a `package-info.java` with `@org.jspecify.annotations.NullMarked`. Avoid using `@Nullable` unless a field is truly optional.
 
 **UI text is Polish** (player-facing strings, e.g. "grają z nami") — match existing copy's language and tone when adding UI text, don't default to English.
+
+**Dangerous actions use a disabled-button + "danger" checkbox pair, not a confirmation popup.** This is the established convention for any irreversible or disruptive action, implemented by the reusable `components.DangerAction` component (a `Button` that starts disabled, paired with a sibling `Checkbox("danger")` that enables it). Reuse `DangerAction` rather than hand-rolling the pattern; see its usages in `MaestroView` (logout), and `DjView` (game reset, per-player bump-out, play-off reset) for examples of wiring `testId(...)` onto `getActionButton()`/`getDangerCheckbox()`. Default to this pattern instead of a confirmation dialog/popup when adding a new dangerous action.

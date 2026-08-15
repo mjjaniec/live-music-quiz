@@ -526,11 +526,28 @@ internally handles the logout handler chain, the success handler, and — per it
 switches Vaadin's push transport to avoid the same class of push/redirect gotcha already documented for
 login. Injected as a constructor parameter (Spring-autowired) like any other bean.
 
-**Contract**: A `Button` (testid `maestro/logout`) whose click listener calls `authenticationContext.logout()`,
-resulting in the maestro landing back on `/maestro/login`, unauthenticated. The landing URL required an
-explicit `VaadinSecurityConfigurer.loginView(LoginView.class, "/maestro/login")` two-arg call in
-`SecurityConfig` — the one-arg overload's default logout-success URL is just the servlet context path
-(effectively `/`), not the login page.
+**Contract**: A `Button` (testid `maestro/logout/button`) whose click listener calls
+`authenticationContext.logout()`, resulting in the maestro landing back on `/maestro/login`,
+unauthenticated. The landing URL required an explicit
+`VaadinSecurityConfigurer.loginView(LoginView.class, "/maestro/login")` two-arg call in `SecurityConfig` —
+the one-arg overload's default logout-success URL is just the servlet context path (effectively `/`), not
+the login page.
+
+**Accidental-click protection (added post-implementation, per project convention).** This app's established
+pattern for dangerous/irreversible actions is a disabled-by-default button paired with a "danger" checkbox
+that enables it — not a confirmation popup — precedent: `DjView`'s reset control
+(`maestro/reset/danger` + `maestro/reset/button`). Logout isn't destructive, but it does interrupt an
+in-progress event with no confirmation otherwise, so the same pattern applies: `logout.setEnabled(false)`
+by default, paired with a `Checkbox("danger")` (testid `maestro/logout/danger`) whose value-change listener
+enables the button. This convention is now also documented in `AGENTS.md` for future work.
+
+**Extracted into a reusable component.** The pattern was duplicated four times (logout here, plus `DjView`'s
+game reset, per-player bump-out, and play-off reset), so it was pulled into
+`com.github.mjjaniec.lmq.components.DangerAction` — a small `HorizontalLayout` bundling the checkbox +
+button and their wiring, exposing `getActionButton()`/`getDangerCheckbox()` for callers to attach testids
+and theme variants. All four call sites (including the previously-untest-id'd play-off reset, which picked
+up `maestro/dj/play-off/reset` + `maestro/dj/play-off/reset-danger` testids in the process) now go through
+it. `AGENTS.md`'s convention note points at this component directly.
 
 ### Success Criteria:
 
@@ -545,6 +562,8 @@ it isn't fixed until Phase 4's backdoor lands. Do not push/merge until then.
 #### Manual Verification:
 
 - Logout ends the session and a subsequent visit to `/maestro` redirects to `/maestro/login` again
+- The logout button starts disabled and stays disabled until the "danger" checkbox is checked; checking
+  it enables the button, and clicking it then logs out normally
 
 **Implementation Note**: After completing this phase and all automated verification passes, pause here
 for manual confirmation before proceeding to Phase 4.
@@ -710,12 +729,13 @@ Hibernate's `ddl-auto=update`; no existing table is altered.
 
 #### Automated
 
-- [x] 3.1 Formatting passes (spotless:check)
-- [x] 3.2 Full unit test suite passes
+- [x] 3.1 Formatting passes (spotless:check) — 692ab95
+- [x] 3.2 Full unit test suite passes — 692ab95
 
 #### Manual
 
-- [x] 3.3 Logout ends the session and re-gates /maestro
+- [x] 3.3 Logout ends the session and re-gates /maestro — 692ab95
+- [x] 3.4 Logout button starts disabled, enabled only after checking the "danger" checkbox
 
 ### Phase 4: Integration Test Login Seam
 

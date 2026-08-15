@@ -2,10 +2,10 @@ package com.github.mjjaniec.lmq.views.maestro;
 
 import static com.github.mjjaniec.lmq.util.TestId.testId;
 
+import com.github.mjjaniec.lmq.components.DangerAction;
 import com.github.mjjaniec.lmq.services.MaestroInterface;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RoutePrefix;
@@ -26,7 +26,9 @@ public class MaestroView extends VerticalLayout implements RouterLayout {
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
-        add(testId(new Button("Wyloguj", _ -> authenticationContext.logout()), "maestro/logout"));
+        DangerAction logout = new DangerAction("Wyloguj", _ -> authenticationContext.logout());
+        testId(logout, "maestro/logout/danger", "maestro/logout/button");
+        add(logout);
         UI ui = attachEvent.getUI();
         if (service.isGameStarted()) {
             ui.navigate(DjView.class);

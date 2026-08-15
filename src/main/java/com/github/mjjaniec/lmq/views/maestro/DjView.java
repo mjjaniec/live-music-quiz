@@ -15,7 +15,6 @@ import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
@@ -46,7 +45,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
     private final Grid<Player> playersGrid = new Grid<>(Player.class, false);
     private final Map<GameStage, ActivateComponent> activateComponents = new HashMap<>();
     private final Map<GameStage, StageHeader> headers = new HashMap<>();
-    private final Button reset = testId(new Button("Reset"), "maestro/reset/button");
+    private final DangerAction resetAction;
     private Optional<StageHeader> currentParentHeader = Optional.empty();
 
     private final Div pieceContent = new Div();
@@ -65,10 +64,12 @@ public class DjView extends VerticalLayout implements RouterLayout {
         setSizeFull();
         setPadding(false);
 
-        reset.addClickListener(_ -> {
+        resetAction = new DangerAction("Reset", _ -> {
             gameService.reset();
             getUI().ifPresent(ui -> ui.navigate(StartGameView.class));
         });
+        testId(resetAction.getActionButton(), "maestro/reset/button");
+        testId(resetAction.getDangerCheckbox(), "maestro/reset/danger");
 
         if (gameService.isGameStarted()) {
             Accordion main = new Accordion();
@@ -80,7 +81,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
             add(main);
             add(notification);
         } else {
-            reset.click();
+            resetAction.click();
         }
     }
 
@@ -169,16 +170,12 @@ public class DjView extends VerticalLayout implements RouterLayout {
         playersGrid.addColumn(Player::name).setHeader("Ksywka");
         playersGrid
                 .addColumn(new ComponentRenderer<>((SerializableFunction<Player, Component>) player -> {
-                    Div result = new Div();
-                    Checkbox danger = new Checkbox("danger", false);
-                    testId(danger, "mastero/players-grid/danger/" + player.name());
-                    Button bumpOut = new Button("Wyrzuć", _ -> gameService.removePlayer(player));
-                    bumpOut.addThemeVariants(ButtonVariant.LUMO_ERROR);
-                    bumpOut.setEnabled(false);
-                    testId(bumpOut, "mastero/players-grid/bump-out/" + player.name());
-                    danger.addValueChangeListener(event -> bumpOut.setEnabled(event.getValue()));
-                    result.add(danger, bumpOut);
-                    return result;
+                    DangerAction bumpOut = new DangerAction("Wyrzuć", _ -> gameService.removePlayer(player));
+                    testId(
+                            bumpOut,
+                            "mastero/players-grid/danger/" + player.name(),
+                            "mastero/players-grid/bump-out/" + player.name());
+                    return bumpOut;
                 }))
                 .setHeader("Akcje");
         playersGrid.setItems(gameService.getPlayers());
@@ -226,11 +223,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
         content.setWidthFull();
         HorizontalLayout line = new HorizontalLayout();
         line.add(createActivateComponent(wrapUp));
-        Checkbox danger = testId(new Checkbox("danger"), "maestro/reset/danger");
-        reset.setEnabled(false);
-        danger.addValueChangeListener(event -> reset.setEnabled(event.getValue()));
-        line.add(danger);
-        line.add(reset);
+        line.add(resetAction);
         content.add(line);
         content.add(wrapUpContent);
         refreshWrapUpContent();
@@ -289,16 +282,13 @@ public class DjView extends VerticalLayout implements RouterLayout {
 
         if (gameService.stage() == playOff) {
 
-            Checkbox danger = new Checkbox("danger");
-            Button reset = new Button("resetuj dogrywkę");
-            reset.addClickListener(_ -> {
+            DangerAction resetPlayOff = new DangerAction("resetuj dogrywkę", _ -> {
                 gameService.clearPlayOffTask();
                 playOff.setPerformed(false);
                 gameService.setStage(playOff);
                 refreshPlayOffContent();
             });
-            reset.setEnabled(false);
-            danger.addValueChangeListener(event -> reset.setEnabled(event.getValue()));
+            testId(resetPlayOff, "maestro/dj/play-off/reset-danger", "maestro/dj/play-off/reset");
             Button collectAnswers = testId(new Button("≙ Niech odpowiadajo!"), "maestro/dj/play-off/collect-answers");
             collectAnswers.setEnabled(
                     !playOff.isPerformed() && gameService.playOffTask().isPresent());
@@ -307,7 +297,7 @@ public class DjView extends VerticalLayout implements RouterLayout {
                 gameService.setStage(playOff);
                 refreshPlayOffContent();
             });
-            HorizontalLayout buttons = new HorizontalLayout(danger, reset, collectAnswers);
+            HorizontalLayout buttons = new HorizontalLayout(resetPlayOff, collectAnswers);
             buttons.setPadding(false);
             playOffContent.add(buttons);
             if (playOff.isPerformed()) {
