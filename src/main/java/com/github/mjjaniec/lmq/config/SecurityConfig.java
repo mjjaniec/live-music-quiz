@@ -19,7 +19,9 @@ public class SecurityConfig {
             MagicLinkOneTimeTokenService magicLinkOneTimeTokenService,
             MagicLinkEmailSuccessHandler magicLinkEmailSuccessHandler)
             throws Exception {
-        return http.with(
+        return http.authorizeHttpRequests(auth ->
+                        auth.requestMatchers("/test/login", "/api/v1/hint/**").permitAll())
+                .with(
                         VaadinSecurityConfigurer.vaadin(),
                         configurer -> configurer.loginView(LoginView.class, "/maestro/login"))
                 .oneTimeTokenLogin(ott -> ott.loginProcessingUrl("/login/ott")

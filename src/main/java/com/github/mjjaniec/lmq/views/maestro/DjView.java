@@ -444,6 +444,11 @@ public class DjView extends VerticalLayout implements RouterLayout {
         broadcastAttach.attachSlackersList(attachEvent.getUI(), this::refreshSlackers);
         broadcastAttach.attachPlayerList(attachEvent.getUI(), this::refreshPlayers);
         broadcastAttach.attachPlay(attachEvent.getUI(), this::refreshPlay);
+        // A player can join in the window between this view's construction (which already read the
+        // player list once) and this listener actually registering; that join's own broadcast fires
+        // before we're registered to receive it, so it would otherwise never reach this grid until
+        // some later, unrelated refresh happens to catch it up. Re-sync once now to close that gap.
+        refreshPlayers();
     }
 
     @Override

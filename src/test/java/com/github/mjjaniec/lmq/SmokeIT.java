@@ -53,6 +53,7 @@ public class SmokeIT {
 
     @Test
     void maestroPageLoads() {
+        page.navigate(BASE_URL + "/test/login?email=maestro@test.local");
         page.navigate(BASE_URL + "/maestro/start");
         page.waitForLoadState();
 

@@ -741,9 +741,9 @@ Hibernate's `ddl-auto=update`; no existing table is altered.
 
 #### Automated
 
-- [ ] 4.1 Full CI-equivalent suite passes (verify -Pit -Pproduction)
-- [ ] 4.2 Formatting passes (spotless:check)
+- [x] 4.1 Full CI-equivalent suite passes (verify -Pit -Pproduction)
+- [x] 4.2 Formatting passes (spotless:check)
 
 #### Manual
 
-- [ ] 4.3 /test/login is unreachable outside the integration-test profile
+- [x] 4.3 /test/login is unreachable outside the integration-test profile

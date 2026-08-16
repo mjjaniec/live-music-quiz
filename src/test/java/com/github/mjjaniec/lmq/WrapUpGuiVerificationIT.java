@@ -170,6 +170,7 @@ public class WrapUpGuiVerificationIT {
             Page bigScreenPage = bigScreenContext.newPage();
             Page maestroPage = maestroContext.newPage();
 
+            maestroPage.navigate(baseUrl + "/test/login?email=maestro@test.local");
             maestroPage.navigate(baseUrl + "/maestro/dj");
             maestroPage.getByTestId("maestro/dj/round-header-1").click();
             maestroPage.getByTestId("maestro/dj/wrapup/header").click();
