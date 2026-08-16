@@ -1,5 +1,7 @@
 package com.github.mjjaniec.lmq;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.github.mjjaniec.lmq.model.*;
 import com.github.mjjaniec.lmq.services.MaestroInterface;
 import com.github.mjjaniec.lmq.services.Navigator;
@@ -7,6 +9,8 @@ import com.github.mjjaniec.lmq.services.Results;
 import com.github.mjjaniec.lmq.stores.AnswerStore;
 import com.github.mjjaniec.lmq.stores.PlayerStore;
 import com.github.mjjaniec.lmq.stores.QuizStore;
+import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -16,12 +20,6 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-
-import java.util.List;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("integration-test")
@@ -99,17 +97,26 @@ public class WrapUpDataInjectionIT {
         assertThat(results.rows()).hasSize(3);
 
         // Ranking should be: Alice (10), Bob (4), Charlie (0)
-        Results.Row aliceRow = results.rows().stream().filter(r -> r.player().equals("Alice")).findFirst().orElseThrow();
+        Results.Row aliceRow = results.rows().stream()
+                .filter(r -> r.player().equals("Alice"))
+                .findFirst()
+                .orElseThrow();
         assertThat(aliceRow.total()).isEqualTo(10);
         assertThat(aliceRow.position()).isEqualTo(1);
         assertThat(aliceRow.award()).contains(Results.Award.FIRST);
 
-        Results.Row bobRow = results.rows().stream().filter(r -> r.player().equals("Bob")).findFirst().orElseThrow();
+        Results.Row bobRow = results.rows().stream()
+                .filter(r -> r.player().equals("Bob"))
+                .findFirst()
+                .orElseThrow();
         assertThat(bobRow.total()).isEqualTo(4);
         assertThat(bobRow.position()).isEqualTo(2);
         assertThat(bobRow.award()).contains(Results.Award.SECOND);
 
-        Results.Row charlieRow = results.rows().stream().filter(r -> r.player().equals("Charlie")).findFirst().orElseThrow();
+        Results.Row charlieRow = results.rows().stream()
+                .filter(r -> r.player().equals("Charlie"))
+                .findFirst()
+                .orElseThrow();
         assertThat(charlieRow.total()).isEqualTo(0);
         assertThat(charlieRow.position()).isEqualTo(3);
         assertThat(charlieRow.award()).contains(Results.Award.THIRD);

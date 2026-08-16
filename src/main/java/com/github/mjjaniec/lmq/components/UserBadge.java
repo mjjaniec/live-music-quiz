@@ -11,7 +11,6 @@ public class UserBadge extends Span {
             String margin = small ? "0.4em" : "0.5em";
             getStyle().setMarginRight(margin);
             getStyle().setMarginBottom(margin);
-
         }
         getStyle().setFontSize(fontSize);
         getElement().getThemeList().add("badge pill");

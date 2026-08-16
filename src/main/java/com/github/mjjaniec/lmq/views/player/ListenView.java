@@ -4,11 +4,11 @@ import com.github.mjjaniec.lmq.components.NotesAnimation;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @Route(value = "listen", layout = PlayerView.class)
+@AnonymousAllowed
 public class ListenView extends VerticalLayout implements PlayerRoute {
-
 
     public ListenView() {
         setSpacing(true);

@@ -11,9 +11,10 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
-
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @Route(value = "round-init", layout = BigScreenView.class)
+@AnonymousAllowed
 public class RoundInitView extends VerticalLayout implements BigScreenRoute {
 
     public RoundInitView(GameService gameService, TestDataProvider testDataProvider) {
@@ -23,14 +24,17 @@ public class RoundInitView extends VerticalLayout implements BigScreenRoute {
         getStyle().setBackgroundColor(Palette.GREEN);
         setJustifyContentMode(JustifyContentMode.BETWEEN);
 
-        gameService.roundInitStage()
-                .or(testDataProvider::init)   //temporary
+        gameService
+                .roundInitStage()
+                .or(testDataProvider::init) // temporary
                 .ifPresent(this::setupUI);
     }
 
     private void setupUI(GameStage.RoundInit roundInit) {
         add(new Div());
-        add(keyValue("Witajcie w rundzie", roundInit.roundNumber().number() + " - " + roundDescription(roundInit.roundMode())));
+        add(keyValue(
+                "Witajcie w rundzie",
+                roundInit.roundNumber().number() + " - " + roundDescription(roundInit.roundMode())));
         add(keyValue("Kto odpowiada", whoAnswers(roundInit.roundMode())));
         add(keyValue("Punkty za wykonawcę", points(roundInit.roundMode(), roundInit.roundMode().artistPoints)));
         add(keyValue("Punkty za tytuł", points(roundInit.roundMode(), roundInit.roundMode().titlePoints)));
@@ -39,7 +43,6 @@ public class RoundInitView extends VerticalLayout implements BigScreenRoute {
         add(new Div());
     }
 
-
     private String roundDescription(MainSet.RoundMode mode) {
         return switch (mode) {
             case EVERYBODY -> "Znaj łaskę pana";
@@ -47,7 +50,6 @@ public class RoundInitView extends VerticalLayout implements BigScreenRoute {
             case FIRST -> "Wyścig szczurów";
         };
     }
-
 
     private String points(MainSet.RoundMode mode, int points) {
         return switch (mode) {

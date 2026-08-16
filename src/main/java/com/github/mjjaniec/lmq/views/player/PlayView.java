@@ -1,5 +1,7 @@
 package com.github.mjjaniec.lmq.views.player;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
+
 import com.github.mjjaniec.lmq.model.Player;
 import com.github.mjjaniec.lmq.services.BroadcastAttach;
 import com.github.mjjaniec.lmq.services.GameService;
@@ -11,16 +13,13 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Optional;
-
-import static com.github.mjjaniec.lmq.util.TestId.testId;
-
-
 @Route(value = "play", layout = PlayerView.class)
+@AnonymousAllowed
 public class PlayView extends VerticalLayout implements PlayerRoute {
-
 
     private final GameService gameService;
     private final BroadcastAttach broadcastAttach;
@@ -41,41 +40,38 @@ public class PlayView extends VerticalLayout implements PlayerRoute {
         theButton = testId(new Button(caption), "player/play/button");
         theButton.setSizeFull();
         theButton.addClassName("magic-button");
-        theButton.addClickListener(_ ->
-                Optional.ofNullable(player).ifPresent(gameService::raise));
+        theButton.addClickListener(_ -> Optional.ofNullable(player).ifPresent(gameService::raise));
         add(theButton);
 
         setSizeFull();
     }
 
     private void refresh() {
-        gameService.pieceStage()
-                .filter(_ -> player != null)
-                .ifPresent(piece -> {
-                    theButton.setEnabled(piece.getCurrentResponder() == null);
-                    theButton.getStyle().remove("background-color");
-                    theButton.setEnabled(false);
+        gameService.pieceStage().filter(_ -> player != null).ifPresent(piece -> {
+            theButton.setEnabled(piece.getCurrentResponder() == null);
+            theButton.getStyle().remove("background-color");
+            theButton.setEnabled(false);
 
-                    if (piece.getFailedResponders().contains(player.name())) {
-                        if (gameService.getCurrentPlayerPoints(player) > 0) {
-                            caption.setText("Fifty fifty!");
-                            theButton.getStyle().setBackgroundColor(Palette.AMBER);
-                        } else {
-                            caption.setText("Pudło!");
-                            theButton.getStyle().setBackgroundColor(Palette.RED);
-                        }
-                    } else if (piece.getCurrentResponder() == null) {
-                        caption.setText("Odpowiadam");
-                        theButton.setEnabled(true);
-                        theButton.getStyle().setBackgroundColor(Palette.BLUE);
-                    } else if (piece.getCurrentResponder().equals(player.name())) {
-                        caption.setText("Odpowiadasz");
-                        theButton.getStyle().setBackgroundColor(Palette.GREEN);
-                    } else {
-                        caption.setText("Nie akwtywne");
-                        theButton.getStyle().setBackgroundColor(Palette.GRAY);
-                    }
-                });
+            if (piece.getFailedResponders().contains(player.name())) {
+                if (gameService.getCurrentPlayerPoints(player) > 0) {
+                    caption.setText("Fifty fifty!");
+                    theButton.getStyle().setBackgroundColor(Palette.AMBER);
+                } else {
+                    caption.setText("Pudło!");
+                    theButton.getStyle().setBackgroundColor(Palette.RED);
+                }
+            } else if (piece.getCurrentResponder() == null) {
+                caption.setText("Odpowiadam");
+                theButton.setEnabled(true);
+                theButton.getStyle().setBackgroundColor(Palette.BLUE);
+            } else if (piece.getCurrentResponder().equals(player.name())) {
+                caption.setText("Odpowiadasz");
+                theButton.getStyle().setBackgroundColor(Palette.GREEN);
+            } else {
+                caption.setText("Nie akwtywne");
+                theButton.getStyle().setBackgroundColor(Palette.GRAY);
+            }
+        });
     }
 
     @Override
@@ -94,6 +90,4 @@ public class PlayView extends VerticalLayout implements PlayerRoute {
         broadcastAttach.detachPlay(detachEvent.getUI());
         super.onDetach(detachEvent);
     }
-
-
 }

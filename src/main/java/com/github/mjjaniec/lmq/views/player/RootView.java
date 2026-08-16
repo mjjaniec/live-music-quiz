@@ -8,9 +8,11 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import lombok.RequiredArgsConstructor;
 
 @Route("/")
+@AnonymousAllowed
 @RequiredArgsConstructor
 public class RootView extends HorizontalLayout implements RouterLayout {
 
@@ -22,17 +24,17 @@ public class RootView extends HorizontalLayout implements RouterLayout {
         super.onAttach(attachEvent);
         if (config.enableFrontRouting()) {
             UI ui = attachEvent.getUI();
-            LocalStorage.readPlayer(ui).thenAccept(playerOpt -> playerOpt.ifPresentOrElse(
-                    player -> {
-                        if (!gameService.hasPlayer(player)) {
-                            LocalStorage.removePlayer(ui);
-                            ui.access(() -> ui.navigate(JoinView.class));
-                        } else {
-                            attachEvent.getUI().navigate(PlayerView.class);
-                        }
-                    },
-                    () -> ui.access(() -> ui.navigate(JoinView.class))
-            ));
+            LocalStorage.readPlayer(ui)
+                    .thenAccept(playerOpt -> playerOpt.ifPresentOrElse(
+                            player -> {
+                                if (!gameService.hasPlayer(player)) {
+                                    LocalStorage.removePlayer(ui);
+                                    ui.access(() -> ui.navigate(JoinView.class));
+                                } else {
+                                    attachEvent.getUI().navigate(PlayerView.class);
+                                }
+                            },
+                            () -> ui.access(() -> ui.navigate(JoinView.class))));
         }
     }
 }

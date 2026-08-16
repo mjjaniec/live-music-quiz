@@ -1,5 +1,7 @@
 package com.github.mjjaniec.lmq.components;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
+
 import com.github.mjjaniec.lmq.services.Results;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Div;
@@ -8,10 +10,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
-
 import java.util.List;
-
-import static com.github.mjjaniec.lmq.util.TestId.testId;
 
 public class PodiumComponent extends VerticalLayout {
     public PodiumComponent(Results results, int showFrom) {
@@ -54,9 +53,10 @@ public class PodiumComponent extends VerticalLayout {
         return result;
     }
 
-
     private List<Results.Row> findPlayers(Results results, Results.Award award) {
-        return results.rows().stream().filter(r -> r.award().map(a -> a == award).orElse(false)).toList();
+        return results.rows().stream()
+                .filter(r -> r.award().map(a -> a == award).orElse(false))
+                .toList();
     }
 
     private Component section(int position, Results.Award award, Results results, int showFrom) {
@@ -75,22 +75,25 @@ public class PodiumComponent extends VerticalLayout {
 
         VerticalLayout segment = new VerticalLayout();
 
-
         segment.setAlignItems(Alignment.CENTER);
         Div filler = new Div();
         filler.setWidthFull();
-        filler.setHeight(switch (position) {
-            case 1 -> "12vh";
-            case 2 -> "4vh";
-            default -> "0";
-        });
+        filler.setHeight(
+                switch (position) {
+                    case 1 -> "12vh";
+                    case 2 -> "4vh";
+                    default -> "0";
+                });
         segment.add(filler);
 
         HorizontalLayout caption = new HorizontalLayout();
         caption.setWidthFull();
         caption.add(new H1(award.symbol));
         Div number = new Div(String.valueOf(position));
-        number.getStyle().setFontSize("8vh").setFontWeight(Style.FontWeight.BOLD).setLineHeight("1.5");
+        number.getStyle()
+                .setFontSize("8vh")
+                .setFontWeight(Style.FontWeight.BOLD)
+                .setLineHeight("1.5");
         number.setClassName("pt-mono-regular");
         caption.add(number);
         caption.add(new H1(award.symbol));
@@ -115,6 +118,4 @@ public class PodiumComponent extends VerticalLayout {
         result.add(badges, segment);
         return result;
     }
-
-
 }

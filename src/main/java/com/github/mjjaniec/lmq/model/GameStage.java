@@ -2,12 +2,11 @@ package com.github.mjjaniec.lmq.model;
 
 import com.github.mjjaniec.lmq.views.bigscreen.*;
 import com.github.mjjaniec.lmq.views.player.*;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public sealed interface GameStage {
 
@@ -15,15 +14,15 @@ public sealed interface GameStage {
 
     Class<? extends BigScreenRoute> bigScreenView();
 
-    record RoundNumber(int number, int of) {
-    }
+    record RoundNumber(int number, int of) {}
 
-    record PieceNumber(int number, int of) {
-    }
-
+    record PieceNumber(int number, int of) {}
 
     enum PieceStage {
-        LISTEN, ONION_LISTEN, REVEAL, PLAY
+        LISTEN,
+        ONION_LISTEN,
+        REVEAL,
+        PLAY
     }
 
     record Invite() implements GameStage {
@@ -37,13 +36,11 @@ public sealed interface GameStage {
         public Class<InviteView> bigScreenView() {
             return InviteView.class;
         }
-
     }
 
-    record RoundInit(RoundNumber roundNumber,
-                     MainSet.RoundMode roundMode,
-                     List<RoundPiece> pieces,
-                     RoundSummary roundSummary) implements GameStage {
+    record RoundInit(
+            RoundNumber roundNumber, MainSet.RoundMode roundMode, List<RoundPiece> pieces, RoundSummary roundSummary)
+            implements GameStage {
         @Override
         public Class<WaitForRoundView> playerView() {
             return WaitForRoundView.class;
@@ -53,7 +50,6 @@ public sealed interface GameStage {
         public Class<RoundInitView> bigScreenView() {
             return RoundInitView.class;
         }
-
     }
 
     final class RoundPiece implements GameStage {
@@ -61,21 +57,27 @@ public sealed interface GameStage {
         public final PieceNumber pieceNumber;
         public final MainSet.Piece piece;
         public final List<PieceStage> innerStages;
+
         @Setter
         @Getter
         private PieceStage currentStage;
+
         @Setter
         @Getter
         private boolean bonus;
+
         @Getter
         private final List<String> failedResponders;
+
         @Setter
         @Getter
         @Nullable
         private String currentResponder;
+
         @Getter
         @Setter
         private int artistAnswered;
+
         @Getter
         @Setter
         private int titleAnswered;
@@ -146,7 +148,6 @@ public sealed interface GameStage {
         public Class<RoundSummaryView> bigScreenView() {
             return RoundSummaryView.class;
         }
-
     }
 
     @Getter
@@ -181,6 +182,5 @@ public sealed interface GameStage {
         public Class<WrapUpView> bigScreenView() {
             return WrapUpView.class;
         }
-
     }
 }

@@ -4,6 +4,9 @@
 .settings
 .project
 .classpath
+.claude
+
+.claude/skills/10x-*
 
 *.iml
 .DS_Store
@@ -14,6 +17,11 @@ node_modules/
 src/main/frontend/generated/
 pnpmfile.js
 vite.generated.ts
+src/main/bundles/
+package.json
+package-lock.json
+tsconfig.json
+types.d.ts
 
 # Browser drivers for local integration tests
 drivers/
@@ -21,3 +29,4 @@ drivers/
 error-screenshots/
 webpack.generated.js
 application-local.properties
+.vaadin-node-tasks.lock

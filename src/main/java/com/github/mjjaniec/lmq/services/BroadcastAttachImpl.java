@@ -4,7 +4,6 @@ import com.github.mjjaniec.lmq.views.bigscreen.BigScreenRoute;
 import com.github.mjjaniec.lmq.views.player.PlayerRoute;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

@@ -1,10 +1,9 @@
 package com.github.mjjaniec.lmq.stores;
 
 import jakarta.persistence.*;
+import java.util.List;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
-
-import java.util.List;
 
 @Entity
 @Data
@@ -24,7 +23,9 @@ public class QuizDto {
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
         private Long id;
+
         private String roundMode;
+
         @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
         private List<Piece> pieces;
     }
@@ -36,16 +37,21 @@ public class QuizDto {
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
         private Long id;
+
         private String artist;
+
         @Nullable
         private String artistAlternative;
+
         private String title;
+
         @Nullable
         private String titleAlternative;
+
         @Nullable
         private Integer tempo;
+
         @Nullable
         private String hint;
     }
-
 }

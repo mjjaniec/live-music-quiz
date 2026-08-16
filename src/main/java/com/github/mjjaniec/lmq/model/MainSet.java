@@ -1,14 +1,12 @@
 package com.github.mjjaniec.lmq.model;
 
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
 public record MainSet(List<LevelPieces> levels) {
-    public record LevelPieces(RoundMode level, List<Piece> pieces) {
-    }
+    public record LevelPieces(RoundMode level, List<Piece> pieces) {}
 
     public record Piece(
             String artist,
@@ -17,22 +15,24 @@ public record MainSet(List<LevelPieces> levels) {
             @Nullable String titleAlternative,
             @Nullable Integer tempo,
             @Nullable String hint,
-            Set<String> sets
-    ) {
-    }
-
+            Set<String> sets) {}
 
     public Set<String> sets() {
-        return levels.stream().flatMap(level -> level.pieces.stream()).flatMap(piece -> piece.sets().stream()).collect(Collectors.toSet());
+        return levels.stream()
+                .flatMap(level -> level.pieces.stream())
+                .flatMap(piece -> piece.sets().stream())
+                .collect(Collectors.toSet());
     }
 
     public MainSet asSet(String set) {
-        return new MainSet(
-                levels.stream()
-                        .map(level -> new LevelPieces(level.level, level.pieces.stream().filter(piece -> piece.sets.contains(set)).toList()))
-                        .filter(level -> !level.pieces.isEmpty())
-                        .toList()
-        );
+        return new MainSet(levels.stream()
+                .map(level -> new LevelPieces(
+                        level.level,
+                        level.pieces.stream()
+                                .filter(piece -> piece.sets.contains(set))
+                                .toList()))
+                .filter(level -> !level.pieces.isEmpty())
+                .toList());
     }
 
     @RequiredArgsConstructor
@@ -45,4 +45,3 @@ public record MainSet(List<LevelPieces> levels) {
         public final int titlePoints;
     }
 }
-

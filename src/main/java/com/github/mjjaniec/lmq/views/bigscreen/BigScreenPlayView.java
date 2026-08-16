@@ -11,8 +11,10 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @Route(value = "play", layout = BigScreenView.class)
+@AnonymousAllowed
 public class BigScreenPlayView extends VerticalLayout implements BigScreenRoute {
 
     private final GameService gameService;
@@ -52,7 +54,6 @@ public class BigScreenPlayView extends VerticalLayout implements BigScreenRoute 
             }
         });
     }
-
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {

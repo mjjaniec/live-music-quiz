@@ -2,12 +2,11 @@ package com.github.mjjaniec.lmq.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
@@ -47,27 +46,30 @@ public class MainSetParser {
     }
 
     private void validateMainSet(MainSet set, Set<String> artists, Set<String> titles) {
-        var invalids = set.levels().stream().flatMap(l -> l.pieces().stream()).flatMap(piece -> {
-            List<String> invalidFields = new ArrayList<>();
-            if (!(piece.artist().equals(Constants.UNKNOWN) || artists.contains(piece.artist()))) {
-                invalidFields.add("artist: " + piece.artist());
-            }
-            if (!(piece.artistAlternative() == null || artists.contains(piece.artistAlternative()))) {
-                invalidFields.add("artistAlternative: " + piece.artistAlternative());
-            }
-            if (!titles.contains(piece.title())) {
-                invalidFields.add("title: " + piece.title());
-            }
-            if (!(piece.titleAlternative() == null || titles.contains(piece.titleAlternative()))) {
-                invalidFields.add("titleAlternative: " + piece.titleAlternative());
-            }
+        var invalids = set.levels().stream()
+                .flatMap(l -> l.pieces().stream())
+                .flatMap(piece -> {
+                    List<String> invalidFields = new ArrayList<>();
+                    if (!(piece.artist().equals(Constants.UNKNOWN) || artists.contains(piece.artist()))) {
+                        invalidFields.add("artist: " + piece.artist());
+                    }
+                    if (!(piece.artistAlternative() == null || artists.contains(piece.artistAlternative()))) {
+                        invalidFields.add("artistAlternative: " + piece.artistAlternative());
+                    }
+                    if (!titles.contains(piece.title())) {
+                        invalidFields.add("title: " + piece.title());
+                    }
+                    if (!(piece.titleAlternative() == null || titles.contains(piece.titleAlternative()))) {
+                        invalidFields.add("titleAlternative: " + piece.titleAlternative());
+                    }
 
-            if (invalidFields.isEmpty()) {
-                return Stream.empty();
-            } else {
-                return Stream.of(piece + " -> " + invalidFields);
-            }
-        }).toList();
+                    if (invalidFields.isEmpty()) {
+                        return Stream.empty();
+                    } else {
+                        return Stream.of(piece + " -> " + invalidFields);
+                    }
+                })
+                .toList();
 
         if (!invalids.isEmpty()) {
             throw new RuntimeException("The following pieces do not match with hints\n" + String.join("\n", invalids));

@@ -16,6 +16,9 @@
         <jackson.version>2.20.1</jackson.version>
         <lombok.version>1.18.42</lombok.version>
         <postgresql.version>42.7.8</postgresql.version>
+        <!-- CVE-2026-22751 (TOCTOU race in JdbcOneTimeTokenService, unused here) fixed in 7.0.5;
+             pinned to the latest available patch. -->
+        <spring-security.version>7.0.6</spring-security.version>
     </properties>
 
     <parent>
@@ -32,7 +35,20 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+        <repository>
+            <id>central-public</id>
+            <name>Maven Central (public)</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
     </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>central-public</id>
+            <name>Maven Central (public)</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </pluginRepository>
+    </pluginRepositories>
 
     <dependencyManagement>
         <dependencies>
@@ -67,6 +83,21 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
         <dependency>
@@ -134,6 +165,23 @@
 
     <build>
         <defaultGoal>spring-boot:run</defaultGoal>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <!-- Vaadin's production build has a bundle-reuse optimization that can skip
+                 copying hand-placed theme static assets (images, audio) into the servable
+                 VAADIN/static location on a truly clean build. Copy them explicitly so they
+                 don't depend on that heuristic. -->
+            <resource>
+                <directory>src/main/frontend/themes/live-music-quiz</directory>
+                <targetPath>META-INF/VAADIN/webapp/VAADIN/static/themes/live-music-quiz</targetPath>
+                <excludes>
+                    <exclude>**/*.css</exclude>
+                    <exclude>theme.json</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -145,10 +193,9 @@
                 <version>3.1.0</version>
                 <configuration>
                     <java>
-                        <eclipse>
-                            <version>4.33</version>
-                            <file>${project.basedir}/eclipse-formatter.xml</file>
-                        </eclipse>
+                        <palantirJavaFormat>
+                            <version>2.97.0</version>
+                        </palantirJavaFormat>
                     </java>
                 </configuration>
             </plugin>

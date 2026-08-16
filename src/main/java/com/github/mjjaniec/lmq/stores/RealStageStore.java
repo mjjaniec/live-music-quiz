@@ -3,14 +3,13 @@ package com.github.mjjaniec.lmq.stores;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mjjaniec.lmq.model.GameStage;
 import com.github.mjjaniec.lmq.model.StageSet;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import org.springframework.stereotype.Component;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
@@ -19,13 +18,15 @@ public class RealStageStore implements StageStore {
     private final JpaStageGenStore jpaStore;
     private final ObjectMapper mapper;
 
-    private record PieceAdditionsDto(GameStage.PieceStage stage, boolean bonus, String currentResponder,
-                                     List<String> failedResponders, int artistAnswered, int titleAnswered) {
-    }
+    private record PieceAdditionsDto(
+            GameStage.PieceStage stage,
+            boolean bonus,
+            String currentResponder,
+            List<String> failedResponders,
+            int artistAnswered,
+            int titleAnswered) {}
 
-    private record PlayOffDto(boolean performed) {
-    }
-
+    private record PlayOffDto(boolean performed) {}
 
     @Override
     public Optional<GameStage> readStage(StageSet stageSet) {
@@ -67,16 +68,16 @@ public class RealStageStore implements StageStore {
         }
     }
 
-
     private StageDto toDto(GameStage stage) {
         StageDto result = new StageDto();
         switch (stage) {
             case GameStage.Invite ignored -> result.set(StageDto.init, 0);
-            case GameStage.RoundInit roundInit -> result.set(roundInit.roundNumber().number(), StageDto.init);
+            case GameStage.RoundInit roundInit ->
+                result.set(roundInit.roundNumber().number(), StageDto.init);
             case GameStage.RoundPiece roundPiece ->
-                    result.set(roundPiece.roundNumber, roundPiece.pieceNumber.number(), toAdditions(roundPiece));
+                result.set(roundPiece.roundNumber, roundPiece.pieceNumber.number(), toAdditions(roundPiece));
             case GameStage.RoundSummary roundSummary ->
-                    result.set(roundSummary.roundNumber().number(), StageDto.summary);
+                result.set(roundSummary.roundNumber().number(), StageDto.summary);
             case GameStage.PlayOff playOff -> result.set(StageDto.playOff, 0, toAdditions(playOff));
             case GameStage.WrapUp wrapUp -> result.set(StageDto.summary, 0, toAdditions(wrapUp));
         }
@@ -85,7 +86,10 @@ public class RealStageStore implements StageStore {
 
     @SneakyThrows
     private GameStage.WrapUp setUpAdditions(GameStage.WrapUp wrapUp, String additions) {
-        wrapUp.setShowFrom(Optional.ofNullable(additions).filter(a -> a.matches("\\d+")).map(Integer::parseInt).orElse(null));
+        wrapUp.setShowFrom(Optional.ofNullable(additions)
+                .filter(a -> a.matches("\\d+"))
+                .map(Integer::parseInt)
+                .orElse(null));
         return wrapUp;
     }
 
@@ -121,7 +125,13 @@ public class RealStageStore implements StageStore {
 
     @SneakyThrows
     private String toAdditions(GameStage.RoundPiece piece) {
-        var dto = new PieceAdditionsDto(piece.getCurrentStage(), piece.isBonus(), piece.getCurrentResponder(), piece.getFailedResponders(), piece.getArtistAnswered(), piece.getTitleAnswered());
+        var dto = new PieceAdditionsDto(
+                piece.getCurrentStage(),
+                piece.isBonus(),
+                piece.getCurrentResponder(),
+                piece.getFailedResponders(),
+                piece.getArtistAnswered(),
+                piece.getTitleAnswered());
         return mapper.writeValueAsString(dto);
     }
 }

@@ -1,7 +1,8 @@
 package com.github.mjjaniec.lmq.views.player;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
+
 import com.github.mjjaniec.lmq.model.Constants;
-import com.github.mjjaniec.lmq.model.GameStage;
 import com.github.mjjaniec.lmq.services.GameService;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
@@ -16,17 +17,14 @@ import com.vaadin.flow.component.html.Input;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
-import org.jspecify.annotations.Nullable;
-
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
-
-import static com.github.mjjaniec.lmq.util.TestId.testId;
-
+import org.jspecify.annotations.Nullable;
 
 @JsModule(value = "./setupAutocomplete.ts")
 @Route(value = "answer", layout = PlayerView.class)
+@AnonymousAllowed
 public class AnswerView extends VerticalLayout implements PlayerRoute {
     private final Input artist = testId(new Input(), "player/answer/artist");
     private final Input title = testId(new Input(), "player/answer/title");
@@ -71,17 +69,11 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
                 isProvidedMap.put(ARTIST_PATH, true);
             }
 
-
             confirm.addClickListener(_ -> forPlayer(UI.getCurrent(), player -> {
-                boolean correctArtist = !Constants.UNKNOWN.equals(piece.piece.artist()) && isCorrect(artist.getValue(), piece.piece.artist(), piece.piece.artistAlternative());
+                boolean correctArtist = !Constants.UNKNOWN.equals(piece.piece.artist())
+                        && isCorrect(artist.getValue(), piece.piece.artist(), piece.piece.artistAlternative());
                 boolean correctTitle = isCorrect(title.getValue(), piece.piece.title(), piece.piece.titleAlternative());
-                gameService.reportResult(
-                        player,
-                        correctArtist,
-                        correctTitle,
-                        artist.getValue(),
-                        title.getValue()
-                );
+                gameService.reportResult(player, correctArtist, correctTitle, artist.getValue(), title.getValue());
                 artist.setEnabled(false);
                 title.setEnabled(false);
                 confirm.setVisible(false);
@@ -102,22 +94,26 @@ public class AnswerView extends VerticalLayout implements PlayerRoute {
         super.onAttach(attachEvent);
         setupAutocomplete(artist, "Podaj artystę...", ARTIST_PATH);
         setupAutocomplete(title, "Podaj tytuł...", TITLE_PATH);
-        forPlayer(attachEvent.getUI(), player -> gameService.getCurrentAnswer(player).ifPresent(answer -> {
-            artist.setValue(answer.actualArtist());
-            title.setValue(answer.actualTitle());
-            artist.addClassName("wait");
-            title.addClassName("wait");
-            confirm.click();
-        }));
+        forPlayer(
+                attachEvent.getUI(),
+                player -> gameService.getCurrentAnswer(player).ifPresent(answer -> {
+                    artist.setValue(answer.actualArtist());
+                    title.setValue(answer.actualTitle());
+                    artist.addClassName("wait");
+                    title.addClassName("wait");
+                    confirm.click();
+                }));
     }
 
     private void setupAutocomplete(Input input, String placeholder, String sourcePath) {
-        input.getElement().executeJs("window.setupAutocomplete($0, $1, $2, $3, $4)",
-                input.getId().orElse(""),
-                placeholder,
-                sourcePath,
-                "🤷 Nie wiem 🤷",
-                getElement());
+        input.getElement()
+                .executeJs(
+                        "window.setupAutocomplete($0, $1, $2, $3, $4)",
+                        input.getId().orElse(""),
+                        placeholder,
+                        sourcePath,
+                        "🤷 Nie wiem 🤷",
+                        getElement());
         input.setValueChangeMode(ValueChangeMode.ON_BLUR);
         input.setWidthFull();
     }

@@ -5,7 +5,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
-
 import java.util.function.Consumer;
 
 public class ActivateComponent extends Div {

@@ -16,11 +16,12 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RoutePrefix;
-
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import java.util.Optional;
 
 @Route(value = "", layout = RootView.class)
 @RoutePrefix(value = "player")
+@AnonymousAllowed
 public class PlayerView extends VerticalLayout implements RouterLayoutWithOutlet<HorizontalLayout>, PlayerRoute {
 
     private final HorizontalLayout outlet = new HorizontalLayout();
@@ -63,21 +64,21 @@ public class PlayerView extends VerticalLayout implements RouterLayoutWithOutlet
     @SuppressWarnings("unchecked")
     private void kickOutOrDirect(UI ui) {
         if (config.enableFrontRouting()) {
-            LocalStorage.readPlayer(ui).thenAccept(playerOpt -> playerOpt.ifPresentOrElse(
-                    player -> {
-                        if (gameService.hasPlayer(player)) {
-                            ui.access(() -> Optional.ofNullable(gameService.stage()).ifPresentOrElse(
-                                    stage -> ui.navigate((Class<? extends Component>) stage.playerView()),
-                                    () -> ui.navigate(WaitForOthersView.class)
-                            ));
-                        } else {
-                            LocalStorage.removePlayer(ui);
-                            ui.access(() -> ui.navigate(JoinView.class));
-                        }
-                    },
-                    () -> ui.access(() -> ui.navigate(JoinView.class))
-            ));
+            LocalStorage.readPlayer(ui)
+                    .thenAccept(playerOpt -> playerOpt.ifPresentOrElse(
+                            player -> {
+                                if (gameService.hasPlayer(player)) {
+                                    ui.access(() -> Optional.ofNullable(gameService.stage())
+                                            .ifPresentOrElse(
+                                                    stage -> ui.navigate(
+                                                            (Class<? extends Component>) stage.playerView()),
+                                                    () -> ui.navigate(WaitForOthersView.class)));
+                                } else {
+                                    LocalStorage.removePlayer(ui);
+                                    ui.access(() -> ui.navigate(JoinView.class));
+                                }
+                            },
+                            () -> ui.access(() -> ui.navigate(JoinView.class))));
         }
     }
-
 }

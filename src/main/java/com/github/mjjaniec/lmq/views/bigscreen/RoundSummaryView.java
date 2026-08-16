@@ -4,8 +4,10 @@ import com.github.mjjaniec.lmq.components.ResultsTable;
 import com.github.mjjaniec.lmq.services.GameService;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @Route(value = "round-summary", layout = BigScreenView.class)
+@AnonymousAllowed
 public class RoundSummaryView extends VerticalLayout implements BigScreenRoute {
 
     public RoundSummaryView(GameService gameService) {

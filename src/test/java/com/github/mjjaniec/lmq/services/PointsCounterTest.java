@@ -1,18 +1,17 @@
 package com.github.mjjaniec.lmq.services;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.github.mjjaniec.lmq.model.*;
 import com.github.mjjaniec.lmq.stores.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class PointsCounterTest {
 
@@ -21,13 +20,13 @@ class PointsCounterTest {
     private final MainSet.Piece piece = new MainSet.Piece("Artist", null, "Title", null, null, null, new HashSet<>());
     private final GameStage.RoundNumber roundNumber = new GameStage.RoundNumber(1, 1);
     private final GameStage.RoundSummary dummySummary = new GameStage.RoundSummary(roundNumber);
-    private final GameStage.RoundPiece roundPiece = new GameStage.RoundPiece(1, new GameStage.PieceNumber(1, 1), piece, List.of(GameStage.PieceStage.LISTEN));
+    private final GameStage.RoundPiece roundPiece =
+            new GameStage.RoundPiece(1, new GameStage.PieceNumber(1, 1), piece, List.of(GameStage.PieceStage.LISTEN));
 
     @BeforeEach
     void setUp() {
         pointsCounter = new PointsCounter();
     }
-    
 
     @Test
     void testResultsCalculation() {
@@ -42,15 +41,21 @@ class PointsCounterTest {
         Answer a1 = new Answer(true, true, 10, "P1", 1, 1, "Artist", "Title");
         Answer a2 = new Answer(true, false, 4, "P2", 1, 1, "Artist", "Title");
 
-        Results results = pointsCounter.results(summary, stageSet,
-                List.of(p1, p2), Stream.of(a1, a2), Optional.empty(), Map.of());
+        Results results = pointsCounter.results(
+                summary, stageSet, List.of(p1, p2), Stream.of(a1, a2), Optional.empty(), Map.of());
 
         assertEquals(1, results.rounds());
         assertEquals(1, results.currentRound());
         assertEquals(2, results.rows().size());
-        
-        Results.Row r1 = results.rows().stream().filter(r -> r.player().equals("P1")).findFirst().orElseThrow();
-        Results.Row r2 = results.rows().stream().filter(r -> r.player().equals("P2")).findFirst().orElseThrow();
+
+        Results.Row r1 = results.rows().stream()
+                .filter(r -> r.player().equals("P1"))
+                .findFirst()
+                .orElseThrow();
+        Results.Row r2 = results.rows().stream()
+                .filter(r -> r.player().equals("P2"))
+                .findFirst()
+                .orElseThrow();
 
         assertEquals(10, r1.total());
         assertEquals(4, r2.total());
@@ -60,7 +65,8 @@ class PointsCounterTest {
 
     @Test
     void testPointsCalculation_Everybody() {
-        var roundInit = new GameStage.RoundInit(roundNumber, MainSet.RoundMode.EVERYBODY, List.of(roundPiece), dummySummary);
+        var roundInit =
+                new GameStage.RoundInit(roundNumber, MainSet.RoundMode.EVERYBODY, List.of(roundPiece), dummySummary);
         // Everybody mode: artist 4, title 6
         assertEquals(10, pointsCounter.points(true, true, roundInit, roundPiece));
         assertEquals(4, pointsCounter.points(true, false, roundInit, roundPiece));
@@ -78,31 +84,31 @@ class PointsCounterTest {
 
     @Test
     void testPointsCalculation_Onion() {
-         // Onion mode: artist 2, title 3. Multipliers: 0->4, 1-2->3, 3-5->2, 6+ -> 1
-        var roundInit = new GameStage.RoundInit(roundNumber, MainSet.RoundMode.ONION, List.of(roundPiece), dummySummary);
-        assertEquals(2*4 + 3*4, pointsCounter.points(true, true, roundInit, roundPiece));
-        assertEquals(3*4, pointsCounter.points(false, true, roundInit, roundPiece));
-        assertEquals(2*4, pointsCounter.points(true, false, roundInit, roundPiece));
+        // Onion mode: artist 2, title 3. Multipliers: 0->4, 1-2->3, 3-5->2, 6+ -> 1
+        var roundInit =
+                new GameStage.RoundInit(roundNumber, MainSet.RoundMode.ONION, List.of(roundPiece), dummySummary);
+        assertEquals(2 * 4 + 3 * 4, pointsCounter.points(true, true, roundInit, roundPiece));
+        assertEquals(3 * 4, pointsCounter.points(false, true, roundInit, roundPiece));
+        assertEquals(2 * 4, pointsCounter.points(true, false, roundInit, roundPiece));
 
         roundPiece.incrementArtistAnswered(); // artistAnswered = 1
-        assertEquals(2*3 + 3*4, pointsCounter.points(true, true, roundInit, roundPiece));
+        assertEquals(2 * 3 + 3 * 4, pointsCounter.points(true, true, roundInit, roundPiece));
 
         roundPiece.incrementArtistAnswered(); // artistAnswered = 2
-        assertEquals(2*3 + 3*4, pointsCounter.points(true, true, roundInit, roundPiece));
+        assertEquals(2 * 3 + 3 * 4, pointsCounter.points(true, true, roundInit, roundPiece));
 
         roundPiece.incrementArtistAnswered(); // artistAnswered = 3
-        assertEquals(2*2 + 3*4, pointsCounter.points(true, true, roundInit, roundPiece));
+        assertEquals(2 * 2 + 3 * 4, pointsCounter.points(true, true, roundInit, roundPiece));
 
         roundPiece.incrementTitleAnswered(); // artistAnswered = 3
-        assertEquals(2*2 + 3*3, pointsCounter.points(true, true, roundInit, roundPiece));
-
-
+        assertEquals(2 * 2 + 3 * 3, pointsCounter.points(true, true, roundInit, roundPiece));
     }
 
     @Test
     void testPointsCalculation_First() {
         // First mode: artist 12, title 16. Multiplier: 1 + failedResponders
-        var roundInit = new GameStage.RoundInit(roundNumber, MainSet.RoundMode.FIRST, List.of(roundPiece), dummySummary);
+        var roundInit =
+                new GameStage.RoundInit(roundNumber, MainSet.RoundMode.FIRST, List.of(roundPiece), dummySummary);
         assertEquals(12 + 16, pointsCounter.points(true, true, roundInit, roundPiece));
         roundPiece.addFailedResponder("Other");
         assertEquals((12 + 16) * 2, pointsCounter.points(true, true, roundInit, roundPiece));
@@ -112,7 +118,8 @@ class PointsCounterTest {
     void testComplexResultsCalculation() {
         // 7 players
         List<Player> players = Stream.of("P1", "P2", "P3", "P4", "P5", "P6", "P7")
-                .map(Player::new).toList();
+                .map(Player::new)
+                .toList();
 
         // 3 rounds, each with 3 pieces, different modes
         MainSet.Piece piece = new MainSet.Piece("Artist", null, "Title", null, null, null, new HashSet<>());
@@ -121,13 +128,11 @@ class PointsCounterTest {
         MainSet quiz = new MainSet(List.of(
                 new MainSet.LevelPieces(MainSet.RoundMode.EVERYBODY, threePieces),
                 new MainSet.LevelPieces(MainSet.RoundMode.ONION, threePieces),
-                new MainSet.LevelPieces(MainSet.RoundMode.FIRST, threePieces)
-        ));
+                new MainSet.LevelPieces(MainSet.RoundMode.FIRST, threePieces)));
 
         StageSet stageSet = new StageSet(quiz);
         // Stage: end of round 3
         GameStage.RoundSummary summary = new GameStage.RoundSummary(new GameStage.RoundNumber(3, 3));
-        
 
         List<Answer> answers = List.of(
                 // P1: 10*3 + 20*3 + (28 + 40 + 40) = 30 + 60 + 108 = 198
@@ -176,17 +181,17 @@ class PointsCounterTest {
                 // P6
                 new Answer(true, true, 28, "P6", 3, 1, "A", "T"),
                 new Answer(true, true, 28, "P6", 3, 2, "A", "T"),
-                new Answer(true, true, 28, "P6", 3, 3, "A", "T")
-        );
+                new Answer(true, true, 28, "P6", 3, 3, "A", "T"));
 
-        Results results = pointsCounter.results(summary, stageSet, players, answers.stream(), Optional.empty(), Map.of());
+        Results results =
+                pointsCounter.results(summary, stageSet, players, answers.stream(), Optional.empty(), Map.of());
 
         assertEquals(3, results.rounds());
         assertEquals(3, results.currentRound());
         assertEquals(7, results.rows().size());
 
-        Map<String, Results.Row> rowsByPlayer = results.rows().stream()
-                .collect(Collectors.toMap(Results.Row::player, r -> r));
+        Map<String, Results.Row> rowsByPlayer =
+                results.rows().stream().collect(Collectors.toMap(Results.Row::player, r -> r));
 
         assertEquals(198, rowsByPlayer.get("P1").total());
         assertEquals(114, rowsByPlayer.get("P3").total());

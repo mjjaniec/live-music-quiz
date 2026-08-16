@@ -3,7 +3,6 @@ package com.github.mjjaniec.lmq.util;
 import com.github.mjjaniec.lmq.model.Player;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.page.WebStorage;
-
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 

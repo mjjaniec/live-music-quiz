@@ -1,5 +1,7 @@
 package com.github.mjjaniec.lmq.views.bigscreen;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
+
 import com.github.mjjaniec.lmq.components.UserBadge;
 import com.github.mjjaniec.lmq.model.Player;
 import com.github.mjjaniec.lmq.util.Palette;
@@ -7,10 +9,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.dom.Style;
-
 import java.util.List;
-
-import static com.github.mjjaniec.lmq.util.TestId.testId;
 
 public class SlackersContainer extends Div {
     public void refresh(List<Player> slackers) {
@@ -32,5 +31,4 @@ public class SlackersContainer extends Div {
             });
         }
     }
-
 }

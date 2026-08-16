@@ -11,9 +11,11 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.springframework.beans.factory.annotation.Value;
 
 @Route(value = "feedback", layout = PlayerView.class)
+@AnonymousAllowed
 public class FeedbackView extends VerticalLayout implements PlayerRoute {
 
     private @Value("${application.form-url}") String formUrl;
@@ -22,7 +24,9 @@ public class FeedbackView extends VerticalLayout implements PlayerRoute {
         setSpacing(false);
         setSizeFull();
 
-        var input = new TextArea("Jak się podobało?", "Będzie mi miło jeśli napiszesz że było fajnie. Ale docenię jescze bardziej jeśli wskażesz coś co można ulepszyć :)");
+        var input = new TextArea(
+                "Jak się podobało?",
+                "Będzie mi miło jeśli napiszesz że było fajnie. Ale docenię jescze bardziej jeśli wskażesz coś co można ulepszyć :)");
         input.setSizeFull();
         Button button = new Button("Wyślij");
         button.setWidthFull();
@@ -32,7 +36,6 @@ public class FeedbackView extends VerticalLayout implements PlayerRoute {
         input.addInputListener(event -> button.setEnabled(!input.getValue().isBlank()));
         add(input, button);
         setAlignItems(Alignment.CENTER);
-
 
         button.addClickListener(event -> {
             gameService.saveFeedback(input.getValue());

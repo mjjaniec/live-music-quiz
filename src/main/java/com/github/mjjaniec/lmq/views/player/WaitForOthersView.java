@@ -7,8 +7,10 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @Route(value = "wait-for-others", layout = PlayerView.class)
+@AnonymousAllowed
 public class WaitForOthersView extends VerticalLayout implements PlayerRoute {
 
     private final Div badgeHolder = new Div();

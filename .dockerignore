@@ -1,0 +1,17 @@
+target/
+.idea/
+.vscode/
+*.iml
+.DS_Store
+*.pem
+
+node_modules/
+src/main/frontend/generated/
+package-lock.json
+
+application-local.properties
+
+.git/
+.github/
+context/
+*.md

@@ -1,10 +1,9 @@
 package com.github.mjjaniec.lmq.services;
 
-import lombok.RequiredArgsConstructor;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 
 public record Results(int rounds, int currentRound, int targetPlayOff, List<Row> rows) {
     @RequiredArgsConstructor
@@ -17,11 +16,12 @@ public record Results(int rounds, int currentRound, int targetPlayOff, List<Row>
         public final String style;
     }
 
-
-    public record Row(String player, int ordinal, int position, Optional<Award> award, Map<Integer, Integer> rounds,
-                      int playOff, int total) {
-    }
+    public record Row(
+            String player,
+            int ordinal,
+            int position,
+            Optional<Award> award,
+            Map<Integer, Integer> rounds,
+            int playOff,
+            int total) {}
 }
-
-
-

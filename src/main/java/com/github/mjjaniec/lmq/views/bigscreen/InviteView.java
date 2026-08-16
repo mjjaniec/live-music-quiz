@@ -1,5 +1,7 @@
 package com.github.mjjaniec.lmq.views.bigscreen;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
+
 import com.github.mjjaniec.lmq.components.UserBadge;
 import com.github.mjjaniec.lmq.model.Player;
 import com.github.mjjaniec.lmq.services.BroadcastAttach;
@@ -14,16 +16,15 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinService;
-
-import static com.github.mjjaniec.lmq.util.TestId.testId;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import java.util.List;
 
 @Route(value = "invite", layout = BigScreenView.class)
+@AnonymousAllowed
 public class InviteView extends HorizontalLayout implements BigScreenRoute {
     private final GameService gameService;
     private final BroadcastAttach broadcastAttach;
     private final Div playersContainer = new Div();
-
 
     public InviteView(GameService gameService, BroadcastAttach broadcastAttach) {
         this.gameService = gameService;
@@ -32,7 +33,8 @@ public class InviteView extends HorizontalLayout implements BigScreenRoute {
         setSizeFull();
         setSpacing(false);
 
-        boolean isProduction = VaadinService.getCurrent().getDeploymentConfiguration().isProductionMode();
+        boolean isProduction =
+                VaadinService.getCurrent().getDeploymentConfiguration().isProductionMode();
         String dataMatrix = isProduction ? "link-data-matrix.svg" : "local-link-data-matrix.svg";
         String url = isProduction ? "bit.ly/4jQxa1h" : "http://192.168.31.27:8080";
 
@@ -62,7 +64,8 @@ public class InviteView extends HorizontalLayout implements BigScreenRoute {
         List<Player> plaersList = gameService.getPlayers();
 
         plaersList.forEach(user -> playersContainer.add(new UserBadge(user.name(), plaersList.size() > 10, true)));
-        playersContainer.add(new H2(plaersList.isEmpty() ? "Czekamy na graczy" : "grają z nami! (" + plaersList.size() + " os)"));
+        playersContainer.add(
+                new H2(plaersList.isEmpty() ? "Czekamy na graczy" : "grają z nami! (" + plaersList.size() + " os)"));
     }
 
     @Override

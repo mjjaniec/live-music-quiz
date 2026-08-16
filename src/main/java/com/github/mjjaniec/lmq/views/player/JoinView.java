@@ -1,5 +1,7 @@
 package com.github.mjjaniec.lmq.views.player;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
+
 import com.github.mjjaniec.lmq.components.BannerBand;
 import com.github.mjjaniec.lmq.components.FooterBand;
 import com.github.mjjaniec.lmq.config.ApplicationConfig;
@@ -17,10 +19,10 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
-
-import static com.github.mjjaniec.lmq.util.TestId.testId;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @Route(value = "player/join")
+@AnonymousAllowed
 public class JoinView extends VerticalLayout {
 
     private final GameService service;
@@ -68,10 +70,10 @@ public class JoinView extends VerticalLayout {
         super.onAttach(attachEvent);
         if (config.enableFrontRouting()) {
             UI ui = attachEvent.getUI();
-            LocalStorage.readPlayer(ui).thenAccept(playerOpt -> playerOpt
-                    .filter(service::hasPlayer)
-                    .ifPresent(_ -> ui.access(() -> ui.navigate(PlayerView.class)))
-            );
+            LocalStorage.readPlayer(ui)
+                    .thenAccept(playerOpt -> playerOpt
+                            .filter(service::hasPlayer)
+                            .ifPresent(_ -> ui.access(() -> ui.navigate(PlayerView.class))));
         }
     }
 }

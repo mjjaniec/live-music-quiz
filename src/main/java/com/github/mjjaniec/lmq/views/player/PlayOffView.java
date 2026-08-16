@@ -1,5 +1,7 @@
 package com.github.mjjaniec.lmq.views.player;
 
+import static com.github.mjjaniec.lmq.util.TestId.testId;
+
 import com.github.mjjaniec.lmq.model.Player;
 import com.github.mjjaniec.lmq.services.BroadcastAttach;
 import com.github.mjjaniec.lmq.services.GameService;
@@ -13,22 +15,22 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.jspecify.annotations.Nullable;
-import static com.github.mjjaniec.lmq.util.TestId.testId;
-
 
 @Route(value = "play-off", layout = PlayerView.class)
+@AnonymousAllowed
 public class PlayOffView extends VerticalLayout implements PlayerRoute {
 
     private final GameService gameService;
     private final BroadcastAttach broadcastAttach;
+
     @Nullable
     private Player player;
 
     public PlayOffView(GameService gameService, BroadcastAttach broadcastAttach) {
         this.gameService = gameService;
         this.broadcastAttach = broadcastAttach;
-
 
         setSpacing(true);
         setPadding(true);
@@ -74,7 +76,6 @@ public class PlayOffView extends VerticalLayout implements PlayerRoute {
         broadcastAttach.detachPlayOff(detachEvent.getUI());
         super.onDetach(detachEvent);
     }
-
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {

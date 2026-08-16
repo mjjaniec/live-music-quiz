@@ -1,7 +1,6 @@
 package com.github.mjjaniec.lmq.stores;
 
 import com.github.mjjaniec.lmq.model.Answer;
-
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -17,5 +16,4 @@ public interface AnswerStore {
     Stream<Answer> playerAnswers(String player, int round);
 
     Stream<Answer> allAnswers();
-
 }

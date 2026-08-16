@@ -1,27 +1,25 @@
 package com.github.mjjaniec.lmq;
 
+import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+
 import com.github.mjjaniec.lmq.model.Constants;
 import com.github.mjjaniec.lmq.util.Palette;
 import com.microsoft.playwright.*;
 import com.microsoft.playwright.options.AriaRole;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.api.Assertions;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.assertj.core.api.Assertions;
-
-import java.util.List;
-
-import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 @Slf4j
 public class GameFlowIT {
     private static final int PORT = Integer.parseInt(System.getProperty("server.port", "8090"));
     private static final String BASE_URL = "http://localhost:" + PORT;
 
-    private record PieceInfo(String artist,String title) {
-    }
+    private record PieceInfo(String artist, String title) {}
 
     static Playwright playwright;
     static Browser browser;
@@ -42,9 +40,9 @@ public class GameFlowIT {
     @Test
     void startingTheGameFlow() {
         try (BrowserContext maestroContext = browser.newContext();
-             BrowserContext bigScreenContext = browser.newContext();
-             BrowserContext player1Context = browser.newContext();
-             BrowserContext player2Context = browser.newContext()) {
+                BrowserContext bigScreenContext = browser.newContext();
+                BrowserContext player1Context = browser.newContext();
+                BrowserContext player2Context = browser.newContext()) {
 
             Page maestroPage = maestroContext.newPage();
             Page bigScreenPage = bigScreenContext.newPage();
@@ -59,8 +57,10 @@ public class GameFlowIT {
             joinPlayer(player2Page, "Player2");
 
             //  Verify players on big screen
-            assertThat(bigScreenPage.getByTestId("big-screen/players-container")).containsText("Player1");
-            assertThat(bigScreenPage.getByTestId("big-screen/players-container")).containsText("Player2");
+            assertThat(bigScreenPage.getByTestId("big-screen/players-container"))
+                    .containsText("Player1");
+            assertThat(bigScreenPage.getByTestId("big-screen/players-container"))
+                    .containsText("Player2");
             assertThat(bigScreenPage.getByText("grają z nami! (2 os)")).isVisible();
 
             //  Verify players on maestro
@@ -72,9 +72,9 @@ public class GameFlowIT {
     @Test
     void uniquePlayerNameFlow() {
         try (BrowserContext maestroContext = browser.newContext();
-             BrowserContext bigScreenContext = browser.newContext();
-             BrowserContext player1Context = browser.newContext();
-             BrowserContext player2Context = browser.newContext()) {
+                BrowserContext bigScreenContext = browser.newContext();
+                BrowserContext player1Context = browser.newContext();
+                BrowserContext player2Context = browser.newContext()) {
 
             Page maestroPage = maestroContext.newPage();
             Page bigScreenPage = bigScreenContext.newPage();
@@ -91,7 +91,9 @@ public class GameFlowIT {
             // Player 2 tries to join with same nickname
             log.info("unique: Player 2 joining with same nickname");
             player2Page.navigate(BASE_URL + "/");
-            player2Page.locator("vaadin-text-field[data-testid='player/join/nickname'] input").fill("UniquePlayer");
+            player2Page
+                    .locator("vaadin-text-field[data-testid='player/join/nickname'] input")
+                    .fill("UniquePlayer");
             player2Page.getByTestId("player/join/button").click();
 
             // Verify error message
@@ -100,14 +102,18 @@ public class GameFlowIT {
 
             // Player 2 changes nickname and joins successfully
             log.info("unique: Player 2 joining with different nickname");
-            player2Page.locator("vaadin-text-field[data-testid='player/join/nickname'] input").fill("UniquePlayer2");
+            player2Page
+                    .locator("vaadin-text-field[data-testid='player/join/nickname'] input")
+                    .fill("UniquePlayer2");
             player2Page.getByTestId("player/join/button").click();
             assertThat(player2Page.getByText("poczekaj na pozostałych graczy")).isVisible();
 
             // Verify both on big screen
             log.info("unique: Verifying on Big Screen");
-            assertThat(bigScreenPage.getByTestId("big-screen/players-container")).containsText("UniquePlayer");
-            assertThat(bigScreenPage.getByTestId("big-screen/players-container")).containsText("UniquePlayer2");
+            assertThat(bigScreenPage.getByTestId("big-screen/players-container"))
+                    .containsText("UniquePlayer");
+            assertThat(bigScreenPage.getByTestId("big-screen/players-container"))
+                    .containsText("UniquePlayer2");
 
             // Verify both on maestro
             log.info("unique: Verifying on Maestro");
@@ -119,7 +125,7 @@ public class GameFlowIT {
     @Test
     void bigScreenMessageFlow() {
         try (BrowserContext maestroContext = browser.newContext();
-             BrowserContext bigScreenContext = browser.newContext()) {
+                BrowserContext bigScreenContext = browser.newContext()) {
 
             Page maestroPage = maestroContext.newPage();
             Page bigScreenPage = bigScreenContext.newPage();
@@ -130,7 +136,9 @@ public class GameFlowIT {
             // 2. Maestro sets a public message
             String testMessage = "Hello Integration Test!";
             log.info("Setting public message: {}", testMessage);
-            maestroPage.locator("vaadin-text-field[data-testid='maestro/dj/message-field'] input").fill(testMessage);
+            maestroPage
+                    .locator("vaadin-text-field[data-testid='maestro/dj/message-field'] input")
+                    .fill(testMessage);
             // Wait for button to change text to "Ustaw"
             assertThat(maestroPage.getByTestId("maestro/dj/message-button")).hasText("Ustaw");
             maestroPage.getByTestId("maestro/dj/message-button").click();
@@ -141,22 +149,25 @@ public class GameFlowIT {
 
             // 4. Clear the message
             log.info("Cleaning public message");
-            maestroPage.locator("vaadin-text-field[data-testid='maestro/dj/message-field'] input").fill("");
+            maestroPage
+                    .locator("vaadin-text-field[data-testid='maestro/dj/message-field'] input")
+                    .fill("");
             // Wait for button to change text to "Wyczyść"
             assertThat(maestroPage.getByTestId("maestro/dj/message-button")).hasText("Wyczyść");
             maestroPage.getByTestId("maestro/dj/message-button").click();
 
             // 5. Verify logo (or at least that message is gone)
             log.info("Verifying message is gone from Big Screen");
-            assertThat(bigScreenPage.getByTestId("big-screen/custom-message-container")).isHidden();
+            assertThat(bigScreenPage.getByTestId("big-screen/custom-message-container"))
+                    .isHidden();
         }
     }
 
     @Test
     void bumpOutPlayerFlow() {
         try (BrowserContext maestroContext = browser.newContext();
-             BrowserContext bigScreenContext = browser.newContext();
-             BrowserContext playerContext = browser.newContext()) {
+                BrowserContext bigScreenContext = browser.newContext();
+                BrowserContext playerContext = browser.newContext()) {
 
             Page maestroPage = maestroContext.newPage();
             Page bigScreenPage = bigScreenContext.newPage();
@@ -183,24 +194,29 @@ public class GameFlowIT {
 
             // 5. Player rejoins under new nickname
             log.info("bump: Player rejoining with new nickname");
-            playerPage.locator("vaadin-text-field[data-testid='player/join/nickname'] input").fill("RejoinedPlayer");
+            playerPage
+                    .locator("vaadin-text-field[data-testid='player/join/nickname'] input")
+                    .fill("RejoinedPlayer");
             playerPage.getByTestId("player/join/button").click();
             assertThat(playerPage.getByText("poczekaj na pozostałych graczy")).isVisible();
 
             // 6. Verify visible on big screen
             log.info("bump: Verifying on Big Screen");
-            assertThat(bigScreenPage.getByTestId("big-screen/players-container")).containsText("RejoinedPlayer");
-            assertThat(bigScreenPage.getByTestId("big-screen/players-container")).not().containsText("ToBoBumped");
+            assertThat(bigScreenPage.getByTestId("big-screen/players-container"))
+                    .containsText("RejoinedPlayer");
+            assertThat(bigScreenPage.getByTestId("big-screen/players-container"))
+                    .not()
+                    .containsText("ToBoBumped");
         }
     }
 
     @Test
     void gameInEverybodyModeFlow() {
         try (BrowserContext maestroContext = browser.newContext();
-             BrowserContext bigScreenContext = browser.newContext();
-             BrowserContext p1Context = browser.newContext();
-             BrowserContext p2Context = browser.newContext();
-             BrowserContext p3Context = browser.newContext()) {
+                BrowserContext bigScreenContext = browser.newContext();
+                BrowserContext p1Context = browser.newContext();
+                BrowserContext p2Context = browser.newContext();
+                BrowserContext p3Context = browser.newContext()) {
 
             Page maestroPage = maestroContext.newPage();
             Page bigScreenPage = bigScreenContext.newPage();
@@ -225,7 +241,8 @@ public class GameFlowIT {
 
             // 4. On big screen info about that round is displayed
             log.info("everybody: Verifying round info on Big Screen");
-            assertThat(bigScreenPage.getByTestId("big-screen/progress-bar/Runda")).containsText("Runda:  1 /");
+            assertThat(bigScreenPage.getByTestId("big-screen/progress-bar/Runda"))
+                    .containsText("Runda:  1 /");
 
             // 5. Players see information that round is about to start
             log.info("everybody: Verifying players see wait-for-round");
@@ -329,7 +346,10 @@ public class GameFlowIT {
 
             log.info("everybody: Maestro activating round 1 summary");
             maestroPage.getByTestId("maestro/dj/round-summary-header-1").click();
-            maestroPage.getByTestId("maestro/dj/round-summary-activate-1").getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Aktywuj")).click();
+            maestroPage
+                    .getByTestId("maestro/dj/round-summary-activate-1")
+                    .getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Aktywuj"))
+                    .click();
 
             log.info("everybody: Verifying player round summary points");
             // P1: 10 + 0 + 0 = 10
@@ -339,24 +359,31 @@ public class GameFlowIT {
             assertThat(p2Page.locator("h1")).hasText("30");
             assertThat(p3Page.locator("h1")).hasText("6");
 
-            // 11. Verify that big screen displays correct table with results. players should be ordered by their points in descending manner.
+            // 11. Verify that big screen displays correct table with results. players should be ordered by their points
+            // in descending manner.
             log.info("everybody: Verifying results table on Big Screen");
             // P1: 10, P2: 30, P3: 6
             // Order should be: P2 (1), P1 (2), P3 (3)
 
             // P2 at position 1
-            assertThat(bigScreenPage.getByTestId("big-screen/results/position-1")).hasText("1");
-            assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-1")).hasText("P2");
+            assertThat(bigScreenPage.getByTestId("big-screen/results/position-1"))
+                    .hasText("1");
+            assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-1"))
+                    .hasText("P2");
             assertThat(bigScreenPage.getByTestId("big-screen/results/total-1")).hasText("30");
 
             // P1 at position 2
-            assertThat(bigScreenPage.getByTestId("big-screen/results/position-2")).hasText("2");
-            assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-2")).hasText("P1");
+            assertThat(bigScreenPage.getByTestId("big-screen/results/position-2"))
+                    .hasText("2");
+            assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-2"))
+                    .hasText("P1");
             assertThat(bigScreenPage.getByTestId("big-screen/results/total-2")).hasText("10");
 
             // P3 at position 3
-            assertThat(bigScreenPage.getByTestId("big-screen/results/position-3")).hasText("3");
-            assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-3")).hasText("P3");
+            assertThat(bigScreenPage.getByTestId("big-screen/results/position-3"))
+                    .hasText("3");
+            assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-3"))
+                    .hasText("P3");
             assertThat(bigScreenPage.getByTestId("big-screen/results/total-3")).hasText("6");
         }
     }
@@ -364,10 +391,10 @@ public class GameFlowIT {
     @Test
     void gameInFirstModeFlow() {
         try (BrowserContext maestroContext = browser.newContext();
-             BrowserContext bigScreenContext = browser.newContext();
-             BrowserContext p1Context = browser.newContext();
-             BrowserContext p2Context = browser.newContext();
-             BrowserContext p3Context = browser.newContext()) {
+                BrowserContext bigScreenContext = browser.newContext();
+                BrowserContext p1Context = browser.newContext();
+                BrowserContext p2Context = browser.newContext();
+                BrowserContext p3Context = browser.newContext()) {
 
             Page maestroPage = maestroContext.newPage();
             Page bigScreenPage = bigScreenContext.newPage();
@@ -392,7 +419,8 @@ public class GameFlowIT {
 
             // 4. On big screen info about that round is displayed
             log.info("first: Verifying round info on Big Screen");
-            assertThat(bigScreenPage.getByTestId("big-screen/progress-bar/Runda")).containsText("Runda:  2 /");
+            assertThat(bigScreenPage.getByTestId("big-screen/progress-bar/Runda"))
+                    .containsText("Runda:  2 /");
 
             // 5. Maestro selects the first piece
             log.info("first: Selecting first piece");
@@ -454,18 +482,17 @@ public class GameFlowIT {
             var info2 = expandPiece(maestroPage, 2, 2);
             maestroPage.getByTestId("maestro/dj/piece-PLAY-2-2").click();
 
-            for (var playerPage: List.of(p1Page, p2Page, p3Page)) {
+            for (var playerPage : List.of(p1Page, p2Page, p3Page)) {
                 assertThat(playerPage.getByTestId("player/play")).isVisible();
                 Locator theButton = p1Page.getByTestId("player/play/button");
                 assertThat(theButton).hasCSS("background-color", Palette.BLUE);
             }
 
-
             // 12. No one volunteers - maestro reveal the answer
             log.info("first: revealing second piece");
             maestroPage.getByTestId("maestro/dj/piece-REVEAL-2-2").click();
 
-            for (var playerPage: List.of(p1Page, p2Page, p3Page)) {
+            for (var playerPage : List.of(p1Page, p2Page, p3Page)) {
                 assertThat(playerPage.getByTestId("player/piece-result/points")).hasText("0");
             }
 
@@ -477,12 +504,11 @@ public class GameFlowIT {
             var info3 = expandPiece(maestroPage, 2, 3);
             maestroPage.getByTestId("maestro/dj/piece-PLAY-2-3").click();
 
-            for (var playerPage: List.of(p1Page, p2Page, p3Page)) {
+            for (var playerPage : List.of(p1Page, p2Page, p3Page)) {
                 assertThat(playerPage.getByTestId("player/play")).isVisible();
                 Locator theButton = p1Page.getByTestId("player/play/button");
                 assertThat(theButton).hasCSS("background-color", Palette.BLUE);
             }
-
 
             // player2 provides both wrong answers
             log.info("player2 provides both wrong answers");
@@ -494,12 +520,10 @@ public class GameFlowIT {
             assertThat(p3Page.getByTestId("player/play/button")).hasCSS("background-color", Palette.GRAY);
             maestroPage.getByTestId("maestro/dj/play/confirm-2-3").click();
 
-
             assertThat(p1Page.getByTestId("player/play/button")).hasCSS("background-color", Palette.BLUE);
             assertThat(p2Page.getByTestId("player/play/button")).hasCSS("background-color", Palette.RED);
             assertThat(p3Page.getByTestId("player/play/button")).hasCSS("background-color", Palette.BLUE);
             assertThat(bigScreenPage.getByText("No i zgłoś się!")).isVisible();
-
 
             log.info("player1 provides correct title (only)");
 
@@ -525,7 +549,8 @@ public class GameFlowIT {
             assertThat(p2Page.getByTestId("player/play/button")).hasCSS("background-color", Palette.RED);
             assertThat(p3Page.getByTestId("player/play/button")).hasCSS("background-color", Palette.GREEN);
 
-            assertThat(maestroPage.getByTestId("maestro/dj/play/title-checkbox-2-3")).hasAttribute("disabled", "");
+            assertThat(maestroPage.getByTestId("maestro/dj/play/title-checkbox-2-3"))
+                    .hasAttribute("disabled", "");
             maestroPage.getByTestId("maestro/dj/play/artist-checkbox-2-3").click();
             maestroPage.getByTestId("maestro/dj/play/confirm-2-3").click();
 
@@ -540,7 +565,10 @@ public class GameFlowIT {
 
             log.info("first: Maestro activating round 2 summary");
             maestroPage.getByTestId("maestro/dj/round-summary-header-2").click();
-            maestroPage.getByTestId("maestro/dj/round-summary-activate-2").getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Aktywuj")).click();
+            maestroPage
+                    .getByTestId("maestro/dj/round-summary-activate-2")
+                    .getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Aktywuj"))
+                    .click();
 
             log.info("first: Verifying player round summary points");
             // P1: 28 (piece 1) + 32 (piece 3) = 60
@@ -555,18 +583,24 @@ public class GameFlowIT {
             // Order should be: P1 (1), P3 (2), P2 (3)
 
             // P1 at position 1
-            assertThat(bigScreenPage.getByTestId("big-screen/results/position-1")).hasText("1");
-            assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-1")).hasText("P1");
+            assertThat(bigScreenPage.getByTestId("big-screen/results/position-1"))
+                    .hasText("1");
+            assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-1"))
+                    .hasText("P1");
             assertThat(bigScreenPage.getByTestId("big-screen/results/total-1")).hasText("60");
 
             // P3 at position 2
-            assertThat(bigScreenPage.getByTestId("big-screen/results/position-2")).hasText("2");
-            assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-2")).hasText("P3");
+            assertThat(bigScreenPage.getByTestId("big-screen/results/position-2"))
+                    .hasText("2");
+            assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-2"))
+                    .hasText("P3");
             assertThat(bigScreenPage.getByTestId("big-screen/results/total-2")).hasText("36");
 
             // P2 at position 3
-            assertThat(bigScreenPage.getByTestId("big-screen/results/position-3")).hasText("3");
-            assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-3")).hasText("P2");
+            assertThat(bigScreenPage.getByTestId("big-screen/results/position-3"))
+                    .hasText("3");
+            assertThat(bigScreenPage.getByTestId("big-screen/results/nickname-3"))
+                    .hasText("P2");
             assertThat(bigScreenPage.getByTestId("big-screen/results/total-3")).hasText("0");
         }
     }
@@ -574,10 +608,10 @@ public class GameFlowIT {
     @Test
     void playOffFlow() {
         try (BrowserContext maestroContext = browser.newContext();
-             BrowserContext bigScreenContext = browser.newContext();
-             BrowserContext p1Context = browser.newContext();
-             BrowserContext p2Context = browser.newContext();
-             BrowserContext p3Context = browser.newContext()) {
+                BrowserContext bigScreenContext = browser.newContext();
+                BrowserContext p1Context = browser.newContext();
+                BrowserContext p2Context = browser.newContext();
+                BrowserContext p3Context = browser.newContext()) {
 
             Page maestroPage = maestroContext.newPage();
             Page bigScreenPage = bigScreenContext.newPage();
@@ -605,7 +639,10 @@ public class GameFlowIT {
             maestroPage.getByTestId("maestro/dj/play-off/selection").click();
             maestroPage.locator("vaadin-combo-box-item").first().click();
             maestroPage.getByTestId("maestro/dj/play-off/select-task").click();
-            maestroPage.getByTestId("maestro/dj/play-off/activate").getByRole(AriaRole.BUTTON).click();
+            maestroPage
+                    .getByTestId("maestro/dj/play-off/activate")
+                    .getByRole(AriaRole.BUTTON)
+                    .click();
 
             // 5. Start answer collection
             log.info("playOff: Starting answer collection");
@@ -617,7 +654,8 @@ public class GameFlowIT {
             log.info("playOff: Players providing answers");
             for (Page p : List.of(p1Page, p2Page, p3Page)) {
                 p.waitForURL(url -> url.endsWith("/play-off"));
-                p.locator("vaadin-integer-field[data-testid='player/play-off/value'] input").fill("7");
+                p.locator("vaadin-integer-field[data-testid='player/play-off/value'] input")
+                        .fill("7");
                 p.getByTestId("player/play-off/submit").click();
             }
 
@@ -630,10 +668,10 @@ public class GameFlowIT {
     @Test
     void gameInOnionModeFlow() {
         try (BrowserContext maestroContext = browser.newContext();
-             BrowserContext bigScreenContext = browser.newContext();
-             BrowserContext p1Context = browser.newContext();
-             BrowserContext p2Context = browser.newContext();
-             BrowserContext p3Context = browser.newContext()) {
+                BrowserContext bigScreenContext = browser.newContext();
+                BrowserContext p1Context = browser.newContext();
+                BrowserContext p2Context = browser.newContext();
+                BrowserContext p3Context = browser.newContext()) {
 
             Page maestroPage = maestroContext.newPage();
             Page bigScreenPage = bigScreenContext.newPage();
@@ -658,7 +696,8 @@ public class GameFlowIT {
 
             // 4. On big screen info about that round is displayed
             log.info("onion: Verifying round info on Big Screen");
-            assertThat(bigScreenPage.getByTestId("big-screen/progress-bar/Runda")).containsText("Runda:  3 /");
+            assertThat(bigScreenPage.getByTestId("big-screen/progress-bar/Runda"))
+                    .containsText("Runda:  3 /");
 
             // 5. Then maestro selects first piece of round 3
             log.info("onion: Selecting first piece");
@@ -716,7 +755,6 @@ public class GameFlowIT {
             var info3 = expandPiece(maestroPage, 3, 3);
             maestroPage.getByTestId("maestro/dj/piece-ONION_LISTEN-3-3").click();
 
-
             provideAnswer(p3Page, info2, null, info3.title);
             provideAnswer(p2Page, info2, info3.artist, null);
             // p1 provides alternative correct answers
@@ -730,7 +768,6 @@ public class GameFlowIT {
             assertThat(p2Page.getByTestId("player/piece-result/points")).hasText("8");
             assertThat(p1Page.getByTestId("player/piece-result/points")).hasText("15");
 
-
             // big screen displays both, base answers and alternative answers
             assertThat(bigScreenPage.getByText(info3.artist)).isVisible();
             assertThat(bigScreenPage.getByText("SunStroke")).isVisible();
@@ -742,33 +779,46 @@ public class GameFlowIT {
 
     private void validateSlackers(Page bigScreenPage, List<String> slackers) {
         if (slackers.isEmpty()) {
-            assertThat(bigScreenPage.getByTestId("big-screen/listen/slackers-none")).isVisible();
+            assertThat(bigScreenPage.getByTestId("big-screen/listen/slackers-none"))
+                    .isVisible();
         } else {
-            assertThat(bigScreenPage.locator("span[class='test-class/big-screen/listen/slacker']")).hasCount(slackers.size());
-            var actualSlackers = bigScreenPage.locator("span[class='test-class/big-screen/listen/slacker']").allInnerTexts();
+            assertThat(bigScreenPage.locator("span[class='test-class/big-screen/listen/slacker']"))
+                    .hasCount(slackers.size());
+            var actualSlackers = bigScreenPage
+                    .locator("span[class='test-class/big-screen/listen/slacker']")
+                    .allInnerTexts();
             Assertions.assertThat(actualSlackers).containsExactlyInAnyOrderElementsOf(slackers);
         }
     }
 
     private PieceInfo expandPiece(Page maestroPage, int round, int piece) {
-        maestroPage.getByTestId("maestro/dj/piece-header-" + round + "-" + piece).click();
+        maestroPage
+                .getByTestId("maestro/dj/piece-header-" + round + "-" + piece)
+                .click();
         return new PieceInfo(
-                maestroPage.getByTestId("maestro/dj/piece-artist-" + round + "-" + piece).innerText(),
-                maestroPage.getByTestId("maestro/dj/piece-title-" + round + "-" + piece).innerText()
-        );
+                maestroPage
+                        .getByTestId("maestro/dj/piece-artist-" + round + "-" + piece)
+                        .innerText(),
+                maestroPage
+                        .getByTestId("maestro/dj/piece-title-" + round + "-" + piece)
+                        .innerText());
     }
 
     private void selectValue(Page page, String field, @Nullable String value) {
         if (value != null) {
             page.locator("input[data-testid='player/answer/" + field + "']").fill(value);
-            page.locator("li[role='option']").getByText(value, new Locator.GetByTextOptions().setExact(true)).first().click();
+            page.locator("li[role='option']")
+                    .getByText(value, new Locator.GetByTextOptions().setExact(true))
+                    .first()
+                    .click();
         } else {
             page.locator("input[data-testid='player/answer/" + field + "']").click();
             page.getByTestId("player/answer/" + field + "-input-dunno").click();
         }
     }
 
-    private void provideAnswer(Page page, PieceInfo pieceInfo, @Nullable String artistAnswer, @Nullable String titleAnswer) {
+    private void provideAnswer(
+            Page page, PieceInfo pieceInfo, @Nullable String artistAnswer, @Nullable String titleAnswer) {
         // Wait for AnswerView to appear
         page.waitForURL(url -> url.endsWith("/answer"));
         if (!pieceInfo.artist.equals(Constants.UNKNOWN)) {
@@ -812,6 +862,7 @@ public class GameFlowIT {
 
     private void ensureGameNotStarted(Page maestroPage) {
         log.info("Ensuring game not started");
+        maestroPage.navigate(BASE_URL + "/test/login?email=" + TestAuth.MAESTRO_EMAIL);
         maestroPage.navigate(BASE_URL + "/maestro");
         maestroPage.waitForURL(url -> url.endsWith("/dj") || url.endsWith("start"));
 
@@ -832,7 +883,8 @@ public class GameFlowIT {
     private void joinPlayer(Page page, String nickname) {
         page.navigate(BASE_URL + "/");
         // RootView redirects to JoinView
-        page.locator("vaadin-text-field[data-testid='player/join/nickname'] input").fill(nickname);
+        page.locator("vaadin-text-field[data-testid='player/join/nickname'] input")
+                .fill(nickname);
         page.getByTestId("player/join/button").click();
         // Should navigate to WaitForOthersView (since game just started)
         assertThat(page.getByText("poczekaj na pozostałych graczy")).isVisible();
