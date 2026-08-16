@@ -3,7 +3,7 @@ project: "Live Music Quiz"
 version: 1
 status: draft
 created: 2026-08-13
-updated: 2026-08-15
+updated: 2026-08-16
 prd_version: 1
 main_goal: quality
 top_blocker: decisions
@@ -35,11 +35,12 @@ game to another, including mid-quiz.
 
 ## At a glance
 
-| ID   | Change ID              | Outcome (user can …)                                                                      | Prerequisites | PRD refs                              | Status   |
-|------|------------------------|-------------------------------------------------------------------------------------------|---------------|---------------------------------------|----------|
-| S-01 | maestro-account-auth   | Register, log in/out; unauthenticated maestro-route hits redirect to sign-in              | —             | FR-001, FR-002, FR-003, US-01         | in-progress |
-| S-02 | owned-game-and-setlist | Import a set-list from Sheets and create an account-scoped game no other maestro can see  | S-01          | FR-004, FR-005, FR-006, FR-010, US-01 | proposed |
-| S-03 | isolated-live-game-run | Run the owned game live end-to-end; players join by QR; isolation holds through the event | S-02          | FR-006, FR-007, FR-008, FR-009, US-01 | proposed |
+| ID    | Change ID              | Outcome (user can …)                                                                      | Prerequisites | PRD refs                              | Status   |
+|-------|------------------------|-------------------------------------------------------------------------------------------|---------------|---------------------------------------|----------|
+| S-01  | maestro-account-auth   | Register, log in/out; unauthenticated maestro-route hits redirect to sign-in              | —             | FR-001, FR-002, FR-003, US-01         | done |
+| S-01b | http-email-integration | Maestro's magic-link sign-in email delivers reliably in production                        | S-01          | — (production incident; see below)    | proposed |
+| S-02  | owned-game-and-setlist | Import a set-list from Sheets and create an account-scoped game no other maestro can see  | S-01          | FR-004, FR-005, FR-006, FR-010, US-01 | proposed |
+| S-03  | isolated-live-game-run | Run the owned game live end-to-end; players join by QR; isolation holds through the event | S-02          | FR-006, FR-007, FR-008, FR-009, US-01 | proposed |
 
 ## Baseline
 
@@ -92,7 +93,28 @@ S-01/S-02 themselves.
 - **Risk:** Vaadin route-security is the training-data gap the stack assessment flags as the agent's weakest surface on
   this stack. Sequenced first anyway, because every later slice needs a logged-in maestro to scope work to — deferring
   it would leave S-02/S-03 unplannable.
-- **Status:** in-progress
+- **Status:** done
+
+### S-01b: Maestro's magic-link email delivers reliably in production
+
+- **Outcome:** the magic-link sign-in email that S-01 sends actually reaches the maestro's inbox when the app is
+  running on Railway in production, not just locally.
+- **Change ID:** `http-email-integration`
+- **PRD refs:** — not sourced from the PRD; discovered as a production incident after the S-01 deploy. In practice it
+  blocks US-01's login precondition ("a maestro who has registered and logged in") whenever magic-link delivery fails.
+- **Prerequisites:** S-01
+- **Parallel with:** —
+- **Blockers:** —
+- **Unknowns:**
+    - Which HTTP-based transactional email provider to use (Resend, SendGrid, Mailgun, Postmark) — Railway's own docs
+      point at Resend, but the choice is deliberately deferred. Owner: user, during `/10x-plan`. Block: no — any of the
+      four works.
+- **Risk:** Root cause confirmed: Railway blocks all outbound SMTP (ports 25/465/587/2525) on the Free/Trial/Hobby
+  plans; `MagicLinkEmailSuccessHandler`'s direct-SMTP `JavaMailSender` config (`smtp.gmail.com:587`) times out at the
+  network level in production. Not a code bug in S-01 itself. Fix is to replace the SMTP transport with an HTTPS email
+  API, which Railway recommends over SMTP even on paid plans. Sequenced directly after S-01 (ahead of S-02) because it
+  blocks S-01's actual production usability, even though S-02/S-03 don't structurally depend on it.
+- **Status:** proposed
 
 ### S-02: Maestro can create an owned, isolated game with an imported set-list
 
@@ -138,7 +160,8 @@ S-01/S-02 themselves.
 
 | Roadmap ID | Change ID                | Suggested issue title                                                                    | Ready for `/10x-plan` | Notes                                |
 |------------|--------------------------|------------------------------------------------------------------------------------------|-----------------------|--------------------------------------|
-| S-01       | `maestro-account-auth`   | Add maestro account registration, login/logout, and maestro-route gating                 | yes                   | Run `/10x-plan maestro-account-auth` |
+| S-01       | `maestro-account-auth`   | Add maestro account registration, login/logout, and maestro-route gating                 | yes                   | Done — see `## Done`                 |
+| S-01b      | `http-email-integration` | Replace SMTP magic-link email delivery with an HTTPS email API (Railway blocks SMTP)     | yes                   | Run `/10x-plan http-email-integration`; pick provider first |
 | S-02       | `owned-game-and-setlist` | Scope games and set-lists to the owning maestro; import set-list from Sheets per maestro | no                    | Blocked until S-01 lands             |
 | S-03       | `isolated-live-game-run` | Run the owned game live end-to-end with isolation holding through the event              | no                    | Blocked until S-02 lands             |
 
@@ -171,4 +194,9 @@ S-01/S-02 themselves.
   so in-flight upgrade safety is out of scope.
 
 ## Done
+
+- **S-01 — Maestro can register and sign in to a personal account** (`maestro-account-auth`). Shipped and
+  impl-reviewed (`context/changes/maestro-account-auth/reviews/impl-review-phase-3-4.md`), then deployed to
+  production. Note: deploying it surfaced S-01b (Railway blocks outbound SMTP, breaking magic-link delivery) — the
+  auth mechanism itself is not at fault.
 
