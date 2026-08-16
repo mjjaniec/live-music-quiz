@@ -862,7 +862,7 @@ public class GameFlowIT {
 
     private void ensureGameNotStarted(Page maestroPage) {
         log.info("Ensuring game not started");
-        maestroPage.navigate(BASE_URL + "/test/login?email=maestro@test.local");
+        maestroPage.navigate(BASE_URL + "/test/login?email=" + TestAuth.MAESTRO_EMAIL);
         maestroPage.navigate(BASE_URL + "/maestro");
         maestroPage.waitForURL(url -> url.endsWith("/dj") || url.endsWith("start"));
 

@@ -4,6 +4,7 @@ import com.github.mjjaniec.lmq.services.MaestroUserDetailsService;
 import com.github.mjjaniec.lmq.stores.MaestroStore;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Profile("integration-test")
+@Conditional(NotOnRailwayCondition.class)
 @RestController
 @RequiredArgsConstructor
 public class TestAuthController {

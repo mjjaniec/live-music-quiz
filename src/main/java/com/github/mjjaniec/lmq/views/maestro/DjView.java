@@ -70,19 +70,6 @@ public class DjView extends VerticalLayout implements RouterLayout {
         });
         testId(resetAction.getActionButton(), "maestro/reset/button");
         testId(resetAction.getDangerCheckbox(), "maestro/reset/danger");
-
-        if (gameService.isGameStarted()) {
-            Accordion main = new Accordion();
-            main.setSizeFull();
-            Objects.requireNonNull(gameService.stageSet()).topLevelStages().stream()
-                    .map(this::createStagePanel)
-                    .forEach(main::add);
-            add(customMessageComponent());
-            add(main);
-            add(notification);
-        } else {
-            resetAction.click();
-        }
     }
 
     private Component customMessageComponent() {
@@ -444,11 +431,20 @@ public class DjView extends VerticalLayout implements RouterLayout {
         broadcastAttach.attachSlackersList(attachEvent.getUI(), this::refreshSlackers);
         broadcastAttach.attachPlayerList(attachEvent.getUI(), this::refreshPlayers);
         broadcastAttach.attachPlay(attachEvent.getUI(), this::refreshPlay);
-        // A player can join in the window between this view's construction (which already read the
-        // player list once) and this listener actually registering; that join's own broadcast fires
-        // before we're registered to receive it, so it would otherwise never reach this grid until
-        // some later, unrelated refresh happens to catch it up. Re-sync once now to close that gap.
-        refreshPlayers();
+        // Build the dynamic UI only now, after the listeners above are registered: any broadcast
+        // that lands in the gap between this view's construction and its attach is caught by those
+        // listeners, and the panels built below read gameService's current state anyway — so no
+        // separate re-sync call is needed to close that gap.
+        if (gameService.isGameStarted()) {
+            Accordion main = new Accordion();
+            main.setSizeFull();
+            Objects.requireNonNull(gameService.stageSet()).topLevelStages().stream()
+                    .map(this::createStagePanel)
+                    .forEach(main::add);
+            add(customMessageComponent());
+            add(main);
+            add(notification);
+        }
     }
 
     @Override
